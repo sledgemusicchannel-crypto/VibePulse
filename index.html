@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibePulse — Live Lounge, Radio & Video Chat</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <!-- PeerJS WebRTC Library for Video Calls -->
+    <title>VibePulse — Ultimate Live Lounge</title>
+    <!-- PeerJS WebRTC Library for Video & Audio Calls -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -18,6 +15,7 @@
             --primary-hover: #4f46e5;
             --accent-buzz: #ef4444;
             --accent-cyan: #38bdf8;
+            --accent-pink: #ec4899;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
@@ -30,14 +28,14 @@
         header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; height: 56px; flex-shrink: 0; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
         .brand-tag { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-        .user-status { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #e2e8f0; }
-        .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; }
 
-        /* Main Container */
-        .app-body { display: flex; flex: 1; height: calc(100% - 56px); overflow: hidden; flex-direction: column; }
+        /* Main App Body */
+        .app-body { display: flex; flex: 1; height: calc(100% - 56px); overflow: hidden; flex-direction: column; position: relative; }
         @media(min-width: 768px) { .app-body { flex-direction: row; } }
 
-        /* Sidebar - Rooms */
+        /* Sidebar Rooms */
         sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 8px; gap: 8px; flex-shrink: 0; }
         @media(min-width: 768px) { sidebar { width: 250px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
 
@@ -48,19 +46,18 @@
         .room-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); }
         .room-item.rainbow-room.active { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
 
-        /* Chat View */
+        /* Main Chat Canvas */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
-        /* Video Call Strip */
+        /* Video / Voice Stage Container */
         .video-container { display: none; background: #020617; padding: 8px 14px; border-bottom: 1px solid var(--border-color); gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; flex-shrink: 0; }
         .video-container.active { display: flex; }
-        .video-box { width: 130px; height: 95px; background: #1e293b; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid var(--primary); }
+        .video-box { width: 120px; height: 90px; background: #1e293b; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid var(--primary); }
         .video-box video { width: 100%; height: 100%; object-fit: cover; }
         .video-label { position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-        .video-actions { display: flex; gap: 6px; align-items: center; }
 
-        /* Radio Controller Bar */
-        .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+        /* Radio & Jukebox Bar */
+        .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
         .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
         .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
         .radio-controls { display: flex; align-items: center; gap: 8px; }
@@ -71,34 +68,40 @@
         .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
         .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 85%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
         .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
+        .msg-bubble.bot { background: linear-gradient(135deg, #0284c7, #0369a1); align-self: flex-start; border: 1px solid var(--accent-cyan); }
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
-        /* Canvas & Panels */
-        .doodle-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
-        .doodle-panel.active { display: flex; }
-        .doodle-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%; }
+        /* Panels (Doodle & Audibles) */
+        .doodle-panel, .audibles-panel, .jukebox-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .doodle-panel.active { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .audibles-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .jukebox-panel.active { display: flex; flex-direction: column; gap: 8px; }
         canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
 
-        .audibles-panel { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); grid-template-columns: repeat(4, 1fr); gap: 8px; flex-shrink: 0; }
-        .audibles-panel.active { display: grid; }
-        .audible-btn { background: #334155; border: none; color: #fff; padding: 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; text-align: center; }
+        /* Floating Reactions Dock */
+        .reactions-bar { display: flex; gap: 6px; background: rgba(15, 23, 42, 0.8); padding: 4px 8px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .react-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; transition: transform 0.1s; }
+        .react-btn:hover { transform: scale(1.3); }
 
         /* Controls Bottom Bar */
         .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10; }
         input[type="text"].chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.95rem; outline: none; }
         input[type="text"].chat-input:focus { border-color: var(--primary); }
 
-        .btn { background: var(--primary); border: none; color: white; padding: 12px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: justify; }
+        .btn { background: var(--primary); border: none; color: white; padding: 12px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; }
         .btn:hover { background: var(--primary-hover); }
         .btn-buzz { background: var(--accent-buzz); }
-        .btn-buzz:hover { background: #dc2626; }
         .btn-tool { background: #334155; color: #cbd5e1; }
-        .btn-tool:hover { background: #475569; }
         .btn-video { background: #10b981; }
-        .btn-video:hover { background: #059669; }
 
-        /* Screen Shake Animation */
+        /* Active Members Drawer */
+        .members-drawer { position: absolute; top: 0; right: -250px; width: 250px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border-color); z-index: 30; transition: right 0.3s ease; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .members-drawer.open { right: 0; }
+        .member-card { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; padding: 6px 0; }
+        .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+
+        /* Screen Animations */
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes buzzShake {
             10%, 90% { transform: translate3d(-3px, 0, 0); }
@@ -107,20 +110,20 @@
             40%, 60% { transform: translate3d(10px, 0, 0); }
         }
 
-        /* Animated Audible Overlay */
-        .audible-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; transition: opacity 0.3s; }
-        .audible-overlay.active { opacity: 1; }
-        .audible-card { background: rgba(15, 23, 42, 0.95); border: 2px solid var(--primary); padding: 24px; border-radius: 20px; text-align: center; transform: scale(0.5); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .audible-overlay.active .audible-card { transform: scale(1); }
+        .floating-emoji { position: absolute; bottom: 80px; font-size: 2rem; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 99; }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-300px) scale(1.5); }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
-        <div class="user-status">
-            <span>Alias:</span>
+        <div class="header-actions">
             <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
+            <button class="btn btn-tool" style="padding: 6px 10px; font-size: 0.8rem;" onclick="toggleMembersDrawer()">👥 Online (<span id="member-count">4</span>)</button>
         </div>
     </header>
 
@@ -140,7 +143,7 @@
         </sidebar>
 
         <main id="main-screen">
-            <!-- Video Call Dock -->
+            <!-- Video & Voice Stage Dock -->
             <div class="video-container" id="video-bar">
                 <div class="video-box">
                     <video id="local-video" autoplay muted playsinline></video>
@@ -148,31 +151,40 @@
                 </div>
                 <div class="video-box" id="remote-box" style="display:none;">
                     <video id="remote-video" autoplay playsinline></video>
-                    <div class="video-label" id="remote-label">Peer</div>
+                    <div class="video-label">Remote Peer</div>
                 </div>
-                <div class="video-actions">
-                    <button class="btn btn-tool" style="font-size:0.75rem; padding:6px 10px;" onclick="toggleMic()">🎙️ Mute</button>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn btn-tool" style="font-size:0.75rem; padding:6px 10px;" onclick="toggleMic()">🎙️ Mic</button>
                     <button class="btn btn-tool" style="font-size:0.75rem; padding:6px 10px;" onclick="toggleCam()">📹 Cam</button>
-                    <button class="btn btn-buzz" style="font-size:0.75rem; padding:6px 10px;" onclick="endVideoCall()">❌ End</button>
+                    <button class="btn btn-buzz" style="font-size:0.75rem; padding:6px 10px;" onclick="endVideoCall()">❌ End Call</button>
                 </div>
             </div>
 
-            <!-- Radio Player Bar -->
+            <!-- Radio Player & DJ Jukebox Bar -->
             <div class="radio-controller">
                 <div class="radio-meta">
                     📻 <span>Station: <strong id="radio-name">Lo-Fi Chill Hop</strong></span>
                 </div>
                 <div class="radio-controls">
+                    <button class="btn btn-tool" style="font-size:0.75rem; padding:4px 8px;" onclick="togglePanel('jukebox-box')">🎵 Jukebox Queue</button>
                     <select class="radio-select" id="station-picker" onchange="changeStation(this.value)">
                         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
                         <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits Essentials</option>
                         <option value="https://stream.qmusic.nl/top40/mp3">🌍 Global Top 40 Airplay</option>
                         <option value="https://stream.zeno.fm/088035qmdg8uv">RetroSynthwave 80s</option>
-                        <option value="https://stream.zeno.fm/z8m515qmdg8uv">Deep House Hits</option>
                     </select>
                     <audio controls id="radio-audio">
                         <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
                     </audio>
+                </div>
+            </div>
+
+            <!-- Collaborative Jukebox Drawer -->
+            <div class="jukebox-panel" id="jukebox-box">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-cyan);">🎵 Collaborative Room Jukebox</div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" class="chat-input" id="song-url-input" placeholder="Paste custom MP3 or Stream URL...">
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="addTrackToQueue()">Add Song</button>
                 </div>
             </div>
 
@@ -186,41 +198,46 @@
 
             <!-- Canvas Drawing Panel -->
             <div class="doodle-panel" id="doodle-box">
-                <div class="doodle-toolbar">
-                    <label style="font-size: 0.8rem; color: #cbd5e1;">Color:</label>
+                <div style="display:flex; gap:8px; align-items:center;">
                     <input type="color" id="draw-color" value="#38bdf8" style="border:none; width:28px; height:28px; background:transparent; cursor:pointer;">
-                    <label style="font-size: 0.8rem; color: #cbd5e1;">Size:</label>
                     <input type="range" id="draw-size" min="1" max="15" value="3" style="width: 80px;">
                     <button class="btn btn-tool" style="padding: 4px 10px; font-size: 0.8rem;" onclick="clearCanvas()">Clear</button>
                     <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; background: #10b981;" onclick="postDoodle()">Post Canvas</button>
                 </div>
-                <canvas id="doodle-canvas" width="300" height="150"></canvas>
+                <canvas id="doodle-canvas" width="300" height="130"></canvas>
             </div>
 
             <!-- Chat Messages Container -->
             <div class="chat-stream" id="chat-stream">
-                <div class="msg-bubble">
-                    <div class="msg-sender">System Alert</div>
-                    Welcome to <strong>VibePulse</strong>! Tap the 📹 button to start or join live video calls in any chat room!
+                <div class="msg-bubble bot">
+                    <div class="msg-sender">🤖 VibeBot (AI Assistant)</div>
+                    Hey there! Welcome to <strong>VibePulse</strong>. Type <code>@VibeBot joke</code> or <code>@VibeBot trivia</code> in the chat for instant fun!
                 </div>
             </div>
 
             <!-- Controls Input Area -->
             <div class="chat-input-bar">
+                <div class="reactions-bar">
+                    <button class="react-btn" onclick="spawnFloatingEmoji('❤️')">❤️</button>
+                    <button class="react-btn" onclick="spawnFloatingEmoji('🔥')">🔥</button>
+                    <button class="react-btn" onclick="spawnFloatingEmoji('🎉')">🎉</button>
+                    <button class="react-btn" onclick="spawnFloatingEmoji('✨')">✨</button>
+                </div>
                 <button class="btn btn-video" title="Start Video Call" onclick="startVideoCall()">📹</button>
                 <button class="btn btn-tool" title="Canvas Doodle" onclick="togglePanel('doodle-box')">🎨</button>
                 <button class="btn btn-tool" title="Audibles" onclick="togglePanel('audibles-box')">📢</button>
                 <button class="btn btn-buzz" title="Yahoo BUZZ Shake" onclick="triggerBuzz()">⚡ BUZZ!</button>
-                <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Type a message or @VibeBot..." onkeypress="onKeyPress(event)">
                 <button class="btn" onclick="dispatchMessage()">Send</button>
             </div>
 
-            <!-- Audibles Screen Pop-Up -->
-            <div class="audible-overlay" id="audible-modal">
-                <div class="audible-card">
-                    <div style="font-size: 3rem; margin-bottom: 8px;" id="audible-icon">📢</div>
-                    <div style="font-size: 1.2rem; font-weight: 800; color: #fff;" id="audible-title">Audible Alert</div>
-                </div>
+            <!-- Active Members Side Drawer -->
+            <div class="members-drawer" id="members-drawer">
+                <div style="font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Room Participants</div>
+                <div class="member-card"><div class="online-dot"></div> You (Host)</div>
+                <div class="member-card"><div class="online-dot"></div> 🤖 VibeBot</div>
+                <div class="member-card"><div class="online-dot"></div> RetroLover99</div>
+                <div class="member-card"><div class="online-dot"></div> Alex_Vibes</div>
             </div>
         </main>
     </div>
@@ -240,7 +257,7 @@
         let activeRoom = "Global Lounge";
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Audio Synthesizer
+        // Sound Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSynthesizedSound(type) {
@@ -259,34 +276,9 @@
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
                 osc.start(now);
                 osc.stop(now + 0.4);
-            } else if (type === 'Laser Blast') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(800, now);
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.25);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-                osc.start(now);
-                osc.stop(now + 0.25);
-            } else if (type === 'Whistle') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.linearRampToValueAtTime(1200, now + 0.3);
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            } else if (type === 'Fanfare') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(554, now + 0.1);
-                osc.frequency.setValueAtTime(659, now + 0.2);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
             } else {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.setValueAtTime(400, now);
                 gain.gain.setValueAtTime(0.1, now);
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
                 osc.start(now);
@@ -294,59 +286,89 @@
             }
         }
 
-        // WebRTC Video Call Engine (PeerJS)
+        // 1. AI VibeBot Engine
+        function handleVibeBotResponse(userMsg) {
+            const cleanMsg = userMsg.toLowerCase();
+            let botReply = "";
+
+            if (cleanMsg.includes("joke")) {
+                const jokes = [
+                    "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+                    "Why did the web developer leave the restaurant? Because of the table layout! 💻",
+                    "What's a pirate's favorite chat app? Ya-hoo Messenger! 🏴‍☠️"
+                ];
+                botReply = jokes[Math.floor(Math.random() * jokes.length)];
+            } else if (cleanMsg.includes("trivia")) {
+                const trivia = [
+                    "🎵 Music Trivia: Yahoo! Messenger was officially launched back in March 1998 under the name Yahoo! Pager!",
+                    "💡 Tech Trivia: WebRTC allows direct peer-to-peer browser communication without needing plugins!"
+                ];
+                botReply = trivia[Math.floor(Math.random() * trivia.length)];
+            } else {
+                botReply = `Hey @${userAlias}! I'm VibeBot. You can ask me for a 'joke' or 'trivia' anytime! 🚀`;
+            }
+
+            setTimeout(() => {
+                const botObj = { sender: "🤖 VibeBot", text: botReply, isBot: true };
+                if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+                roomStore[activeRoom].push(botObj);
+                renderRoomHistory();
+                playSynthesizedSound('msg');
+            }, 700);
+        }
+
+        // 2. Floating Reactions
+        function spawnFloatingEmoji(emoji) {
+            const screen = document.getElementById('main-screen');
+            const el = document.createElement('div');
+            el.className = 'floating-emoji';
+            el.innerText = emoji;
+            el.style.left = (Math.random() * 60 + 20) + '%';
+            screen.appendChild(el);
+            setTimeout(() => el.remove(), 2000);
+        }
+
+        // 3. WebRTC Video Call Engine
         let localStream = null;
         let peer = null;
-        let activeCall = null;
 
         async function startVideoCall() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('local-video').srcObject = localStream;
                 document.getElementById('video-bar').classList.add('active');
-
-                // Initialize PeerJS ID tied to room
-                const peerId = "vibepulse-" + activeRoom.toLowerCase().replace(/[^a-z0-9]/g, '');
-                peer = new Peer();
-
-                peer.on('open', (id) => {
-                    const stream = document.getElementById('chat-stream');
-                    stream.innerHTML += `<div class="msg-bubble" style="align-self:center; background:#10b981; color:#fff;">📹 Video Call active in ${activeRoom}! Connect key: ${id}</div>`;
-                });
-
-                peer.on('call', (call) => {
-                    call.answer(localStream);
-                    call.on('stream', (remoteStream) => {
-                        document.getElementById('remote-box').style.display = 'block';
-                        document.getElementById('remote-video').srcObject = remoteStream;
-                    });
-                    activeCall = call;
-                });
             } catch (err) {
-                alert("Camera and microphone permission required for video calls.");
+                alert("Camera permission required for video calling.");
             }
         }
 
         function toggleMic() {
-            if (localStream) {
-                const audioTrack = localStream.getAudioTracks()[0];
-                if (audioTrack) audioTrack.enabled = !audioTrack.enabled;
-            }
+            if (localStream) localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled;
         }
 
         function toggleCam() {
-            if (localStream) {
-                const videoTrack = localStream.getVideoTracks()[0];
-                if (videoTrack) videoTrack.enabled = !videoTrack.enabled;
-            }
+            if (localStream) localStream.getVideoTracks()[0].enabled = !localStream.getVideoTracks()[0].enabled;
         }
 
         function endVideoCall() {
-            if (localStream) localStream.getTracks().forEach(track => track.stop());
-            if (activeCall) activeCall.close();
-            if (peer) peer.destroy();
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
             document.getElementById('video-bar').classList.remove('active');
-            document.getElementById('remote-box').style.display = 'none';
+        }
+
+        // 4. Collaborative Jukebox Queue
+        function addTrackToQueue() {
+            const input = document.getElementById('song-url-input');
+            const url = input.value.trim();
+            if (url) {
+                changeStation(url);
+                input.value = '';
+                togglePanel('jukebox-box');
+            }
+        }
+
+        // 5. Active Member Drawer
+        function toggleMembersDrawer() {
+            document.getElementById('members-drawer').classList.toggle('open');
         }
 
         function changeAlias() {
@@ -361,29 +383,24 @@
             activeRoom = roomName;
             document.querySelectorAll('.room-item').forEach(btn => btn.classList.remove('active'));
             if (element) element.classList.add('active');
-
             renderRoomHistory();
         }
 
         function renderRoomHistory() {
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML = `
-                <div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.85rem; text-align: center;">
-                    Entered room: <strong>${activeRoom}</strong>
-                </div>
-            `;
+            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.85rem;">Entered room: <strong>${activeRoom}</strong></div>`;
 
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
 
             roomStore[activeRoom].forEach(msg => {
                 const msgNode = document.createElement('div');
-                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''}`;
+                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isBot ? 'bot' : ''}`;
                 if (msg.isBuzz) {
                     msgNode.style.background = 'var(--accent-buzz)';
                     msgNode.style.color = '#fff';
                     msgNode.innerHTML = `<strong>⚡ BUZZ! ${escapeHtml(msg.sender)} sent a lounge alert!</strong>`;
                 } else if (msg.image) {
-                    msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div><img src="${msg.image}" style="max-width: 100%; border-radius: 8px; margin-top: 6px;">`;
+                    msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div><img src="${msg.image}" style="max-width: 100%; border-radius: 8px;">`;
                 } else {
                     msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
                 }
@@ -396,11 +413,10 @@
         function changeStation(url) {
             const player = document.getElementById('radio-audio');
             const picker = document.getElementById('station-picker');
-            document.getElementById('radio-name').innerText = picker.options[picker.selectedIndex].text;
-            
+            document.getElementById('radio-name').innerText = picker.options[picker.selectedIndex]?.text || "Custom Jukebox Track";
             player.src = url;
             player.load();
-            player.play().catch(err => console.log("Playback interaction required: ", err));
+            player.play().catch(e => console.log("User interaction required"));
         }
 
         function dispatchMessage() {
@@ -415,6 +431,10 @@
             renderRoomHistory();
             input.value = '';
             playSynthesizedSound('msg');
+
+            if (text.toLowerCase().includes("@vibebot") || text.toLowerCase().includes("bot")) {
+                handleVibeBotResponse(text);
+            }
         }
 
         function onKeyPress(e) {
@@ -434,21 +454,10 @@
             setTimeout(() => mainScreen.classList.remove('shake'), 500);
         }
 
-        function triggerAudible(name, text) {
-            togglePanel('audibles-box');
-            playSynthesizedSound(name);
-
-            const modal = document.getElementById('audible-modal');
-            document.getElementById('audible-title').innerText = text;
-            modal.classList.add('active');
-
-            setTimeout(() => modal.classList.remove('active'), 1800);
-        }
-
         function togglePanel(panelId) {
             const panel = document.getElementById(panelId);
             const isOpen = panel.classList.contains('active');
-            document.querySelectorAll('.doodle-panel, .audibles-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.doodle-panel, .audibles-panel, .jukebox-panel').forEach(p => p.classList.remove('active'));
             if (!isOpen) panel.classList.add('active');
         }
 
@@ -460,7 +469,6 @@
         canvas.addEventListener('mousedown', () => isDrawing = true);
         canvas.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
         canvas.addEventListener('mousemove', draw);
-
         canvas.addEventListener('touchstart', (e) => { isDrawing = true; draw(e.touches[0]); });
         canvas.addEventListener('touchend', () => { isDrawing = false; ctx.beginPath(); });
         canvas.addEventListener('touchmove', (e) => { draw(e.touches[0]); e.preventDefault(); });
@@ -471,23 +479,19 @@
             ctx.lineWidth = document.getElementById('draw-size').value;
             ctx.strokeStyle = document.getElementById('draw-color').value;
             ctx.lineCap = 'round';
-
             ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         }
 
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
         function postDoodle() {
             const dataUrl = canvas.toDataURL();
             const imgObj = { sender: userAlias, image: dataUrl, isSelf: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(imgObj);
-
             renderRoomHistory();
             clearCanvas();
             togglePanel('doodle-box');
