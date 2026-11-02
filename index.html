@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibePulse — Modern Live Lounge & Radio</title>
+    <title>VibePulse — Live Lounge, Radio & Video Chat</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- PeerJS WebRTC Library for Video Calls -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -49,6 +51,14 @@
         /* Chat View */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
+        /* Video Call Strip */
+        .video-container { display: none; background: #020617; padding: 8px 14px; border-bottom: 1px solid var(--border-color); gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; flex-shrink: 0; }
+        .video-container.active { display: flex; }
+        .video-box { width: 130px; height: 95px; background: #1e293b; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid var(--primary); }
+        .video-box video { width: 100%; height: 100%; object-fit: cover; }
+        .video-label { position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .video-actions { display: flex; gap: 6px; align-items: center; }
+
         /* Radio Controller Bar */
         .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
         .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
@@ -64,13 +74,12 @@
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
-        /* Doodle Drawer Overlay */
+        /* Canvas & Panels */
         .doodle-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
         .doodle-panel.active { display: flex; }
         .doodle-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%; }
         canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
 
-        /* Emoji / Audibles Menu */
         .audibles-panel { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); grid-template-columns: repeat(4, 1fr); gap: 8px; flex-shrink: 0; }
         .audibles-panel.active { display: grid; }
         .audible-btn { background: #334155; border: none; color: #fff; padding: 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; text-align: center; }
@@ -80,12 +89,14 @@
         input[type="text"].chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.95rem; outline: none; }
         input[type="text"].chat-input:focus { border-color: var(--primary); }
 
-        .btn { background: var(--primary); border: none; color: white; padding: 12px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn { background: var(--primary); border: none; color: white; padding: 12px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: justify; }
         .btn:hover { background: var(--primary-hover); }
         .btn-buzz { background: var(--accent-buzz); }
         .btn-buzz:hover { background: #dc2626; }
         .btn-tool { background: #334155; color: #cbd5e1; }
         .btn-tool:hover { background: #475569; }
+        .btn-video { background: #10b981; }
+        .btn-video:hover { background: #059669; }
 
         /* Screen Shake Animation */
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -129,6 +140,23 @@
         </sidebar>
 
         <main id="main-screen">
+            <!-- Video Call Dock -->
+            <div class="video-container" id="video-bar">
+                <div class="video-box">
+                    <video id="local-video" autoplay muted playsinline></video>
+                    <div class="video-label">You</div>
+                </div>
+                <div class="video-box" id="remote-box" style="display:none;">
+                    <video id="remote-video" autoplay playsinline></video>
+                    <div class="video-label" id="remote-label">Peer</div>
+                </div>
+                <div class="video-actions">
+                    <button class="btn btn-tool" style="font-size:0.75rem; padding:6px 10px;" onclick="toggleMic()">🎙️ Mute</button>
+                    <button class="btn btn-tool" style="font-size:0.75rem; padding:6px 10px;" onclick="toggleCam()">📹 Cam</button>
+                    <button class="btn btn-buzz" style="font-size:0.75rem; padding:6px 10px;" onclick="endVideoCall()">❌ End</button>
+                </div>
+            </div>
+
             <!-- Radio Player Bar -->
             <div class="radio-controller">
                 <div class="radio-meta">
@@ -137,8 +165,8 @@
                 <div class="radio-controls">
                     <select class="radio-select" id="station-picker" onchange="changeStation(this.value)">
                         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
-                        <option value="https://stream.zeno.fm/90s_HITS">📻 90s Hits Essentials</option>
-                        <option value="https://stream.zeno.fm/global-radio-top-40">🌍 Global Top 40 Airplay</option>
+                        <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits Essentials</option>
+                        <option value="https://stream.qmusic.nl/top40/mp3">🌍 Global Top 40 Airplay</option>
                         <option value="https://stream.zeno.fm/088035qmdg8uv">RetroSynthwave 80s</option>
                         <option value="https://stream.zeno.fm/z8m515qmdg8uv">Deep House Hits</option>
                     </select>
@@ -173,12 +201,13 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble">
                     <div class="msg-sender">System Alert</div>
-                    Welcome to <strong>VibePulse</strong>! Select a room, tune into radio streams, or send a Yahoo-style <strong>BUZZ!</strong> to the room.
+                    Welcome to <strong>VibePulse</strong>! Tap the 📹 button to start or join live video calls in any chat room!
                 </div>
             </div>
 
             <!-- Controls Input Area -->
             <div class="chat-input-bar">
+                <button class="btn btn-video" title="Start Video Call" onclick="startVideoCall()">📹</button>
                 <button class="btn btn-tool" title="Canvas Doodle" onclick="togglePanel('doodle-box')">🎨</button>
                 <button class="btn btn-tool" title="Audibles" onclick="togglePanel('audibles-box')">📢</button>
                 <button class="btn btn-buzz" title="Yahoo BUZZ Shake" onclick="triggerBuzz()">⚡ BUZZ!</button>
@@ -211,6 +240,7 @@
         let activeRoom = "Global Lounge";
         document.getElementById('alias-display').innerText = userAlias;
 
+        // Audio Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSynthesizedSound(type) {
@@ -264,6 +294,61 @@
             }
         }
 
+        // WebRTC Video Call Engine (PeerJS)
+        let localStream = null;
+        let peer = null;
+        let activeCall = null;
+
+        async function startVideoCall() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('local-video').srcObject = localStream;
+                document.getElementById('video-bar').classList.add('active');
+
+                // Initialize PeerJS ID tied to room
+                const peerId = "vibepulse-" + activeRoom.toLowerCase().replace(/[^a-z0-9]/g, '');
+                peer = new Peer();
+
+                peer.on('open', (id) => {
+                    const stream = document.getElementById('chat-stream');
+                    stream.innerHTML += `<div class="msg-bubble" style="align-self:center; background:#10b981; color:#fff;">📹 Video Call active in ${activeRoom}! Connect key: ${id}</div>`;
+                });
+
+                peer.on('call', (call) => {
+                    call.answer(localStream);
+                    call.on('stream', (remoteStream) => {
+                        document.getElementById('remote-box').style.display = 'block';
+                        document.getElementById('remote-video').srcObject = remoteStream;
+                    });
+                    activeCall = call;
+                });
+            } catch (err) {
+                alert("Camera and microphone permission required for video calls.");
+            }
+        }
+
+        function toggleMic() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) audioTrack.enabled = !audioTrack.enabled;
+            }
+        }
+
+        function toggleCam() {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) videoTrack.enabled = !videoTrack.enabled;
+            }
+        }
+
+        function endVideoCall() {
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            if (activeCall) activeCall.close();
+            if (peer) peer.destroy();
+            document.getElementById('video-bar').classList.remove('active');
+            document.getElementById('remote-box').style.display = 'none';
+        }
+
         function changeAlias() {
             const input = prompt("Enter your custom chat handle / alias:", userAlias);
             if (input && input.trim()) {
@@ -308,7 +393,6 @@
             stream.scrollTop = stream.scrollHeight;
         }
 
-        // Fixed Radio Switcher Logic
         function changeStation(url) {
             const player = document.getElementById('radio-audio');
             const picker = document.getElementById('station-picker');
