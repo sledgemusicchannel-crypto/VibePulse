@@ -137,6 +137,8 @@
                 <div class="radio-controls">
                     <select class="radio-select" id="station-picker" onchange="changeStation(this.value)">
                         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
+                        <option value="https://stream.zeno.fm/90s_HITS">📻 90s Hits Essentials</option>
+                        <option value="https://stream.zeno.fm/global-radio-top-40">🌍 Global Top 40 Airplay</option>
                         <option value="https://stream.zeno.fm/088035qmdg8uv">RetroSynthwave 80s</option>
                         <option value="https://stream.zeno.fm/z8m515qmdg8uv">Deep House Hits</option>
                     </select>
@@ -195,7 +197,6 @@
     </div>
 
     <script>
-        // Store room message histories in memory
         const roomStore = {
             'Global Lounge': [],
             'Retro Beats': [],
@@ -210,7 +211,6 @@
         let activeRoom = "Global Lounge";
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Audio Synthesizer Engine
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSynthesizedSound(type) {
@@ -308,12 +308,15 @@
             stream.scrollTop = stream.scrollHeight;
         }
 
+        // Fixed Radio Switcher Logic
         function changeStation(url) {
             const player = document.getElementById('radio-audio');
             const picker = document.getElementById('station-picker');
             document.getElementById('radio-name').innerText = picker.options[picker.selectedIndex].text;
+            
             player.src = url;
-            player.play();
+            player.load();
+            player.play().catch(err => console.log("Playback interaction required: ", err));
         }
 
         function dispatchMessage() {
@@ -410,7 +413,6 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // Initialize default view
         renderRoomHistory();
     </script>
 </body>
