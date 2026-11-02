@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibePulse — Modern Live Lounge & YouTube Jukebox</title>
-    <!-- PeerJS WebRTC Library for Video Calls -->
+    <title>VibePulse — Live Lounge, Dating & Jukebox</title>
+    <!-- PeerJS WebRTC Library -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -16,6 +17,7 @@
             --accent-buzz: #ef4444;
             --accent-cyan: #38bdf8;
             --accent-pink: #ec4899;
+            --accent-dating: #f43f5e;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
@@ -28,7 +30,7 @@
         header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; height: 56px; flex-shrink: 0; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
         .brand-tag { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
         .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; }
 
         /* Main Container Layout */
@@ -37,14 +39,14 @@
 
         /* Sidebar - Rooms */
         sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 8px; gap: 8px; flex-shrink: 0; }
-        @media(min-width: 768px) { sidebar { width: 250px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
+        @media(min-width: 768px) { sidebar { width: 260px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
 
         .room-section-title { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; padding: 6px 8px 2px 8px; display: none; }
         @media(min-width: 768px) { .room-section-title { display: block; } }
 
         .room-item { background: #334155; border: none; color: #cbd5e1; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .room-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); }
-        .room-item.rainbow-room.active { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+        .room-item.dating-room.active { background: linear-gradient(135deg, #f43f5e, #fb7185); color: #fff; }
 
         /* Main Screen */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
@@ -53,17 +55,16 @@
         .video-stage { display: none; background: #000; position: relative; height: 190px; border-bottom: 2px solid var(--accent-pink); flex-shrink: 0; overflow: hidden; }
         .video-stage.active { display: block; }
         .stage-video { width: 100%; height: 100%; object-fit: cover; }
-        
         .stage-overlay { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
-        .host-badge { background: rgba(0,0,0,0.65); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 6px; color: #fff; backdrop-filter: blur(4px); }
-        .live-dot { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; animation: pulse 1.5s infinite; }
+        .host-badge { background: rgba(0,0,0,0.65); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
+        .live-dot { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; }
         .gift-bank { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 4px 10px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; }
 
-        /* YouTube Jukebox Player Box */
-        .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 8px; flex-shrink: 0; }
-        .jukebox-stage iframe { width: 100%; max-width: 400px; height: 140px; border-radius: 8px; border: none; }
+        /* YouTube Jukebox Player */
+        .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 6px; flex-shrink: 0; }
+        .jukebox-stage iframe { width: 100%; max-width: 380px; height: 120px; border-radius: 8px; border: none; }
 
-        /* Radio Controller Bar */
+        /* Radio Bar */
         .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
         .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
         .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
@@ -76,40 +77,46 @@
         .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 85%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
         .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
         .msg-bubble.bot { background: linear-gradient(135deg, #0284c7, #0369a1); align-self: flex-start; border: 1px solid var(--accent-cyan); }
-        .msg-bubble.gift-msg { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; border: 1px solid #f472b6; font-weight: 700; align-self: center; text-align: center; }
+        .msg-bubble.gift-msg { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; font-weight: 700; align-self: center; text-align: center; }
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
-        /* Panels (Doodle, Audibles, Gifts & Jukebox Input) */
-        .doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        /* Panels (Doodle, Audibles, Gifts, Jukebox & Dating Search) */
+        .doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel, .dating-search-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .doodle-panel.active { display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .audibles-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .gifts-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
         .jukebox-panel.active { display: flex; gap: 8px; align-items: center; }
-        canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
+        .dating-search-panel.active { display: flex; flex-direction: column; gap: 8px; }
 
+        canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
         .gift-card { background: #334155; border: 1px solid var(--border-color); padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
         .gift-card:hover { transform: scale(1.05); border-color: var(--accent-pink); background: #475569; }
 
+        /* Search Results Container */
+        .search-results { max-height: 120px; overflow-y: auto; background: var(--bg-input); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+        .profile-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border-color); }
+
         /* Controls Bottom Bar */
         .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10; }
-        input[type="text"].chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.95rem; outline: none; }
-        input[type="text"].chat-input:focus { border-color: var(--primary); }
+        input[type="text"] { flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.9rem; outline: none; }
+        input[type="text"]:focus { border-color: var(--primary); }
 
-        .btn { background: var(--primary); border: none; color: white; padding: 12px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn { background: var(--primary); border: none; color: white; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; }
         .btn:hover { background: var(--primary-hover); }
         .btn-buzz { background: var(--accent-buzz); }
         .btn-tool { background: #334155; color: #cbd5e1; }
         .btn-live { background: linear-gradient(135deg, #ef4444, #ec4899); color: #fff; }
+        .btn-dating { background: var(--accent-dating); }
 
-        /* Active Members Drawer */
+        /* Members Side Drawer */
         .members-drawer { position: absolute; top: 0; right: -250px; width: 250px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border-color); z-index: 30; transition: right 0.3s ease; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
         .members-drawer.open { right: 0; }
         .member-card { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; padding: 6px 0; }
         .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
 
-        /* Screen Animations & Popups */
-        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-pink); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Popups & Animations */
+        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-pink); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .gift-alert-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -119,7 +126,6 @@
             30%, 50%, 70% { transform: translate3d(-10px, 0, 0); }
             40%, 60% { transform: translate3d(10px, 0, 0); }
         }
-
         .floating-emoji { position: absolute; bottom: 80px; font-size: 2rem; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 99; }
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
@@ -144,12 +150,14 @@
             <button class="room-item active" onclick="selectRoom('Global Lounge', this)">🌐 Global Lounge</button>
             <button class="room-item" onclick="selectRoom('Retro Beats', this)">📻 Retro Beats</button>
             <button class="room-item" onclick="selectRoom('App Developers', this)">💻 App Creators</button>
-            <button class="room-item" onclick="selectRoom('Chill & Gaming', this)">🎮 Chill & Game</button>
             
+            <div class="room-section-title">💘 Singles & Dating</div>
+            <button class="room-item dating-room" onclick="selectRoom('Single Men & Women', this)">❤️ Singles (18-35)</button>
+            <button class="room-item dating-room" onclick="selectRoom('Divorced & Mature Dating', this)">🌹 Divorced / 36+</button>
+            <button class="room-item dating-room" onclick="selectRoom('Married Hookup & Chat', this)">🔥 Married & Discreet</button>
+
             <div class="room-section-title">LGBTQ+ Communities</div>
             <button class="room-item rainbow-room" onclick="selectRoom('LGBTQ+ Main Lounge', this)">🏳️‍🌈 LGBTQ+ Lounge</button>
-            <button class="room-item rainbow-room" onclick="selectRoom('Support & Meetups', this)">🤝 Support & Chat</button>
-            <button class="room-item rainbow-room" onclick="selectRoom('Pride Music & Arts', this)">🎨 Pride & Music</button>
         </sidebar>
 
         <main id="main-screen">
@@ -165,7 +173,7 @@
                 </div>
             </div>
 
-            <!-- YouTube Music Jukebox Player Box -->
+            <!-- YouTube Jukebox Player Box -->
             <div class="jukebox-stage" id="jukebox-container">
                 <iframe id="youtube-player" src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" title="YouTube Jukebox" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
@@ -176,12 +184,12 @@
                     📻 <span>Station: <strong id="radio-name">Lo-Fi Chill Hop</strong></span>
                 </div>
                 <div class="radio-controls">
-                    <button class="btn btn-tool" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('jukebox-box')">🎵 Add YouTube Song</button>
+                    <button class="btn btn-dating" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('dating-search-box')">🔍 Find Singles</button>
+                    <button class="btn btn-tool" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('jukebox-box')">🎵 YouTube</button>
                     <select class="radio-select" id="station-picker" onchange="changeRadioStation(this.value)">
                         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
-                        <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits Essentials</option>
-                        <option value="https://stream.qmusic.nl/top40/mp3">🌍 Global Top 40 Airplay</option>
-                        <option value="https://stream.zeno.fm/088035qmdg8uv">RetroSynthwave 80s</option>
+                        <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits</option>
+                        <option value="https://stream.qmusic.nl/top40/mp3">🌍 Top 40</option>
                     </select>
                     <audio controls id="radio-audio">
                         <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
@@ -189,42 +197,59 @@
                 </div>
             </div>
 
-            <!-- Collaborative YouTube Jukebox Input Panel -->
+            <!-- Dating Search & Hookup Finder Panel -->
+            <div class="dating-search-panel" id="dating-search-box">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-dating);">💘 Nationality & Age Hookup Search</div>
+                <div style="display: flex; gap: 6px;">
+                    <select id="search-status" class="radio-select">
+                        <option value="Single">Single</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Married">Married</option>
+                    </select>
+                    <select id="search-gender" class="radio-select">
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                    </select>
+                    <input type="text" id="search-nationality" placeholder="Nationality (e.g. USA, VN)..." style="font-size: 0.8rem;">
+                    <button class="btn btn-dating" style="padding: 6px 12px; font-size: 0.8rem;" onclick="searchProfiles()">Search</button>
+                </div>
+                <div class="search-results" id="search-results-box">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Set criteria and tap Search to connect with profiles online.</div>
+                </div>
+            </div>
+
+            <!-- YouTube Jukebox Input Panel -->
             <div class="jukebox-panel" id="jukebox-box">
-                <input type="text" class="chat-input" id="yt-url-input" placeholder="Paste YouTube link (e.g. https://youtu.be/...)">
-                <button class="btn" style="padding: 10px 14px; font-size: 0.85rem; background: #ef4444;" onclick="loadYouTubeSong()">Play Song</button>
+                <input type="text" id="yt-url-input" placeholder="Paste YouTube link (https://youtu.be/...)">
+                <button class="btn" style="padding: 8px 12px; font-size: 0.8rem; background: #ef4444;" onclick="loadYouTubeSong()">Play</button>
             </div>
 
             <!-- Gift Donation Picker Panel -->
             <div class="gifts-panel" id="gifts-box">
                 <div class="gift-card" onclick="sendGift('Heart', 1, '💖')">
-                    <div style="font-size: 1.8rem;">💖</div>
-                    <div style="font-size: 0.75rem; font-weight: 700;">Heart</div>
-                    <div style="font-size: 0.7rem; color: var(--accent-cyan);">$1</div>
+                    <div style="font-size: 1.6rem;">💖</div>
+                    <div style="font-size: 0.7rem; font-weight: 700;">Heart ($1)</div>
                 </div>
                 <div class="gift-card" onclick="sendGift('Rose', 5, '🌹')">
-                    <div style="font-size: 1.8rem;">🌹</div>
-                    <div style="font-size: 0.75rem; font-weight: 700;">Rose</div>
-                    <div style="font-size: 0.7rem; color: var(--accent-cyan);">$5</div>
+                    <div style="font-size: 1.6rem;">🌹</div>
+                    <div style="font-size: 0.7rem; font-weight: 700;">Rose ($5)</div>
                 </div>
                 <div class="gift-card" onclick="sendGift('Rocket', 20, '🚀')">
-                    <div style="font-size: 1.8rem;">🚀</div>
-                    <div style="font-size: 0.75rem; font-weight: 700;">Rocket</div>
-                    <div style="font-size: 0.7rem; color: var(--accent-cyan);">$20</div>
+                    <div style="font-size: 1.6rem;">🚀</div>
+                    <div style="font-size: 0.7rem; font-weight: 700;">Rocket ($20)</div>
                 </div>
                 <div class="gift-card" onclick="sendGift('Crown', 50, '👑')">
-                    <div style="font-size: 1.8rem;">👑</div>
-                    <div style="font-size: 0.75rem; font-weight: 700;">Crown</div>
-                    <div style="font-size: 0.7rem; color: var(--accent-cyan);">$50</div>
+                    <div style="font-size: 1.6rem;">👑</div>
+                    <div style="font-size: 0.7rem; font-weight: 700;">Crown ($50)</div>
                 </div>
             </div>
 
             <!-- Audibles Menu -->
             <div class="audibles-panel" id="audibles-box">
-                <button class="audible-btn" onclick="triggerAudible('Lion Roar', '🦁 ROAAAAR!')">🦁 Lion Roar</button>
-                <button class="audible-btn" onclick="triggerAudible('Whistle', '😗🎶 Whistle!')">😗 Whistle</button>
-                <button class="audible-btn" onclick="triggerAudible('Laser Blast', '🔫 PEW PEW!')">🔫 Laser</button>
-                <button class="audible-btn" onclick="triggerAudible('Fanfare', '🎺 Ta-Da!')">🎺 Fanfare</button>
+                <button class="btn btn-tool" onclick="triggerAudible('Lion Roar', '🦁 ROAAAAR!')">🦁 Roar</button>
+                <button class="btn btn-tool" onclick="triggerAudible('Whistle', '😗 Whistle!')">😗 Whistle</button>
+                <button class="btn btn-tool" onclick="triggerAudible('Laser', '🔫 Pew Pew!')">🔫 Laser</button>
+                <button class="btn btn-tool" onclick="triggerAudible('Fanfare', '🎺 Ta-Da!')">🎺 Fanfare</button>
             </div>
 
             <!-- Canvas Drawing Panel -->
@@ -233,43 +258,44 @@
                     <input type="color" id="draw-color" value="#38bdf8" style="border:none; width:28px; height:28px; background:transparent; cursor:pointer;">
                     <input type="range" id="draw-size" min="1" max="15" value="3" style="width: 80px;">
                     <button class="btn btn-tool" style="padding: 4px 10px; font-size: 0.8rem;" onclick="clearCanvas()">Clear</button>
-                    <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; background: #10b981;" onclick="postDoodle()">Post Canvas</button>
+                    <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; background: #10b981;" onclick="postDoodle()">Post</button>
                 </div>
-                <canvas id="doodle-canvas" width="300" height="130"></canvas>
+                <canvas id="doodle-canvas" width="300" height="120"></canvas>
             </div>
 
             <!-- Chat Messages Container -->
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble bot">
-                    <div class="msg-sender">🤖 VibeBot (AI Assistant)</div>
-                    Welcome to <strong>VibePulse LIVE</strong>! Click <strong>🎵 Add YouTube Song</strong> to paste any YouTube music link and play it for the room!
+                    <div class="msg-sender">🤖 VibeBot</div>
+                    Welcome to <strong>VibePulse Dating & Lounge</strong>! Tap <strong>🔍 Find Singles</strong> to search profiles by status, age, and nationality.
                 </div>
             </div>
 
             <!-- Controls Input Area -->
             <div class="chat-input-bar">
-                <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE / Start Camera" onclick="toggleCameraStream()">🔴 Go LIVE</button>
+                <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleCameraStream()">🔴 LIVE</button>
                 <button class="btn btn-tool" title="Send Gift" onclick="togglePanel('gifts-box')">🎁</button>
-                <button class="btn btn-tool" title="Canvas Doodle" onclick="togglePanel('doodle-box')">🎨</button>
-                <button class="btn btn-buzz" title="Yahoo BUZZ Shake" onclick="triggerBuzz()">⚡ BUZZ!</button>
-                <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
+                <button class="btn btn-tool" title="Doodle" onclick="togglePanel('doodle-box')">🎨</button>
+                <button class="btn btn-buzz" title="BUZZ" onclick="triggerBuzz()">⚡ BUZZ!</button>
+                <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
                 <button class="btn" onclick="dispatchMessage()">Send</button>
             </div>
 
-            <!-- Animated Gift Popup Alert -->
+            <!-- Animated Gift Popup -->
             <div class="gift-alert-popup" id="gift-modal">
-                <div style="font-size: 3.5rem;" id="gift-icon-pop">🎁</div>
-                <div style="font-size: 1.2rem; font-weight: 900; color: #fff; margin-top: 6px;" id="gift-sender-pop">User</div>
-                <div style="font-size: 0.9rem; color: var(--accent-pink);" id="gift-name-pop">sent a Rose!</div>
+                <div style="font-size: 3rem;" id="gift-icon-pop">🎁</div>
+                <div style="font-size: 1.1rem; font-weight: 900; color: #fff; margin-top: 4px;" id="gift-sender-pop">User</div>
+                <div style="font-size: 0.85rem; color: var(--accent-pink);" id="gift-name-pop">sent a gift!</div>
             </div>
 
             <!-- Active Members Side Drawer -->
             <div class="members-drawer" id="members-drawer">
-                <div style="font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Room Participants</div>
-                <div class="member-card"><div class="online-dot"></div> You (Streamer)</div>
+                <div style="font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Room Users</div>
+                <div class="member-card"><div class="online-dot"></div> You (Online)</div>
                 <div class="member-card"><div class="online-dot"></div> 🤖 VibeBot</div>
-                <div class="member-card"><div class="online-dot"></div> RetroFan_99</div>
-                <div class="member-card"><div class="online-dot"></div> Alex_Vibes</div>
+                <div class="member-card"><div class="online-dot"></div> Elena (Single, 24) - USA</div>
+                <div class="member-card"><div class="online-dot"></div> Marcus (Divorced, 39) - UK</div>
+                <div class="member-card"><div class="online-dot"></div> Sophia (Single, 29) - VN</div>
             </div>
         </main>
     </div>
@@ -279,10 +305,10 @@
             'Global Lounge': [],
             'Retro Beats': [],
             'App Developers': [],
-            'Chill & Gaming': [],
-            'LGBTQ+ Main Lounge': [],
-            'Support & Meetups': [],
-            'Pride Music & Arts': []
+            'Single Men & Women': [],
+            'Divorced & Mature Dating': [],
+            'Married Hookup & Chat': [],
+            'LGBTQ+ Main Lounge': []
         };
 
         let userAlias = "Guest_" + Math.floor(1000 + Math.random() * 9000);
@@ -293,77 +319,97 @@
 
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Web Audio Synthesizer Engine
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Mock Database of Profiles for Search & Hookup Hook
+        const mockProfiles = [
+            { name: "Elena_Vibes", status: "Single", gender: "Female", age: 24, nationality: "USA", room: "Single Men & Women" },
+            { name: "Sophia_Heart", status: "Single", gender: "Female", age: 27, nationality: "Vietnam", room: "Single Men & Women" },
+            { name: "Marcus_UK", status: "Divorced", gender: "Male", age: 41, nationality: "UK", room: "Divorced & Mature Dating" },
+            { name: "David_H", status: "Married", gender: "Male", age: 38, nationality: "Australia", room: "Married Hookup & Chat" },
+            { name: "Chloe_Paris", status: "Single", gender: "Female", age: 22, nationality: "France", room: "Single Men & Women" },
+            { name: "Ken_Matrix", status: "Divorced", gender: "Male", age: 45, nationality: "Canada", room: "Divorced & Mature Dating" }
+        ];
 
-        function playSynthesizedSound(type) {
+        function searchProfiles() {
+            const status = document.getElementById('search-status').value;
+            const gender = document.getElementById('search-gender').value;
+            const natQuery = document.getElementById('search-nationality').value.toLowerCase().trim();
+            const resultsBox = document.getElementById('search-results-box');
+
+            const filtered = mockProfiles.filter(p => {
+                const matchStatus = p.status === status;
+                const matchGender = p.gender === gender;
+                const matchNat = natQuery === "" || p.nationality.toLowerCase().includes(natQuery);
+                return matchStatus && matchGender && matchNat;
+            });
+
+            if (filtered.length === 0) {
+                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">No profiles match criteria. Try broadening search.</div>`;
+                return;
+            }
+
+            resultsBox.innerHTML = "";
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+                card.innerHTML = `
+                    <span>❤️ <strong>${p.name}</strong> (${p.age}, ${p.nationality})</span>
+                    <button class="btn btn-dating" style="padding: 2px 8px; font-size: 0.7rem;" onclick="connectWithProfile('${p.name}', '${p.room}')">Connect</button>
+                `;
+                resultsBox.appendChild(card);
+            });
+        }
+
+        function connectWithProfile(targetName, targetRoom) {
+            selectRoom(targetRoom);
+            togglePanel('dating-search-box');
+            const stream = document.getElementById('chat-stream');
+            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 Connection request sent to <strong>${targetName}</strong> in ${targetRoom}! Say hello!</div>`;
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             const now = audioCtx.currentTime;
-
             if (type === 'gift') {
-                osc.type = 'triangle';
                 osc.frequency.setValueAtTime(523.25, now);
                 osc.frequency.setValueAtTime(659.25, now + 0.1);
-                osc.frequency.setValueAtTime(783.99, now + 0.2);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
-            } else if (type === 'buzz') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.linearRampToValueAtTime(60, now + 0.4);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
             } else {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(300, now);
                 gain.gain.setValueAtTime(0.1, now);
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-                osc.start(now);
-                osc.stop(now + 0.2);
             }
+            osc.start(now);
+            osc.stop(now + 0.3);
         }
 
-        // YouTube Jukebox URL Loader
         function loadYouTubeSong() {
             const input = document.getElementById('yt-url-input');
             const url = input.value.trim();
             if (!url) return;
-
             let videoId = "";
-            if (url.includes("youtu.be/")) {
-                videoId = url.split("youtu.be/")[1]?.split("?")[0];
-            } else if (url.includes("watch?v=")) {
-                videoId = url.split("watch?v=")[1]?.split("&")[0];
-            }
+            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1]?.split("?")[0];
+            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1]?.split("&")[0];
 
             if (videoId) {
-                const iframe = document.getElementById('youtube-player');
-                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
-                
-                // Pause radio when YouTube plays
-                const radioAudio = document.getElementById('radio-audio');
-                radioAudio.pause();
-
+                document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
+                document.getElementById('radio-audio').pause();
                 const stream = document.getElementById('chat-stream');
-                stream.innerHTML += `<div class="msg-bubble gift-msg">🎵 ${userAlias} added a YouTube song to the Jukebox!</div>`;
+                stream.innerHTML += `<div class="msg-bubble gift-msg">🎵 ${userAlias} queued a YouTube track!</div>`;
                 stream.scrollTop = stream.scrollHeight;
-
                 input.value = '';
                 togglePanel('jukebox-box');
             } else {
-                alert("Please paste a valid YouTube or YouTube Music link (e.g., https://youtu.be/...).");
+                alert("Paste a valid YouTube link.");
             }
         }
 
-        // Camera & TikTok Live Video Controller
         async function toggleCameraStream() {
             const stage = document.getElementById('live-stage');
             const videoEl = document.getElementById('live-host-video');
@@ -374,32 +420,25 @@
                     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     videoEl.srcObject = localStream;
                     stage.classList.add('active');
-                    btn.innerText = "❌ End LIVE";
-                    btn.style.background = "#334155";
+                    btn.innerText = "❌ End";
                     isLiveHost = true;
                     document.getElementById('host-name').innerText = `Host: ${userAlias}`;
-
-                    const stream = document.getElementById('chat-stream');
-                    stream.innerHTML += `<div class="msg-bubble gift-msg">🔴 ${userAlias} started a LIVE video stream!</div>`;
-                    stream.scrollTop = stream.scrollHeight;
                 } catch (err) {
-                    alert("Camera & Microphone access are required for live video streams.");
+                    alert("Camera permissions required.");
                 }
             } else {
                 if (localStream) localStream.getTracks().forEach(t => t.stop());
                 stage.classList.remove('active');
-                btn.innerText = "🔴 Go LIVE";
-                btn.style.background = "linear-gradient(135deg, #ef4444, #ec4899)";
+                btn.innerText = "🔴 LIVE";
                 isLiveHost = false;
             }
         }
 
-        // Live Gift Engine
         function sendGift(giftName, value, icon) {
             togglePanel('gifts-box');
             totalGiftBalance += value;
             document.getElementById('total-gifts').innerText = totalGiftBalance;
-            playSynthesizedSound('gift');
+            playSound('gift');
 
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
@@ -407,27 +446,15 @@
             document.getElementById('gift-name-pop').innerText = `sent a ${giftName} ($${value})!`;
             modal.classList.add('active');
 
-            const giftObj = { sender: userAlias, text: `sent a ${icon} ${giftName} ($${value})!`, isGift: true };
+            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${value})!`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
-
-            for (let i = 0; i < 6; i++) spawnFloatingEmoji(icon);
             setTimeout(() => modal.classList.remove('active'), 2000);
         }
 
-        function spawnFloatingEmoji(emoji) {
-            const screen = document.getElementById('main-screen');
-            const el = document.createElement('div');
-            el.className = 'floating-emoji';
-            el.innerText = emoji;
-            el.style.left = (Math.random() * 60 + 20) + '%';
-            screen.appendChild(el);
-            setTimeout(() => el.remove(), 2000);
-        }
-
         function changeAlias() {
-            const input = prompt("Enter your custom chat handle / alias:", userAlias);
+            const input = prompt("Enter your chat handle / alias:", userAlias);
             if (input && input.trim()) {
                 userAlias = input.trim();
                 document.getElementById('alias-display').innerText = userAlias;
@@ -443,130 +470,85 @@
 
         function renderRoomHistory() {
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.85rem;">Entered room: <strong>${activeRoom}</strong></div>`;
-
+            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.8rem;">Room: <strong>${activeRoom}</strong></div>`;
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-
             roomStore[activeRoom].forEach(msg => {
                 const msgNode = document.createElement('div');
                 msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isBot ? 'bot' : ''} ${msg.isGift ? 'gift-msg' : ''}`;
-                if (msg.isBuzz) {
-                    msgNode.style.background = 'var(--accent-buzz)';
-                    msgNode.style.color = '#fff';
-                    msgNode.innerHTML = `<strong>⚡ BUZZ! ${escapeHtml(msg.sender)} sent a lounge alert!</strong>`;
-                } else if (msg.image) {
-                    msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div><img src="${msg.image}" style="max-width: 100%; border-radius: 8px;">`;
-                } else {
-                    msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
-                }
+                msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
                 stream.appendChild(msgNode);
             });
-
             stream.scrollTop = stream.scrollHeight;
         }
 
         function changeRadioStation(url) {
             const player = document.getElementById('radio-audio');
-            const picker = document.getElementById('station-picker');
-            document.getElementById('radio-name').innerText = picker.options[picker.selectedIndex]?.text || "Radio";
             player.src = url;
             player.load();
-            player.play().catch(e => console.log("User interaction required"));
+            player.play().catch(e => console.log("Interaction required"));
         }
 
         function dispatchMessage() {
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (!text) return;
-
             const msgObj = { sender: userAlias, text: text, isSelf: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(msgObj);
-
             renderRoomHistory();
             input.value = '';
-            playSynthesizedSound('msg');
+            playSound('msg');
         }
 
-        function onKeyPress(e) {
-            if (e.key === 'Enter') dispatchMessage();
-        }
+        function onKeyPress(e) { if (e.key === 'Enter') dispatchMessage(); }
 
         function triggerBuzz() {
-            playSynthesizedSound('buzz');
-            const mainScreen = document.getElementById('main-screen');
-            mainScreen.classList.add('shake');
-
-            const buzzObj = { sender: userAlias, isBuzz: true, isSelf: true };
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].push(buzzObj);
-
-            renderRoomHistory();
-            setTimeout(() => mainScreen.classList.remove('shake'), 500);
+            playSound('buzz');
+            document.getElementById('main-screen').classList.add('shake');
+            setTimeout(() => document.getElementById('main-screen').classList.remove('shake'), 500);
         }
 
         function triggerAudible(name, text) {
             togglePanel('audibles-box');
-            playSynthesizedSound('buzz');
             const stream = document.getElementById('chat-stream');
-            const msgNode = document.createElement('div');
-            msgNode.className = 'msg-bubble gift-msg';
-            msgNode.innerHTML = `📢 <strong>${escapeHtml(userAlias)} played audible: ${text}</strong>`;
-            stream.appendChild(msgNode);
+            stream.innerHTML += `<div class="msg-bubble gift-msg">📢 ${userAlias} played audible: ${text}</div>`;
             stream.scrollTop = stream.scrollHeight;
         }
 
         function togglePanel(panelId) {
             const panel = document.getElementById(panelId);
             const isOpen = panel.classList.contains('active');
-            document.querySelectorAll('.doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel, .dating-search-panel').forEach(p => p.classList.remove('active'));
             if (!isOpen) panel.classList.add('active');
         }
 
-        function toggleMembersDrawer() {
-            document.getElementById('members-drawer').classList.toggle('open');
-        }
+        function toggleMembersDrawer() { document.getElementById('members-drawer').classList.toggle('open'); }
 
-        // Canvas Setup
         const canvas = document.getElementById('doodle-canvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
-
         canvas.addEventListener('mousedown', () => isDrawing = true);
         canvas.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('touchstart', (e) => { isDrawing = true; draw(e.touches[0]); });
-        canvas.addEventListener('touchend', () => { isDrawing = false; ctx.beginPath(); });
-        canvas.addEventListener('touchmove', (e) => { draw(e.touches[0]); e.preventDefault(); });
-
-        function draw(e) {
+        canvas.addEventListener('mousemove', (e) => {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
             ctx.lineWidth = document.getElementById('draw-size').value;
             ctx.strokeStyle = document.getElementById('draw-color').value;
-            ctx.lineCap = 'round';
             ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
+        });
         function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
         function postDoodle() {
-            const dataUrl = canvas.toDataURL();
-            const imgObj = { sender: userAlias, image: dataUrl, isSelf: true };
+            const imgObj = { sender: userAlias, text: "Shared a drawing canvas sketch 🎨", isSelf: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(imgObj);
             renderRoomHistory();
             clearCanvas();
             togglePanel('doodle-box');
         }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
         renderRoomHistory();
     </script>
 </body>
