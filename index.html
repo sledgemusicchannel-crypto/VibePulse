@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -432,4 +431,89 @@
             const now = audioCtx.currentTime;
             if (type === 'gift') {
                 osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+            } else {
+                osc.frequency.setValueAtTime(300, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+            }
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+
+        function loadYouTubeSong() {
+            const input = document.getElementById('yt-url-input');
+            const url = input.value.trim();
+            if (!url) return;
+            let videoId = "";
+            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1]?.split("?")[0];
+            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1]?.split("&")[0];
+
+            if (videoId) {
+                document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
+                document.getElementById('radio-audio').pause();
+                const stream = document.getElementById('chat-stream');
+                stream.innerHTML += `<div class="msg-bubble gift-msg">🎵 ${userAlias} queued a YouTube track!</div>`;
+                stream.scrollTop = stream.scrollHeight;
+                input.value = '';
+                togglePanel('jukebox-box');
+            } else {
+                alert("Paste a valid YouTube link.");
+            }
+        }
+
+        async function toggleCameraStream() {
+            const stage = document.getElementById('live-stage');
+            const videoEl = document.getElementById('live-host-video');
+            const btn = document.getElementById('live-toggle-btn');
+
+            if (!isLiveHost) {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    videoEl.srcObject = localStream;
+                    stage.classList.add('active');
+                    btn.innerText = "❌ End";
+                    isLiveHost = true;
+                    document.getElementById('host-name').innerText = `Host: ${userAlias}`;
+                } catch (err) {
+                    alert("Camera permissions required.");
+                }
+            } else {
+                if (localStream) localStream.getTracks().forEach(t => t.stop());
+                stage.classList.remove('active');
+                btn.innerText = "🔴 LIVE";
+                isLiveHost = false;
+            }
+        }
+
+        function changeAlias() {
+            const input = prompt("Enter your chat handle / alias:", userAlias);
+            if (input && input.trim()) {
+                userAlias = input.trim();
+                document.getElementById('alias-display').innerText = userAlias;
+            }
+        }
+
+        function selectRoom(roomName, element) {
+            activeRoom = roomName;
+            document.querySelectorAll('.room-item').forEach(btn => btn.classList.remove('active'));
+            if (element) element.classList.add('active');
+            renderRoomHistory();
+        }
+
+        function renderRoomHistory() {
+            const stream = document.getElementById('chat-stream');
+            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.8rem;">Room: <strong>${activeRoom}</strong></div>`;
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+            roomStore[activeRoom].forEach(msg => {
+                const msgNode = document.createElement('div');
+                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isBot ? 'bot' : ''} ${msg.isGift ? 'gift-msg' : ''}`;
+                msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
+                stream.appendChild(msgNode);
+            });
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function changeRadioStation(url) {
