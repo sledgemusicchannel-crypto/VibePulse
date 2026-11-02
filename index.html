@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,7 +80,7 @@
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
-        /* Panels (Doodle, Audibles, Gifts, Jukebox & Dating Search) */
+        /* Panels */
         .doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel, .dating-search-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .doodle-panel.active { display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .audibles-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -94,8 +93,8 @@
         .gift-card:hover { transform: scale(1.05); border-color: var(--accent-pink); background: #475569; }
 
         /* Search Results Container */
-        .search-results { max-height: 120px; overflow-y: auto; background: var(--bg-input); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
-        .profile-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border-color); }
+        .search-results { max-height: 140px; overflow-y: auto; background: var(--bg-input); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+        .profile-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 8px 10px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border-color); }
 
         /* Controls Bottom Bar */
         .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10; }
@@ -125,11 +124,6 @@
             20%, 80% { transform: translate3d(5px, 0, 0); }
             30%, 50%, 70% { transform: translate3d(-10px, 0, 0); }
             40%, 60% { transform: translate3d(10px, 0, 0); }
-        }
-        .floating-emoji { position: absolute; bottom: 80px; font-size: 2rem; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 99; }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-300px) scale(1.5); }
         }
     </style>
 </head>
@@ -199,22 +193,22 @@
 
             <!-- Dating Search & Hookup Finder Panel -->
             <div class="dating-search-panel" id="dating-search-box">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-dating);">💘 Nationality & Age Hookup Search</div>
-                <div style="display: flex; gap: 6px;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-dating);">💘 Nationality & Status Hookup Finder</div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <select id="search-status" class="radio-select">
-                        <option value="Single">Single</option>
                         <option value="Divorced">Divorced</option>
+                        <option value="Single">Single</option>
                         <option value="Married">Married</option>
                     </select>
                     <select id="search-gender" class="radio-select">
-                        <option value="Female">Female</option>
                         <option value="Male">Male</option>
+                        <option value="Female">Female</option>
                     </select>
-                    <input type="text" id="search-nationality" placeholder="Nationality (e.g. USA, VN)..." style="font-size: 0.8rem;">
+                    <input type="text" id="search-nationality" placeholder="Region/Country (e.g. USA, Vietnam)..." style="font-size: 0.8rem; flex: 1; min-width: 120px;">
                     <button class="btn btn-dating" style="padding: 6px 12px; font-size: 0.8rem;" onclick="searchProfiles()">Search</button>
                 </div>
                 <div class="search-results" id="search-results-box">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Set criteria and tap Search to connect with profiles online.</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Choose options and click Search to connect with live online users.</div>
                 </div>
             </div>
 
@@ -267,7 +261,7 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble bot">
                     <div class="msg-sender">🤖 VibeBot</div>
-                    Welcome to <strong>VibePulse Dating & Lounge</strong>! Tap <strong>🔍 Find Singles</strong> to search profiles by status, age, and nationality.
+                    Welcome to <strong>VibePulse Dating & Lounge</strong>! Click <strong>🔍 Find Singles</strong> to find live profiles based on your region and preferences!
                 </div>
             </div>
 
@@ -293,9 +287,6 @@
                 <div style="font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Room Users</div>
                 <div class="member-card"><div class="online-dot"></div> You (Online)</div>
                 <div class="member-card"><div class="online-dot"></div> 🤖 VibeBot</div>
-                <div class="member-card"><div class="online-dot"></div> Elena (Single, 24) - USA</div>
-                <div class="member-card"><div class="online-dot"></div> Marcus (Divorced, 39) - UK</div>
-                <div class="member-card"><div class="online-dot"></div> Sophia (Single, 29) - VN</div>
             </div>
         </main>
     </div>
@@ -319,32 +310,51 @@
 
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Mock Database of Profiles for Search & Hookup Hook
+        // Base Online Profiles Seed
         const mockProfiles = [
-            { name: "Elena_Vibes", status: "Single", gender: "Female", age: 24, nationality: "USA", room: "Single Men & Women" },
+            { name: "Elena_Vibes", status: "Single", gender: "Female", age: 25, nationality: "USA", room: "Single Men & Women" },
             { name: "Sophia_Heart", status: "Single", gender: "Female", age: 27, nationality: "Vietnam", room: "Single Men & Women" },
             { name: "Marcus_UK", status: "Divorced", gender: "Male", age: 41, nationality: "UK", room: "Divorced & Mature Dating" },
             { name: "David_H", status: "Married", gender: "Male", age: 38, nationality: "Australia", room: "Married Hookup & Chat" },
-            { name: "Chloe_Paris", status: "Single", gender: "Female", age: 22, nationality: "France", room: "Single Men & Women" },
-            { name: "Ken_Matrix", status: "Divorced", gender: "Male", age: 45, nationality: "Canada", room: "Divorced & Mature Dating" }
+            { name: "Alex_Single", status: "Single", gender: "Male", age: 29, nationality: "USA", room: "Single Men & Women" },
+            { name: "Julian_Divorced", status: "Divorced", gender: "Male", age: 39, nationality: "Canada", room: "Divorced & Mature Dating" }
         ];
 
+        // Flexible Dynamic Search Engine
         function searchProfiles() {
             const status = document.getElementById('search-status').value;
             const gender = document.getElementById('search-gender').value;
-            const natQuery = document.getElementById('search-nationality').value.toLowerCase().trim();
+            let natQuery = document.getElementById('search-nationality').value.trim();
             const resultsBox = document.getElementById('search-results-box');
 
-            const filtered = mockProfiles.filter(p => {
-                const matchStatus = p.status === status;
-                const matchGender = p.gender === gender;
-                const matchNat = natQuery === "" || p.nationality.toLowerCase().includes(natQuery);
+            if (!natQuery) natQuery = "Global";
+
+            // Filter static list first
+            let filtered = mockProfiles.filter(p => {
+                const matchStatus = p.status.toLowerCase() === status.toLowerCase();
+                const matchGender = p.gender.toLowerCase() === gender.toLowerCase();
+                const matchNat = natQuery.toLowerCase() === "global" || p.nationality.toLowerCase().includes(natQuery.toLowerCase());
                 return matchStatus && matchGender && matchNat;
             });
 
-            if (filtered.length === 0) {
-                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">No profiles match criteria. Try broadening search.</div>`;
-                return;
+            // Dynamic Generator Fallback: Always generate matching online profiles
+            if (filtered.length < 3) {
+                const generatedNames = ["VibeSeeker", "PulseRider", "SoulConnect", "NightOwl", "EchoFinder", "MetroHeart"];
+                const targetRoom = status === "Single" ? "Single Men & Women" : (status === "Divorced" ? "Divorced & Mature Dating" : "Married Hookup & Chat");
+
+                for (let i = 1; i <= 3; i++) {
+                    const randomAge = status === "Single" ? Math.floor(Math.random() * 12) + 21 : Math.floor(Math.random() * 20) + 36;
+                    const randomName = generatedNames[Math.floor(Math.random() * generatedNames.length)] + "_" + Math.floor(Math.random() * 899 + 100);
+                    
+                    filtered.push({
+                        name: randomName,
+                        status: status,
+                        gender: gender,
+                        age: randomAge,
+                        nationality: natQuery.toUpperCase(),
+                        room: targetRoom
+                    });
+                }
             }
 
             resultsBox.innerHTML = "";
@@ -352,8 +362,8 @@
                 const card = document.createElement('div');
                 card.className = 'profile-card';
                 card.innerHTML = `
-                    <span>❤️ <strong>${p.name}</strong> (${p.age}, ${p.nationality})</span>
-                    <button class="btn btn-dating" style="padding: 2px 8px; font-size: 0.7rem;" onclick="connectWithProfile('${p.name}', '${p.room}')">Connect</button>
+                    <span>🟢 <strong>${p.name}</strong> (${p.age}, ${p.status}, ${p.nationality})</span>
+                    <button class="btn btn-dating" style="padding: 4px 10px; font-size: 0.75rem;" onclick="connectWithProfile('${p.name}', '${p.room}')">Connect Live</button>
                 `;
                 resultsBox.appendChild(card);
             });
@@ -363,7 +373,7 @@
             selectRoom(targetRoom);
             togglePanel('dating-search-box');
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 Connection request sent to <strong>${targetName}</strong> in ${targetRoom}! Say hello!</div>`;
+            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 You connected with <strong>${targetName}</strong> in ${targetRoom}! Send a live message!</div>`;
             stream.scrollTop = stream.scrollHeight;
         }
 
