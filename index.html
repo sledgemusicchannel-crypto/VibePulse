@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibePulse — Modern Live Lounge & Stream Studio</title>
+    <title>VibePulse — Modern Live Lounge & YouTube Jukebox</title>
     <!-- PeerJS WebRTC Library for Video Calls -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -49,8 +49,8 @@
         /* Main Screen */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
-        /* TikTok Live & WebRTC Camera Stage */
-        .video-stage { display: none; background: #000; position: relative; height: 210px; border-bottom: 2px solid var(--accent-pink); flex-shrink: 0; overflow: hidden; }
+        /* TikTok Live Stage */
+        .video-stage { display: none; background: #000; position: relative; height: 190px; border-bottom: 2px solid var(--accent-pink); flex-shrink: 0; overflow: hidden; }
         .video-stage.active { display: block; }
         .stage-video { width: 100%; height: 100%; object-fit: cover; }
         
@@ -59,13 +59,17 @@
         .live-dot { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; animation: pulse 1.5s infinite; }
         .gift-bank { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 4px 10px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; }
 
+        /* YouTube Jukebox Player Box */
+        .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 8px; flex-shrink: 0; }
+        .jukebox-stage iframe { width: 100%; max-width: 400px; height: 140px; border-radius: 8px; border: none; }
+
         /* Radio Controller Bar */
         .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
         .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
         .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
         .radio-controls { display: flex; align-items: center; gap: 8px; }
         select.radio-select { background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; }
-        audio { height: 30px; max-width: 150px; }
+        audio { height: 30px; max-width: 140px; }
 
         /* Chat Stream */
         .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
@@ -76,11 +80,12 @@
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
-        /* Panels (Doodle, Audibles & Gifts) */
-        .doodle-panel, .audibles-panel, .gifts-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        /* Panels (Doodle, Audibles, Gifts & Jukebox Input) */
+        .doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .doodle-panel.active { display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .audibles-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .gifts-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
+        .jukebox-panel.active { display: flex; gap: 8px; align-items: center; }
         canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
 
         .gift-card { background: #334155; border: 1px solid var(--border-color); padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
@@ -148,7 +153,7 @@
         </sidebar>
 
         <main id="main-screen">
-            <!-- Video & TikTok Live Camera Stage -->
+            <!-- TikTok Live Camera Stage -->
             <div class="video-stage" id="live-stage">
                 <video class="stage-video" id="live-host-video" autoplay muted playsinline></video>
                 <div class="stage-overlay">
@@ -160,13 +165,19 @@
                 </div>
             </div>
 
-            <!-- Radio Player Bar -->
+            <!-- YouTube Music Jukebox Player Box -->
+            <div class="jukebox-stage" id="jukebox-container">
+                <iframe id="youtube-player" src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" title="YouTube Jukebox" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <!-- Radio Controller Bar -->
             <div class="radio-controller">
                 <div class="radio-meta">
                     📻 <span>Station: <strong id="radio-name">Lo-Fi Chill Hop</strong></span>
                 </div>
                 <div class="radio-controls">
-                    <select class="radio-select" id="station-picker" onchange="changeStation(this.value)">
+                    <button class="btn btn-tool" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('jukebox-box')">🎵 Add YouTube Song</button>
+                    <select class="radio-select" id="station-picker" onchange="changeRadioStation(this.value)">
                         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
                         <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits Essentials</option>
                         <option value="https://stream.qmusic.nl/top40/mp3">🌍 Global Top 40 Airplay</option>
@@ -176,6 +187,12 @@
                         <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
                     </audio>
                 </div>
+            </div>
+
+            <!-- Collaborative YouTube Jukebox Input Panel -->
+            <div class="jukebox-panel" id="jukebox-box">
+                <input type="text" class="chat-input" id="yt-url-input" placeholder="Paste YouTube link (e.g. https://youtu.be/...)">
+                <button class="btn" style="padding: 10px 14px; font-size: 0.85rem; background: #ef4444;" onclick="loadYouTubeSong()">Play Song</button>
             </div>
 
             <!-- Gift Donation Picker Panel -->
@@ -225,7 +242,7 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble bot">
                     <div class="msg-sender">🤖 VibeBot (AI Assistant)</div>
-                    Welcome to <strong>VibePulse LIVE</strong>! Tap <code>🔴 Go LIVE</code> to start your video camera stream or tap 🎁 to send live gifts!
+                    Welcome to <strong>VibePulse LIVE</strong>! Click <strong>🎵 Add YouTube Song</strong> to paste any YouTube music link and play it for the room!
                 </div>
             </div>
 
@@ -311,6 +328,38 @@
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
                 osc.start(now);
                 osc.stop(now + 0.2);
+            }
+        }
+
+        // YouTube Jukebox URL Loader
+        function loadYouTubeSong() {
+            const input = document.getElementById('yt-url-input');
+            const url = input.value.trim();
+            if (!url) return;
+
+            let videoId = "";
+            if (url.includes("youtu.be/")) {
+                videoId = url.split("youtu.be/")[1]?.split("?")[0];
+            } else if (url.includes("watch?v=")) {
+                videoId = url.split("watch?v=")[1]?.split("&")[0];
+            }
+
+            if (videoId) {
+                const iframe = document.getElementById('youtube-player');
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
+                
+                // Pause radio when YouTube plays
+                const radioAudio = document.getElementById('radio-audio');
+                radioAudio.pause();
+
+                const stream = document.getElementById('chat-stream');
+                stream.innerHTML += `<div class="msg-bubble gift-msg">🎵 ${userAlias} added a YouTube song to the Jukebox!</div>`;
+                stream.scrollTop = stream.scrollHeight;
+
+                input.value = '';
+                togglePanel('jukebox-box');
+            } else {
+                alert("Please paste a valid YouTube or YouTube Music link (e.g., https://youtu.be/...).");
             }
         }
 
@@ -416,7 +465,7 @@
             stream.scrollTop = stream.scrollHeight;
         }
 
-        function changeStation(url) {
+        function changeRadioStation(url) {
             const player = document.getElementById('radio-audio');
             const picker = document.getElementById('station-picker');
             document.getElementById('radio-name').innerText = picker.options[picker.selectedIndex]?.text || "Radio";
@@ -470,7 +519,7 @@
         function togglePanel(panelId) {
             const panel = document.getElementById(panelId);
             const isOpen = panel.classList.contains('active');
-            document.querySelectorAll('.doodle-panel, .audibles-panel, .gifts-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel').forEach(p => p.classList.remove('active'));
             if (!isOpen) panel.classList.add('active');
         }
 
