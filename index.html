@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibePulse — Live Lounge, Radio & TikTok Live Streams</title>
-    <!-- PeerJS WebRTC Engine -->
+    <title>VibePulse — Modern Live Lounge & Stream Studio</title>
+    <!-- PeerJS WebRTC Library for Video Calls -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -31,11 +31,11 @@
         .header-actions { display: flex; align-items: center; gap: 10px; }
         .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; }
 
-        /* Main App Body */
+        /* Main Container Layout */
         .app-body { display: flex; flex: 1; height: calc(100% - 56px); overflow: hidden; flex-direction: column; position: relative; }
         @media(min-width: 768px) { .app-body { flex-direction: row; } }
 
-        /* Sidebar Rooms */
+        /* Sidebar - Rooms */
         sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 8px; gap: 8px; flex-shrink: 0; }
         @media(min-width: 768px) { sidebar { width: 250px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
 
@@ -46,20 +46,20 @@
         .room-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); }
         .room-item.rainbow-room.active { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
 
-        /* Main Chat Canvas */
+        /* Main Screen */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
-        /* TikTok Live Stage & Video Container */
-        .live-stage { display: none; background: #000; position: relative; height: 230px; border-bottom: 2px solid var(--accent-pink); flex-shrink: 0; overflow: hidden; }
-        .live-stage.active { display: block; }
-        .live-video { width: 100%; height: 100%; object-fit: cover; }
+        /* TikTok Live & WebRTC Camera Stage */
+        .video-stage { display: none; background: #000; position: relative; height: 210px; border-bottom: 2px solid var(--accent-pink); flex-shrink: 0; overflow: hidden; }
+        .video-stage.active { display: block; }
+        .stage-video { width: 100%; height: 100%; object-fit: cover; }
         
-        .live-overlay-header { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
+        .stage-overlay { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
         .host-badge { background: rgba(0,0,0,0.65); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 6px; color: #fff; backdrop-filter: blur(4px); }
-        .live-indicator { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; animation: pulse 1.5s infinite; }
+        .live-dot { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; animation: pulse 1.5s infinite; }
         .gift-bank { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 4px 10px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; }
 
-        /* Radio & Jukebox Bar */
+        /* Radio Controller Bar */
         .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
         .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
         .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
@@ -86,11 +86,6 @@
         .gift-card { background: #334155; border: 1px solid var(--border-color); padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
         .gift-card:hover { transform: scale(1.05); border-color: var(--accent-pink); background: #475569; }
 
-        /* Floating Reactions Dock */
-        .reactions-bar { display: flex; gap: 6px; background: rgba(15, 23, 42, 0.8); padding: 4px 8px; border-radius: 20px; border: 1px solid var(--border-color); }
-        .react-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; transition: transform 0.1s; }
-        .react-btn:hover { transform: scale(1.3); }
-
         /* Controls Bottom Bar */
         .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10; }
         input[type="text"].chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.95rem; outline: none; }
@@ -108,8 +103,8 @@
         .member-card { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; padding: 6px 0; }
         .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
 
-        /* Screen Animations & Gift Popups */
-        .gift-alert-popup { position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-pink); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Screen Animations & Popups */
+        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-pink); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .gift-alert-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -133,12 +128,12 @@
         <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
         <div class="header-actions">
             <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
-            <button class="btn btn-tool" style="padding: 6px 10px; font-size: 0.8rem;" onclick="toggleMembersDrawer()">👥 Online (<span id="member-count">4</span>)</button>
+            <button class="btn btn-tool" style="padding: 6px 10px; font-size: 0.8rem;" onclick="toggleMembersDrawer()">👥 Online</button>
         </div>
     </header>
 
     <div class="app-body">
-        <!-- Room Selector Sidebar -->
+        <!-- Sidebar Room Navigation -->
         <sidebar id="room-list">
             <div class="room-section-title">General Rooms</div>
             <button class="room-item active" onclick="selectRoom('Global Lounge', this)">🌐 Global Lounge</button>
@@ -153,12 +148,12 @@
         </sidebar>
 
         <main id="main-screen">
-            <!-- TikTok Live Stream Stage -->
-            <div class="live-stage" id="live-stage">
-                <video class="live-video" id="live-host-video" autoplay muted playsinline></video>
-                <div class="live-overlay-header">
+            <!-- Video & TikTok Live Camera Stage -->
+            <div class="video-stage" id="live-stage">
+                <video class="stage-video" id="live-host-video" autoplay muted playsinline></video>
+                <div class="stage-overlay">
                     <div class="host-badge">
-                        <span class="live-indicator">LIVE</span>
+                        <span class="live-dot">LIVE</span>
                         <span id="host-name">Host: Guest_User</span>
                     </div>
                     <div class="gift-bank">🎁 $<span id="total-gifts">0</span></div>
@@ -230,17 +225,17 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble bot">
                     <div class="msg-sender">🤖 VibeBot (AI Assistant)</div>
-                    Welcome to <strong>VibePulse LIVE</strong>! Tap <code>🔴 Go LIVE</code> to start your stream or tap 🎁 to send live gifts!
+                    Welcome to <strong>VibePulse LIVE</strong>! Tap <code>🔴 Go LIVE</code> to start your video camera stream or tap 🎁 to send live gifts!
                 </div>
             </div>
 
             <!-- Controls Input Area -->
             <div class="chat-input-bar">
-                <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleTikTokLive()">🔴 Go LIVE</button>
+                <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE / Start Camera" onclick="toggleCameraStream()">🔴 Go LIVE</button>
                 <button class="btn btn-tool" title="Send Gift" onclick="togglePanel('gifts-box')">🎁</button>
                 <button class="btn btn-tool" title="Canvas Doodle" onclick="togglePanel('doodle-box')">🎨</button>
                 <button class="btn btn-buzz" title="Yahoo BUZZ Shake" onclick="triggerBuzz()">⚡ BUZZ!</button>
-                <input type="text" class="chat-input" id="chat-input" placeholder="Send a message to live stream..." onkeypress="onKeyPress(event)">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
                 <button class="btn" onclick="dispatchMessage()">Send</button>
             </div>
 
@@ -281,7 +276,7 @@
 
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Audio Sound Engine
+        // Web Audio Synthesizer Engine
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSynthesizedSound(type) {
@@ -319,8 +314,8 @@
             }
         }
 
-        // 1. TikTok Live Broadcast Engine
-        async function toggleTikTokLive() {
+        // Camera & TikTok Live Video Controller
+        async function toggleCameraStream() {
             const stage = document.getElementById('live-stage');
             const videoEl = document.getElementById('live-host-video');
             const btn = document.getElementById('live-toggle-btn');
@@ -336,9 +331,10 @@
                     document.getElementById('host-name').innerText = `Host: ${userAlias}`;
 
                     const stream = document.getElementById('chat-stream');
-                    stream.innerHTML += `<div class="msg-bubble gift-msg">🔴 ${userAlias} started a LIVE stream!</div>`;
+                    stream.innerHTML += `<div class="msg-bubble gift-msg">🔴 ${userAlias} started a LIVE video stream!</div>`;
+                    stream.scrollTop = stream.scrollHeight;
                 } catch (err) {
-                    alert("Camera & Mic permissions are needed to go LIVE.");
+                    alert("Camera & Microphone access are required for live video streams.");
                 }
             } else {
                 if (localStream) localStream.getTracks().forEach(t => t.stop());
@@ -349,33 +345,28 @@
             }
         }
 
-        // 2. Live Gift Donation Engine
+        // Live Gift Engine
         function sendGift(giftName, value, icon) {
             togglePanel('gifts-box');
             totalGiftBalance += value;
             document.getElementById('total-gifts').innerText = totalGiftBalance;
             playSynthesizedSound('gift');
 
-            // Trigger Pop-up Card
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
             document.getElementById('gift-sender-pop').innerText = userAlias;
             document.getElementById('gift-name-pop').innerText = `sent a ${giftName} ($${value})!`;
             modal.classList.add('active');
 
-            // Post to Chat
             const giftObj = { sender: userAlias, text: `sent a ${icon} ${giftName} ($${value})!`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
 
-            // Spawn Particles
             for (let i = 0; i < 6; i++) spawnFloatingEmoji(icon);
-
             setTimeout(() => modal.classList.remove('active'), 2000);
         }
 
-        // 3. Floating Emoji Particle Engine
         function spawnFloatingEmoji(emoji) {
             const screen = document.getElementById('main-screen');
             const el = document.createElement('div');
@@ -465,6 +456,17 @@
             setTimeout(() => mainScreen.classList.remove('shake'), 500);
         }
 
+        function triggerAudible(name, text) {
+            togglePanel('audibles-box');
+            playSynthesizedSound('buzz');
+            const stream = document.getElementById('chat-stream');
+            const msgNode = document.createElement('div');
+            msgNode.className = 'msg-bubble gift-msg';
+            msgNode.innerHTML = `📢 <strong>${escapeHtml(userAlias)} played audible: ${text}</strong>`;
+            stream.appendChild(msgNode);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
         function togglePanel(panelId) {
             const panel = document.getElementById(panelId);
             const isOpen = panel.classList.contains('active');
@@ -476,11 +478,47 @@
             document.getElementById('members-drawer').classList.toggle('open');
         }
 
-        // Canvas Drawing Setup
+        // Canvas Setup
         const canvas = document.getElementById('doodle-canvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
         canvas.addEventListener('mousedown', () => isDrawing = true);
         canvas.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', draw
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', (e) => { isDrawing = true; draw(e.touches[0]); });
+        canvas.addEventListener('touchend', () => { isDrawing = false; ctx.beginPath(); });
+        canvas.addEventListener('touchmove', (e) => { draw(e.touches[0]); e.preventDefault(); });
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineWidth = document.getElementById('draw-size').value;
+            ctx.strokeStyle = document.getElementById('draw-color').value;
+            ctx.lineCap = 'round';
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function postDoodle() {
+            const dataUrl = canvas.toDataURL();
+            const imgObj = { sender: userAlias, image: dataUrl, isSelf: true };
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+            roomStore[activeRoom].push(imgObj);
+            renderRoomHistory();
+            clearCanvas();
+            togglePanel('doodle-box');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        renderRoomHistory();
+    </script>
+</body>
+</html>
