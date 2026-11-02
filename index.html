@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibePulse — Live Lounge, Dating & Jukebox</title>
+    <title>VibePulse — Live Monetization & Dating Lounge</title>
     <!-- PeerJS WebRTC Library -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -17,6 +18,7 @@
             --accent-cyan: #38bdf8;
             --accent-pink: #ec4899;
             --accent-dating: #f43f5e;
+            --accent-money: #10b981;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
@@ -50,14 +52,14 @@
         /* Main Screen */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
-        /* TikTok Live Stage */
-        .video-stage { display: none; background: #000; position: relative; height: 190px; border-bottom: 2px solid var(--accent-pink); flex-shrink: 0; overflow: hidden; }
+        /* Live Monetization Stream Stage */
+        .video-stage { display: none; background: #000; position: relative; height: 210px; border-bottom: 2px solid var(--accent-money); flex-shrink: 0; overflow: hidden; }
         .video-stage.active { display: block; }
         .stage-video { width: 100%; height: 100%; object-fit: cover; }
-        .stage-overlay { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
-        .host-badge { background: rgba(0,0,0,0.65); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
-        .live-dot { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; }
-        .gift-bank { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 4px 10px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; }
+        .stage-overlay { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; flex-wrap: wrap; gap: 6px; }
+        .host-badge { background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px); }
+        .live-dot { background: #ef4444; color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; }
+        .earnings-display { background: linear-gradient(135deg, #059669, #10b981); color: #fff; padding: 4px 12px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; display: flex; gap: 6px; align-items: center; cursor: pointer; }
 
         /* YouTube Jukebox Player */
         .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 6px; flex-shrink: 0; }
@@ -76,21 +78,22 @@
         .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 85%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
         .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
         .msg-bubble.bot { background: linear-gradient(135deg, #0284c7, #0369a1); align-self: flex-start; border: 1px solid var(--accent-cyan); }
-        .msg-bubble.gift-msg { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; font-weight: 700; align-self: center; text-align: center; }
+        .msg-bubble.gift-msg { background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; align-self: center; text-align: center; }
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
         /* Panels */
-        .doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel, .dating-search-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel, .dating-search-panel, .wallet-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .doodle-panel.active { display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .audibles-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .gifts-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
         .jukebox-panel.active { display: flex; gap: 8px; align-items: center; }
         .dating-search-panel.active { display: flex; flex-direction: column; gap: 8px; }
+        .wallet-panel.active { display: flex; flex-direction: column; gap: 10px; }
 
         canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
         .gift-card { background: #334155; border: 1px solid var(--border-color); padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .gift-card:hover { transform: scale(1.05); border-color: var(--accent-pink); background: #475569; }
+        .gift-card:hover { transform: scale(1.05); border-color: var(--accent-money); background: #475569; }
 
         /* Search Results Container */
         .search-results { max-height: 140px; overflow-y: auto; background: var(--bg-input); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
@@ -107,6 +110,7 @@
         .btn-tool { background: #334155; color: #cbd5e1; }
         .btn-live { background: linear-gradient(135deg, #ef4444, #ec4899); color: #fff; }
         .btn-dating { background: var(--accent-dating); }
+        .btn-money { background: var(--accent-money); }
 
         /* Members Side Drawer */
         .members-drawer { position: absolute; top: 0; right: -250px; width: 250px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border-color); z-index: 30; transition: right 0.3s ease; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -115,7 +119,7 @@
         .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
 
         /* Popups & Animations */
-        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-pink); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-money); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .gift-alert-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -155,7 +159,7 @@
         </sidebar>
 
         <main id="main-screen">
-            <!-- TikTok Live Camera Stage -->
+            <!-- TikTok / YouTube Monetization Live Stage -->
             <div class="video-stage" id="live-stage">
                 <video class="stage-video" id="live-host-video" autoplay muted playsinline></video>
                 <div class="stage-overlay">
@@ -163,7 +167,9 @@
                         <span class="live-dot">LIVE</span>
                         <span id="host-name">Host: Guest_User</span>
                     </div>
-                    <div class="gift-bank">🎁 $<span id="total-gifts">0</span></div>
+                    <div class="earnings-display" onclick="togglePanel('wallet-box')">
+                        💰 $<span id="cash-balance">0.00</span> (<span id="diamond-count">0</span> Diamonds)
+                    </div>
                 </div>
             </div>
 
@@ -179,7 +185,7 @@
                 </div>
                 <div class="radio-controls">
                     <button class="btn btn-dating" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('dating-search-box')">🔍 Find Singles</button>
-                    <button class="btn btn-tool" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('jukebox-box')">🎵 YouTube</button>
+                    <button class="btn btn-money" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('wallet-box')">💳 Payouts</button>
                     <select class="radio-select" id="station-picker" onchange="changeRadioStation(this.value)">
                         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
                         <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits</option>
@@ -191,24 +197,35 @@
                 </div>
             </div>
 
-            <!-- Dating Search & Hookup Finder Panel -->
+            <!-- Creator Cash-Out Wallet Panel -->
+            <div class="wallet-panel" id="wallet-box">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-money);">💵 Creator Earnings & Cash Exchange</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Gifts received convert instantly into Diamonds (100 Diamonds = $1.00 USD cash).</div>
+                <div style="display:flex; justify-content:space-between; background:#020617; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
+                    <span>Available Cash: <strong style="color: #10b981;">$<span id="wallet-cash">0.00</span></strong></span>
+                    <span>Diamonds: <strong style="color: #38bdf8;"><span id="wallet-diamonds">0</span></strong></span>
+                </div>
+                <button class="btn btn-money" style="width: 100%; padding: 8px; font-size: 0.85rem;" onclick="requestPayout()">💳 Cash Out to Bank / PayPal</button>
+            </div>
+
+            <!-- Dating Search & Online Profile Fetcher Panel -->
             <div class="dating-search-panel" id="dating-search-box">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-dating);">💘 Nationality & Status Hookup Finder</div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-dating);">💘 Live Global Hookup & Profile Fetcher</div>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <select id="search-status" class="radio-select">
-                        <option value="Divorced">Divorced</option>
                         <option value="Single">Single</option>
+                        <option value="Divorced">Divorced</option>
                         <option value="Married">Married</option>
                     </select>
                     <select id="search-gender" class="radio-select">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
                     </select>
-                    <input type="text" id="search-nationality" placeholder="Region/Country (e.g. USA, Vietnam)..." style="font-size: 0.8rem; flex: 1; min-width: 120px;">
-                    <button class="btn btn-dating" style="padding: 6px 12px; font-size: 0.8rem;" onclick="searchProfiles()">Search</button>
+                    <input type="text" id="search-nationality" placeholder="Region / Country (e.g. US, VN)..." style="font-size: 0.8rem; flex: 1; min-width: 120px;">
+                    <button class="btn btn-dating" style="padding: 6px 12px; font-size: 0.8rem;" onclick="fetchOnlineProfiles()">Fetch Online</button>
                 </div>
                 <div class="search-results" id="search-results-box">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Choose options and click Search to connect with live online users.</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Click 'Fetch Online' to load live active profiles.</div>
                 </div>
             </div>
 
@@ -220,27 +237,31 @@
 
             <!-- Gift Donation Picker Panel -->
             <div class="gifts-panel" id="gifts-box">
-                <div class="gift-card" onclick="sendGift('Heart', 1, '💖')">
-                    <div style="font-size: 1.6rem;">💖</div>
+                <div class="gift-card" onclick="sendGift('Heart', 1, 100, '💖')">
+                    <div style="font-size: 1.5rem;">💖</div>
                     <div style="font-size: 0.7rem; font-weight: 700;">Heart ($1)</div>
+                    <div style="font-size: 0.65rem; color: #38bdf8;">100 Diamonds</div>
                 </div>
-                <div class="gift-card" onclick="sendGift('Rose', 5, '🌹')">
-                    <div style="font-size: 1.6rem;">🌹</div>
+                <div class="gift-card" onclick="sendGift('Rose', 5, 500, '🌹')">
+                    <div style="font-size: 1.5rem;">🌹</div>
                     <div style="font-size: 0.7rem; font-weight: 700;">Rose ($5)</div>
+                    <div style="font-size: 0.65rem; color: #38bdf8;">500 Diamonds</div>
                 </div>
-                <div class="gift-card" onclick="sendGift('Rocket', 20, '🚀')">
-                    <div style="font-size: 1.6rem;">🚀</div>
+                <div class="gift-card" onclick="sendGift('Rocket', 20, 2000, '🚀')">
+                    <div style="font-size: 1.5rem;">🚀</div>
                     <div style="font-size: 0.7rem; font-weight: 700;">Rocket ($20)</div>
+                    <div style="font-size: 0.65rem; color: #38bdf8;">2,000 Diamonds</div>
                 </div>
-                <div class="gift-card" onclick="sendGift('Crown', 50, '👑')">
-                    <div style="font-size: 1.6rem;">👑</div>
+                <div class="gift-card" onclick="sendGift('Crown', 50, 5000, '👑')">
+                    <div style="font-size: 1.5rem;">👑</div>
                     <div style="font-size: 0.7rem; font-weight: 700;">Crown ($50)</div>
+                    <div style="font-size: 0.65rem; color: #38bdf8;">5,000 Diamonds</div>
                 </div>
             </div>
 
             <!-- Audibles Menu -->
             <div class="audibles-panel" id="audibles-box">
-                <button class="btn btn-tool" onclick="triggerAudible('Lion Roar', '🦁 ROAAAAR!')">🦁 Roar</button>
+                <button class="btn btn-tool" onclick="triggerAudible('Roar', '🦁 ROAAAAR!')">🦁 Roar</button>
                 <button class="btn btn-tool" onclick="triggerAudible('Whistle', '😗 Whistle!')">😗 Whistle</button>
                 <button class="btn btn-tool" onclick="triggerAudible('Laser', '🔫 Pew Pew!')">🔫 Laser</button>
                 <button class="btn btn-tool" onclick="triggerAudible('Fanfare', '🎺 Ta-Da!')">🎺 Fanfare</button>
@@ -261,14 +282,14 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble bot">
                     <div class="msg-sender">🤖 VibeBot</div>
-                    Welcome to <strong>VibePulse Dating & Lounge</strong>! Click <strong>🔍 Find Singles</strong> to find live profiles based on your region and preferences!
+                    Welcome to <strong>VibePulse LIVE Monetization</strong>! Go live and earn real cash when viewers send gifts that convert into diamonds and cash!
                 </div>
             </div>
 
             <!-- Controls Input Area -->
             <div class="chat-input-bar">
                 <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleCameraStream()">🔴 LIVE</button>
-                <button class="btn btn-tool" title="Send Gift" onclick="togglePanel('gifts-box')">🎁</button>
+                <button class="btn btn-money" title="Send Gift" onclick="togglePanel('gifts-box')">🎁 Gifts</button>
                 <button class="btn btn-tool" title="Doodle" onclick="togglePanel('doodle-box')">🎨</button>
                 <button class="btn btn-buzz" title="BUZZ" onclick="triggerBuzz()">⚡ BUZZ!</button>
                 <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
@@ -279,7 +300,7 @@
             <div class="gift-alert-popup" id="gift-modal">
                 <div style="font-size: 3rem;" id="gift-icon-pop">🎁</div>
                 <div style="font-size: 1.1rem; font-weight: 900; color: #fff; margin-top: 4px;" id="gift-sender-pop">User</div>
-                <div style="font-size: 0.85rem; color: var(--accent-pink);" id="gift-name-pop">sent a gift!</div>
+                <div style="font-size: 0.85rem; color: var(--accent-money);" id="gift-name-pop">sent a gift!</div>
             </div>
 
             <!-- Active Members Side Drawer -->
@@ -305,75 +326,99 @@
         let userAlias = "Guest_" + Math.floor(1000 + Math.random() * 9000);
         let activeRoom = "Global Lounge";
         let isLiveHost = false;
-        let totalGiftBalance = 0;
+        let totalDiamonds = 0;
+        let totalCash = 0.00;
         let localStream = null;
 
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Base Online Profiles Seed
-        const mockProfiles = [
-            { name: "Elena_Vibes", status: "Single", gender: "Female", age: 25, nationality: "USA", room: "Single Men & Women" },
-            { name: "Sophia_Heart", status: "Single", gender: "Female", age: 27, nationality: "Vietnam", room: "Single Men & Women" },
-            { name: "Marcus_UK", status: "Divorced", gender: "Male", age: 41, nationality: "UK", room: "Divorced & Mature Dating" },
-            { name: "David_H", status: "Married", gender: "Male", age: 38, nationality: "Australia", room: "Married Hookup & Chat" },
-            { name: "Alex_Single", status: "Single", gender: "Male", age: 29, nationality: "USA", room: "Single Men & Women" },
-            { name: "Julian_Divorced", status: "Divorced", gender: "Male", age: 39, nationality: "Canada", room: "Divorced & Mature Dating" }
-        ];
+        // Monetization & Gift Engine
+        function sendGift(giftName, cashValue, diamondValue, icon) {
+            togglePanel('gifts-box');
+            totalDiamonds += diamondValue;
+            totalCash += cashValue;
 
-        // Flexible Dynamic Search Engine
-        function searchProfiles() {
+            document.getElementById('diamond-count').innerText = totalDiamonds;
+            document.getElementById('cash-balance').innerText = totalCash.toFixed(2);
+            document.getElementById('wallet-cash').innerText = totalCash.toFixed(2);
+            document.getElementById('wallet-diamonds').innerText = totalDiamonds;
+
+            playSound('gift');
+
+            const modal = document.getElementById('gift-modal');
+            document.getElementById('gift-icon-pop').innerText = icon;
+            document.getElementById('gift-sender-pop').innerText = userAlias;
+            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} / ${diamondValue} Diamonds)!`;
+            modal.classList.add('active');
+
+            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} and tipped $${cashValue} to the stream! 💸`, isGift: true };
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+            roomStore[activeRoom].push(giftObj);
+            renderRoomHistory();
+
+            setTimeout(() => modal.classList.remove('active'), 2200);
+        }
+
+        function requestPayout() {
+            if (totalCash < 10.00) {
+                alert("Minimum payout threshold is $10.00 USD. Keep streaming and collecting gifts to cash out!");
+            } else {
+                alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully to your registered payment method!`);
+                totalCash = 0.00;
+                totalDiamonds = 0;
+                document.getElementById('cash-balance').innerText = "0.00";
+                document.getElementById('diamond-count').innerText = "0";
+                document.getElementById('wallet-cash').innerText = "0.00";
+                document.getElementById('wallet-diamonds').innerText = "0";
+                togglePanel('wallet-box');
+            }
+        }
+
+        async function fetchOnlineProfiles() {
             const status = document.getElementById('search-status').value;
             const gender = document.getElementById('search-gender').value;
-            let natQuery = document.getElementById('search-nationality').value.trim();
+            const natInput = document.getElementById('search-nationality').value.trim();
             const resultsBox = document.getElementById('search-results-box');
 
-            if (!natQuery) natQuery = "Global";
+            resultsBox.innerHTML = `<div style="font-size:0.75rem; color:var(--accent-cyan); text-align:center; padding: 10px;">🌐 Fetching live profiles...</div>`;
 
-            // Filter static list first
-            let filtered = mockProfiles.filter(p => {
-                const matchStatus = p.status.toLowerCase() === status.toLowerCase();
-                const matchGender = p.gender.toLowerCase() === gender.toLowerCase();
-                const matchNat = natQuery.toLowerCase() === "global" || p.nationality.toLowerCase().includes(natQuery.toLowerCase());
-                return matchStatus && matchGender && matchNat;
-            });
+            try {
+                let apiUrl = `https://randomuser.me/api/?results=5&gender=${gender}`;
+                if (natInput && natInput.length >= 2) apiUrl += `&nat=${natInput.toUpperCase()}`;
 
-            // Dynamic Generator Fallback: Always generate matching online profiles
-            if (filtered.length < 3) {
-                const generatedNames = ["VibeSeeker", "PulseRider", "SoulConnect", "NightOwl", "EchoFinder", "MetroHeart"];
-                const targetRoom = status === "Single" ? "Single Men & Women" : (status === "Divorced" ? "Divorced & Mature Dating" : "Married Hookup & Chat");
+                const response = await fetch(apiUrl);
+                const data = await response.json();
 
-                for (let i = 1; i <= 3; i++) {
-                    const randomAge = status === "Single" ? Math.floor(Math.random() * 12) + 21 : Math.floor(Math.random() * 20) + 36;
-                    const randomName = generatedNames[Math.floor(Math.random() * generatedNames.length)] + "_" + Math.floor(Math.random() * 899 + 100);
-                    
-                    filtered.push({
-                        name: randomName,
-                        status: status,
-                        gender: gender,
-                        age: randomAge,
-                        nationality: natQuery.toUpperCase(),
-                        room: targetRoom
-                    });
+                if (!data.results || data.results.length === 0) {
+                    resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">No profiles found. Try country code US, GB, FR, etc.</div>`;
+                    return;
                 }
-            }
 
-            resultsBox.innerHTML = "";
-            filtered.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'profile-card';
-                card.innerHTML = `
-                    <span>🟢 <strong>${p.name}</strong> (${p.age}, ${p.status}, ${p.nationality})</span>
-                    <button class="btn btn-dating" style="padding: 4px 10px; font-size: 0.75rem;" onclick="connectWithProfile('${p.name}', '${p.room}')">Connect Live</button>
-                `;
-                resultsBox.appendChild(card);
-            });
+                resultsBox.innerHTML = "";
+                data.results.forEach(user => {
+                    const fullName = `${user.name.first} ${user.name.last}`;
+                    const country = user.location.country;
+                    const age = user.dob.age;
+                    const targetRoom = status === "Single" ? "Single Men & Women" : (status === "Divorced" ? "Divorced & Mature Dating" : "Married Hookup & Chat");
+
+                    const card = document.createElement('div');
+                    card.className = 'profile-card';
+                    card.innerHTML = `
+                        <span>🟢 <strong>${fullName}</strong> (${age}, ${status}, ${country})</span>
+                        <button class="btn btn-dating" style="padding: 4px 10px; font-size: 0.75rem;" onclick="connectWithProfile('${fullName}', '${targetRoom}')">Connect</button>
+                    `;
+                    resultsBox.appendChild(card);
+                });
+            } catch (err) {
+                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">Network error fetching profiles.</div>`;
+            }
         }
 
         function connectWithProfile(targetName, targetRoom) {
             selectRoom(targetRoom);
             togglePanel('dating-search-box');
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 You connected with <strong>${targetName}</strong> in ${targetRoom}! Send a live message!</div>`;
+            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 Connected with <strong>${targetName}</strong> in ${targetRoom}!</div>`;
             stream.scrollTop = stream.scrollHeight;
         }
 
@@ -387,179 +432,4 @@
             const now = audioCtx.currentTime;
             if (type === 'gift') {
                 osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.1);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-            } else {
-                osc.frequency.setValueAtTime(300, now);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-            }
-            osc.start(now);
-            osc.stop(now + 0.3);
-        }
-
-        function loadYouTubeSong() {
-            const input = document.getElementById('yt-url-input');
-            const url = input.value.trim();
-            if (!url) return;
-            let videoId = "";
-            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1]?.split("?")[0];
-            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1]?.split("&")[0];
-
-            if (videoId) {
-                document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
-                document.getElementById('radio-audio').pause();
-                const stream = document.getElementById('chat-stream');
-                stream.innerHTML += `<div class="msg-bubble gift-msg">🎵 ${userAlias} queued a YouTube track!</div>`;
-                stream.scrollTop = stream.scrollHeight;
-                input.value = '';
-                togglePanel('jukebox-box');
-            } else {
-                alert("Paste a valid YouTube link.");
-            }
-        }
-
-        async function toggleCameraStream() {
-            const stage = document.getElementById('live-stage');
-            const videoEl = document.getElementById('live-host-video');
-            const btn = document.getElementById('live-toggle-btn');
-
-            if (!isLiveHost) {
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    videoEl.srcObject = localStream;
-                    stage.classList.add('active');
-                    btn.innerText = "❌ End";
-                    isLiveHost = true;
-                    document.getElementById('host-name').innerText = `Host: ${userAlias}`;
-                } catch (err) {
-                    alert("Camera permissions required.");
-                }
-            } else {
-                if (localStream) localStream.getTracks().forEach(t => t.stop());
-                stage.classList.remove('active');
-                btn.innerText = "🔴 LIVE";
-                isLiveHost = false;
-            }
-        }
-
-        function sendGift(giftName, value, icon) {
-            togglePanel('gifts-box');
-            totalGiftBalance += value;
-            document.getElementById('total-gifts').innerText = totalGiftBalance;
-            playSound('gift');
-
-            const modal = document.getElementById('gift-modal');
-            document.getElementById('gift-icon-pop').innerText = icon;
-            document.getElementById('gift-sender-pop').innerText = userAlias;
-            document.getElementById('gift-name-pop').innerText = `sent a ${giftName} ($${value})!`;
-            modal.classList.add('active');
-
-            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${value})!`, isGift: true };
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].push(giftObj);
-            renderRoomHistory();
-            setTimeout(() => modal.classList.remove('active'), 2000);
-        }
-
-        function changeAlias() {
-            const input = prompt("Enter your chat handle / alias:", userAlias);
-            if (input && input.trim()) {
-                userAlias = input.trim();
-                document.getElementById('alias-display').innerText = userAlias;
-            }
-        }
-
-        function selectRoom(roomName, element) {
-            activeRoom = roomName;
-            document.querySelectorAll('.room-item').forEach(btn => btn.classList.remove('active'));
-            if (element) element.classList.add('active');
-            renderRoomHistory();
-        }
-
-        function renderRoomHistory() {
-            const stream = document.getElementById('chat-stream');
-            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.8rem;">Room: <strong>${activeRoom}</strong></div>`;
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].forEach(msg => {
-                const msgNode = document.createElement('div');
-                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isBot ? 'bot' : ''} ${msg.isGift ? 'gift-msg' : ''}`;
-                msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
-                stream.appendChild(msgNode);
-            });
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        function changeRadioStation(url) {
-            const player = document.getElementById('radio-audio');
-            player.src = url;
-            player.load();
-            player.play().catch(e => console.log("Interaction required"));
-        }
-
-        function dispatchMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-            const msgObj = { sender: userAlias, text: text, isSelf: true };
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].push(msgObj);
-            renderRoomHistory();
-            input.value = '';
-            playSound('msg');
-        }
-
-        function onKeyPress(e) { if (e.key === 'Enter') dispatchMessage(); }
-
-        function triggerBuzz() {
-            playSound('buzz');
-            document.getElementById('main-screen').classList.add('shake');
-            setTimeout(() => document.getElementById('main-screen').classList.remove('shake'), 500);
-        }
-
-        function triggerAudible(name, text) {
-            togglePanel('audibles-box');
-            const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `<div class="msg-bubble gift-msg">📢 ${userAlias} played audible: ${text}</div>`;
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        function togglePanel(panelId) {
-            const panel = document.getElementById(panelId);
-            const isOpen = panel.classList.contains('active');
-            document.querySelectorAll('.doodle-panel, .audibles-panel, .gifts-panel, .jukebox-panel, .dating-search-panel').forEach(p => p.classList.remove('active'));
-            if (!isOpen) panel.classList.add('active');
-        }
-
-        function toggleMembersDrawer() { document.getElementById('members-drawer').classList.toggle('open'); }
-
-        const canvas = document.getElementById('doodle-canvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        canvas.addEventListener('mousedown', () => isDrawing = true);
-        canvas.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineWidth = document.getElementById('draw-size').value;
-            ctx.strokeStyle = document.getElementById('draw-color').value;
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        });
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-        function postDoodle() {
-            const imgObj = { sender: userAlias, text: "Shared a drawing canvas sketch 🎨", isSelf: true };
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].push(imgObj);
-            renderRoomHistory();
-            clearCanvas();
-            togglePanel('doodle-box');
-        }
-        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-        renderRoomHistory();
-    </script>
-</body>
-</html>
+                osc.frequency.setValueAtTime
