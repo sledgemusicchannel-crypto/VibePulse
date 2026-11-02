@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VibePulse — Modern Live Lounge & Radio</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-input: #020617;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent-buzz: #ef4444;
+            --accent-cyan: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* Header */
+        header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; }
+        .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .brand-tag { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+        .user-status { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #e2e8f0; }
+        .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Main Container */
+        .app-body { display: flex; flex: 1; overflow: hidden; flex-direction: column; }
+        @media(min-width: 768px) { .app-body { flex-direction: row; } }
+
+        /* Sidebar - Rooms */
+        sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 8px; gap: 8px; flex-shrink: 0; }
+        @media(min-width: 768px) { sidebar { width: 250px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
+
+        .room-item { background: #334155; border: none; color: #cbd5e1; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .room-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); }
+
+        /* Chat View */
+        main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; }
+
+        /* Radio Controller Bar */
+        .radio-controller { background: #1e293b; padding: 10px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .radio-meta { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-muted); }
+        .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
+        .radio-controls { display: flex; align-items: center; gap: 8px; }
+        select.radio-select { background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; }
+        audio { height: 30px; max-width: 170px; }
+
+        /* Chat Stream */
+        .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 82%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
+        .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
+        .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
+        .msg-bubble.self .msg-sender { color: #c7d2fe; }
+
+        /* Doodle Drawer Overlay */
+        .doodle-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-direction: column; align-items: center; gap: 10px; }
+        .doodle-panel.active { display: flex; }
+        .doodle-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%; }
+        canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
+
+        /* Emoji / Audibles Menu */
+        .audibles-panel { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .audibles-panel.active { display: grid; }
+        .audible-btn { background: #334155; border: none; color: #fff; padding: 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; text-align: center; }
+
+        /* Controls Bottom Bar */
+        .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; }
+        input[type="text"].chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.95rem; outline: none; }
+        input[type="text"].chat-input:focus { border-color: var(--primary); }
+
+        .btn { background: var(--primary); border: none; color: white; padding: 12px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-buzz { background: var(--accent-buzz); }
+        .btn-buzz:hover { background: #dc2626; }
+        .btn-tool { background: #334155; color: #cbd5e1; }
+        .btn-tool:hover { background: #475569; }
+
+        /* Screen Shake Animation */
+        .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes buzzShake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(5px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-10px, 0, 0); }
+            40%, 60% { transform: translate3d(10px, 0, 0); }
+        }
+
+        /* Animated Audible Overlay */
+        .audible-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; transition: opacity 0.3s; }
+        .audible-overlay.active { opacity: 1; }
+        .audible-card { background: rgba(15, 23, 42, 0.95); border: 2px solid var(--primary); padding: 24px; border-radius: 20px; text-align: center; transform: scale(0.5); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .audible-overlay.active .audible-card { transform: scale(1); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
+        <div class="user-status">
+            <span>Alias:</span>
+            <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
+        </div>
+    </header>
+
+    <div class="app-body">
+        <!-- Room Selector Sidebar -->
+        <sidebar id="room-list">
+            <button class="room-item active" onclick="selectRoom('Global Lounge', this)">🌐 Global Lounge</button>
+            <button class="room-item" onclick="selectRoom('Retro Beats', this)">📻 Retro Beats</button>
+            <button class="room-item" onclick="selectRoom('App Developers', this)">💻 App Creators</button>
+            <button class="room-item" onclick="selectRoom('Chill & Gaming', this)">🎮 Chill & Game</button>
+        </sidebar>
+
+        <main id="main-screen">
+            <!-- Radio Player Bar -->
+            <div class="radio-controller">
+                <div class="radio-meta">
+                    📻 <span>Station: <strong id="radio-name">Lo-Fi Chill Hop</strong></span>
+                </div>
+                <div class="radio-controls">
+                    <select class="radio-select" id="station-picker" onchange="changeStation(this.value)">
+                        <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
+                        <option value="https://stream.zeno.fm/088035qmdg8uv">RetroSynthwave 80s</option>
+                        <option value="https://stream.zeno.fm/z8m515qmdg8uv">Deep House Hits</option>
+                    </select>
+                    <audio controls id="radio-audio">
+                        <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
+                    </audio>
+                </div>
+            </div>
+
+            <!-- Audibles Menu -->
+            <div class="audibles-panel" id="audibles-box">
+                <button class="audible-btn" onclick="triggerAudible('Lion Roar', '🦁 ROAAAAR!')">🦁 Lion Roar</button>
+                <button class="audible-btn" onclick="triggerAudible('Whistle', '😗🎶 Whistle!')">😗 Whistle</button>
+                <button class="audible-btn" onclick="triggerAudible('Laser Blast', '🔫 PEW PEW!')">🔫 Laser</button>
+                <button class="audible-btn" onclick="triggerAudible('Fanfare', '🎺 Ta-Da!')">🎺 Fanfare</button>
+            </div>
+
+            <!-- Canvas Drawing Panel -->
+            <div class="doodle-panel" id="doodle-box">
+                <div class="doodle-toolbar">
+                    <label style="font-size: 0.8rem; color: #cbd5e1;">Color:</label>
+                    <input type="color" id="draw-color" value="#38bdf8" style="border:none; width:28px; height:28px; background:transparent; cursor:pointer;">
+                    <label style="font-size: 0.8rem; color: #cbd5e1;">Size:</label>
+                    <input type="range" id="draw-size" min="1" max="15" value="3" style="width: 80px;">
+                    <button class="btn btn-tool" style="padding: 4px 10px; font-size: 0.8rem;" onclick="clearCanvas()">Clear</button>
+                    <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; background: #10b981;" onclick="postDoodle()">Post Canvas</button>
+                </div>
+                <canvas id="doodle-canvas" width="300" height="150"></canvas>
+            </div>
+
+            <!-- Chat Messages Container -->
+            <div class="chat-stream" id="chat-stream">
+                <div class="msg-bubble">
+                    <div class="msg-sender">System Alert</div>
+                    Welcome to <strong>VibePulse</strong>! Select a room, listen to radio streams, or send a Yahoo-style <strong>BUZZ!</strong> to the lounge.
+                </div>
+            </div>
+
+            <!-- Controls Input Area -->
+            <div class="chat-input-bar">
+                <button class="btn btn-tool" title="Canvas Doodle" onclick="togglePanel('doodle-box')">🎨</button>
+                <button class="btn btn-tool" title="Audibles" onclick="togglePanel('audibles-box')">📢</button>
+                <button class="btn btn-buzz" title="Yahoo BUZZ Shake" onclick="triggerBuzz()">⚡ BUZZ!</button>
+                <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
+                <button class="btn" onclick="dispatchMessage()">Send</button>
+            </div>
+
+            <!-- Audibles Screen Pop-Up -->
+            <div class="audible-overlay" id="audible-modal">
+                <div class="audible-card">
+                    <div style="font-size: 3rem; margin-bottom: 8px;" id="audible-icon">📢</div>
+                    <div style="font-size: 1.2rem; font-weight: 800; color: #fff;" id="audible-title">Audible Alert</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. Initial State & Configuration
+        let userAlias = "Guest_" + Math.floor(1000 + Math.random() * 9000);
+        let activeRoom = "Global Lounge";
+        document.getElementById('alias-display').innerText = userAlias;
+
+        // Firebase Optional Config (Runs in memory fallback if unconfigured)
+        const firebaseConfig = { apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" };
+        let db = null;
+        try {
+            if (firebaseConfig.apiKey) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+            }
+        } catch(e) { console.log("Running in local fallback mode."); }
+
+        // 2. Audio Synthesizer (No external MP3 dependencies)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSynthesizedSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'buzz') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(60, now + 0.4);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'Laser Blast') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'Whistle') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.linearRampToValueAtTime(1200, now + 0.3);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'Fanfare') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554, now + 0.1);
+                osc.frequency.setValueAtTime(659, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else { // Generic Alert
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        // 3. User Alias Manager
+        function changeAlias() {
+            const input = prompt("Enter your custom chat handle / alias:", userAlias);
+            if (input && input.trim()) {
+                userAlias = input.trim();
+                document.getElementById('alias-display').innerText = userAlias;
+            }
+        }
+
+        // 4. Room Navigation
+        function selectRoom(roomName, element) {
+            activeRoom = roomName;
+            document.querySelectorAll('.room-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            const stream = document.getElementById('chat-stream');
+            stream.innerHTML += `
+                <div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.8rem;">
+                    Entered lounge: <strong>${roomName}</strong>
+                </div>
+            `;
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        // 5. Radio Controller
+        function changeStation(url) {
+            const player = document.getElementById('radio-audio');
+            const picker = document.getElementById('station-picker');
+            document.getElementById('radio-name').innerText = picker.options[picker.selectedIndex].text;
+            player.src = url;
+            player.play();
+        }
+
+        // 6. Messaging Engine
+        function dispatchMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            renderMessage(userAlias, text, true);
+            input.value = '';
+            playSynthesizedSound('msg');
+        }
+
+        function renderMessage(sender, text, isSelf = false) {
+            const stream = document.getElementById('chat-stream');
+            const msgNode = document.createElement('div');
+            msgNode.className = `msg-bubble ${isSelf ? 'self' : ''}`;
+            msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(sender)}</div>${escapeHtml(text)}`;
+            stream.appendChild(msgNode);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function onKeyPress(e) {
+            if (e.key === 'Enter') dispatchMessage();
+        }
+
+        // 7. Yahoo BUZZ Feature
+        function triggerBuzz() {
+            playSynthesizedSound('buzz');
+            const mainScreen = document.getElementById('main-screen');
+            mainScreen.classList.add('shake');
+
+            const stream = document.getElementById('chat-stream');
+            const buzzNode = document.createElement('div');
+            buzzNode.className = 'msg-bubble';
+            buzzNode.style.background = 'var(--accent-buzz)';
+            buzzNode.style.color = '#fff';
+            buzzNode.innerHTML = `<strong>⚡ BUZZ! ${escapeHtml(userAlias)} sent a lounge alert!</strong>`;
+            stream.appendChild(buzzNode);
+            stream.scrollTop = stream.scrollHeight;
+
+            setTimeout(() => mainScreen.classList.remove('shake'), 500);
+        }
+
+        // 8. Audibles Feature
+        function triggerAudible(name, text) {
+            togglePanel('audibles-box');
+            playSynthesizedSound(name);
+
+            const modal = document.getElementById('audible-modal');
+            document.getElementById('audible-title').innerText = text;
+            modal.classList.add('active');
+
+            setTimeout(() => modal.classList.remove('active'), 1800);
+        }
+
+        // 9. UI Panels Toggle
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            const isOpen = panel.classList.contains('active');
+            document.querySelectorAll('.doodle-panel, .audibles-panel').forEach(p => p.classList.remove('active'));
+            if (!isOpen) panel.classList.add('active');
+        }
+
+        // 10. Canvas Doodle Studio
+        const canvas = document.getElementById('doodle-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
+        canvas.addEventListener('mousemove', draw);
+
+        canvas.addEventListener('touchstart', (e) => { isDrawing = true; draw(e.touches[0]); });
+        canvas.addEventListener('touchend', () => { isDrawing = false; ctx.beginPath(); });
+        canvas.addEventListener('touchmove', (e) => { draw(e.touches[0]); e.preventDefault(); });
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineWidth = document.getElementById('draw-size').value;
+            ctx.strokeStyle = document.getElementById('draw-color').value;
+            ctx.lineCap = 'round';
+
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function postDoodle() {
+            const dataUrl = canvas.toDataURL();
+            const stream = document.getElementById('chat-stream');
+            const msgNode = document.createElement('div');
+            msgNode.className = 'msg-bubble self';
+            msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(userAlias)} shared a canvas sketch:</div><img src="${dataUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 6px;">`;
+            stream.appendChild(msgNode);
+            stream.scrollTop = stream.scrollHeight;
+            clearCanvas();
+            togglePanel('doodle-box');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
