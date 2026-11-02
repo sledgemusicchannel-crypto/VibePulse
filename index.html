@@ -22,57 +22,61 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        html, body { height: 100%; width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; }
 
         /* Header */
-        header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; }
+        header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; height: 56px; flex-shrink: 0; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
         .brand-tag { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
         .user-status { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #e2e8f0; }
         .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
 
         /* Main Container */
-        .app-body { display: flex; flex: 1; overflow: hidden; flex-direction: column; }
+        .app-body { display: flex; flex: 1; height: calc(100% - 56px); overflow: hidden; flex-direction: column; }
         @media(min-width: 768px) { .app-body { flex-direction: row; } }
 
         /* Sidebar - Rooms */
         sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 8px; gap: 8px; flex-shrink: 0; }
         @media(min-width: 768px) { sidebar { width: 250px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
 
-        .room-item { background: #334155; border: none; color: #cbd5e1; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .room-section-title { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; padding: 6px 8px 2px 8px; display: none; }
+        @media(min-width: 768px) { .room-section-title { display: block; } }
+
+        .room-item { background: #334155; border: none; color: #cbd5e1; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .room-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); }
+        .room-item.rainbow-room.active { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
 
         /* Chat View */
-        main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; }
+        main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
         /* Radio Controller Bar */
-        .radio-controller { background: #1e293b; padding: 10px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-        .radio-meta { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-muted); }
+        .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+        .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
         .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
         .radio-controls { display: flex; align-items: center; gap: 8px; }
         select.radio-select { background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; }
-        audio { height: 30px; max-width: 170px; }
+        audio { height: 30px; max-width: 150px; }
 
         /* Chat Stream */
-        .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 82%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
+        .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+        .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 85%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
         .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
         /* Doodle Drawer Overlay */
-        .doodle-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-direction: column; align-items: center; gap: 10px; }
+        .doodle-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
         .doodle-panel.active { display: flex; }
         .doodle-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%; }
         canvas#doodle-canvas { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; touch-action: none; cursor: crosshair; }
 
         /* Emoji / Audibles Menu */
-        .audibles-panel { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .audibles-panel { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); grid-template-columns: repeat(4, 1fr); gap: 8px; flex-shrink: 0; }
         .audibles-panel.active { display: grid; }
         .audible-btn { background: #334155; border: none; color: #fff; padding: 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; text-align: center; }
 
         /* Controls Bottom Bar */
-        .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; }
+        .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10; }
         input[type="text"].chat-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.95rem; outline: none; }
         input[type="text"].chat-input:focus { border-color: var(--primary); }
 
@@ -112,10 +116,16 @@
     <div class="app-body">
         <!-- Room Selector Sidebar -->
         <sidebar id="room-list">
+            <div class="room-section-title">General Rooms</div>
             <button class="room-item active" onclick="selectRoom('Global Lounge', this)">🌐 Global Lounge</button>
             <button class="room-item" onclick="selectRoom('Retro Beats', this)">📻 Retro Beats</button>
             <button class="room-item" onclick="selectRoom('App Developers', this)">💻 App Creators</button>
             <button class="room-item" onclick="selectRoom('Chill & Gaming', this)">🎮 Chill & Game</button>
+            
+            <div class="room-section-title">LGBTQ+ Communities</div>
+            <button class="room-item rainbow-room" onclick="selectRoom('LGBTQ+ Main Lounge', this)">🏳️‍🌈 LGBTQ+ Lounge</button>
+            <button class="room-item rainbow-room" onclick="selectRoom('Support & Meetups', this)">🤝 Support & Chat</button>
+            <button class="room-item rainbow-room" onclick="selectRoom('Pride Music & Arts', this)">🎨 Pride & Music</button>
         </sidebar>
 
         <main id="main-screen">
@@ -161,7 +171,7 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble">
                     <div class="msg-sender">System Alert</div>
-                    Welcome to <strong>VibePulse</strong>! Select a room, listen to radio streams, or send a Yahoo-style <strong>BUZZ!</strong> to the lounge.
+                    Welcome to <strong>VibePulse</strong>! Select a room, tune into radio streams, or send a Yahoo-style <strong>BUZZ!</strong> to the room.
                 </div>
             </div>
 
@@ -185,22 +195,22 @@
     </div>
 
     <script>
-        // 1. Initial State & Configuration
+        // Store room message histories in memory
+        const roomStore = {
+            'Global Lounge': [],
+            'Retro Beats': [],
+            'App Developers': [],
+            'Chill & Gaming': [],
+            'LGBTQ+ Main Lounge': [],
+            'Support & Meetups': [],
+            'Pride Music & Arts': []
+        };
+
         let userAlias = "Guest_" + Math.floor(1000 + Math.random() * 9000);
         let activeRoom = "Global Lounge";
         document.getElementById('alias-display').innerText = userAlias;
 
-        // Firebase Optional Config (Runs in memory fallback if unconfigured)
-        const firebaseConfig = { apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" };
-        let db = null;
-        try {
-            if (firebaseConfig.apiKey) {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-            }
-        } catch(e) { console.log("Running in local fallback mode."); }
-
-        // 2. Audio Synthesizer (No external MP3 dependencies)
+        // Audio Synthesizer Engine
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSynthesizedSound(type) {
@@ -209,7 +219,6 @@
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-
             const now = audioCtx.currentTime;
 
             if (type === 'buzz') {
@@ -245,7 +254,7 @@
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
                 osc.start(now);
                 osc.stop(now + 0.4);
-            } else { // Generic Alert
+            } else {
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(300, now);
                 gain.gain.setValueAtTime(0.1, now);
@@ -255,7 +264,6 @@
             }
         }
 
-        // 3. User Alias Manager
         function changeAlias() {
             const input = prompt("Enter your custom chat handle / alias:", userAlias);
             if (input && input.trim()) {
@@ -264,22 +272,42 @@
             }
         }
 
-        // 4. Room Navigation
         function selectRoom(roomName, element) {
             activeRoom = roomName;
             document.querySelectorAll('.room-item').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
+            if (element) element.classList.add('active');
 
+            renderRoomHistory();
+        }
+
+        function renderRoomHistory() {
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `
-                <div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.8rem;">
-                    Entered lounge: <strong>${roomName}</strong>
+            stream.innerHTML = `
+                <div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.85rem; text-align: center;">
+                    Entered room: <strong>${activeRoom}</strong>
                 </div>
             `;
+
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+
+            roomStore[activeRoom].forEach(msg => {
+                const msgNode = document.createElement('div');
+                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''}`;
+                if (msg.isBuzz) {
+                    msgNode.style.background = 'var(--accent-buzz)';
+                    msgNode.style.color = '#fff';
+                    msgNode.innerHTML = `<strong>⚡ BUZZ! ${escapeHtml(msg.sender)} sent a lounge alert!</strong>`;
+                } else if (msg.image) {
+                    msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div><img src="${msg.image}" style="max-width: 100%; border-radius: 8px; margin-top: 6px;">`;
+                } else {
+                    msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
+                }
+                stream.appendChild(msgNode);
+            });
+
             stream.scrollTop = stream.scrollHeight;
         }
 
-        // 5. Radio Controller
         function changeStation(url) {
             const player = document.getElementById('radio-audio');
             const picker = document.getElementById('station-picker');
@@ -288,49 +316,37 @@
             player.play();
         }
 
-        // 6. Messaging Engine
         function dispatchMessage() {
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (!text) return;
 
-            renderMessage(userAlias, text, true);
+            const msgObj = { sender: userAlias, text: text, isSelf: true };
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+            roomStore[activeRoom].push(msgObj);
+
+            renderRoomHistory();
             input.value = '';
             playSynthesizedSound('msg');
-        }
-
-        function renderMessage(sender, text, isSelf = false) {
-            const stream = document.getElementById('chat-stream');
-            const msgNode = document.createElement('div');
-            msgNode.className = `msg-bubble ${isSelf ? 'self' : ''}`;
-            msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(sender)}</div>${escapeHtml(text)}`;
-            stream.appendChild(msgNode);
-            stream.scrollTop = stream.scrollHeight;
         }
 
         function onKeyPress(e) {
             if (e.key === 'Enter') dispatchMessage();
         }
 
-        // 7. Yahoo BUZZ Feature
         function triggerBuzz() {
             playSynthesizedSound('buzz');
             const mainScreen = document.getElementById('main-screen');
             mainScreen.classList.add('shake');
 
-            const stream = document.getElementById('chat-stream');
-            const buzzNode = document.createElement('div');
-            buzzNode.className = 'msg-bubble';
-            buzzNode.style.background = 'var(--accent-buzz)';
-            buzzNode.style.color = '#fff';
-            buzzNode.innerHTML = `<strong>⚡ BUZZ! ${escapeHtml(userAlias)} sent a lounge alert!</strong>`;
-            stream.appendChild(buzzNode);
-            stream.scrollTop = stream.scrollHeight;
+            const buzzObj = { sender: userAlias, isBuzz: true, isSelf: true };
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+            roomStore[activeRoom].push(buzzObj);
 
+            renderRoomHistory();
             setTimeout(() => mainScreen.classList.remove('shake'), 500);
         }
 
-        // 8. Audibles Feature
         function triggerAudible(name, text) {
             togglePanel('audibles-box');
             playSynthesizedSound(name);
@@ -342,7 +358,6 @@
             setTimeout(() => modal.classList.remove('active'), 1800);
         }
 
-        // 9. UI Panels Toggle
         function togglePanel(panelId) {
             const panel = document.getElementById(panelId);
             const isOpen = panel.classList.contains('active');
@@ -350,7 +365,7 @@
             if (!isOpen) panel.classList.add('active');
         }
 
-        // 10. Canvas Doodle Studio
+        // Canvas Drawing Setup
         const canvas = document.getElementById('doodle-canvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
@@ -382,12 +397,11 @@
 
         function postDoodle() {
             const dataUrl = canvas.toDataURL();
-            const stream = document.getElementById('chat-stream');
-            const msgNode = document.createElement('div');
-            msgNode.className = 'msg-bubble self';
-            msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(userAlias)} shared a canvas sketch:</div><img src="${dataUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 6px;">`;
-            stream.appendChild(msgNode);
-            stream.scrollTop = stream.scrollHeight;
+            const imgObj = { sender: userAlias, image: dataUrl, isSelf: true };
+            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
+            roomStore[activeRoom].push(imgObj);
+
+            renderRoomHistory();
             clearCanvas();
             togglePanel('doodle-box');
         }
@@ -395,6 +409,9 @@
         function escapeHtml(str) {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
+
+        // Initialize default view
+        renderRoomHistory();
     </script>
 </body>
 </html>
