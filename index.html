@@ -16,6 +16,7 @@
             --accent-pink: #ec4899;
             --accent-dating: #f43f5e;
             --accent-money: #10b981;
+            --accent-pk: #f59e0b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
@@ -58,6 +59,14 @@
         .live-dot { background: #ef4444; color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; }
         .earnings-display { background: linear-gradient(135deg, #059669, #10b981); color: #fff; padding: 4px 12px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; display: flex; gap: 6px; align-items: center; cursor: pointer; }
 
+        /* PK Live Battle Split Stage */
+        .pk-stage { display: none; background: #000; position: relative; height: 210px; border-bottom: 2px solid var(--accent-pk); flex-shrink: 0; overflow: hidden; }
+        .pk-stage.active { display: flex; }
+        .pk-half { flex: 1; position: relative; height: 100%; border-right: 2px solid var(--accent-pk); }
+        .pk-half video { width: 100%; height: 100%; object-fit: cover; }
+        .pk-score-bar { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
+        .pk-timer-badge { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--accent-pk); color: #000; font-weight: 900; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; z-index: 20; box-shadow: 0 2px 10px rgba(245,158,11,0.5); }
+
         /* YouTube Jukebox Player */
         .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 6px; flex-shrink: 0; }
         .jukebox-stage iframe { width: 100%; max-width: 380px; height: 120px; border-radius: 8px; border: none; }
@@ -76,6 +85,7 @@
         .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
         .msg-bubble.bot { background: linear-gradient(135deg, #0284c7, #0369a1); align-self: flex-start; border: 1px solid var(--accent-cyan); }
         .msg-bubble.gift-msg { background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; align-self: center; text-align: center; }
+        .msg-bubble.pk-msg { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; align-self: center; text-align: center; }
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
         .msg-bubble.self .msg-sender { color: #c7d2fe; }
 
@@ -104,6 +114,7 @@
         .btn-live { background: linear-gradient(135deg, #ef4444, #ec4899); color: #fff; }
         .btn-dating { background: var(--accent-dating); }
         .btn-money { background: var(--accent-money); }
+        .btn-pk { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; }
 
         /* Members Side Drawer */
         .members-drawer { position: absolute; top: 0; right: -250px; width: 250px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border-color); z-index: 30; transition: right 0.3s ease; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -127,7 +138,7 @@
 <body>
 
     <header>
-        <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
+        <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE PK</span></div>
         <div class="header-actions">
             <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
             <button class="btn btn-tool" style="padding: 6px 10px; font-size: 0.8rem;" onclick="toggleMembersDrawer()">👥 Online</button>
@@ -152,7 +163,7 @@
         </sidebar>
 
         <main id="main-screen">
-            <!-- TikTok / YouTube Monetization Live Stage -->
+            <!-- Solo Live Stage -->
             <div class="video-stage" id="live-stage">
                 <video class="stage-video" id="live-host-video" autoplay muted playsinline></video>
                 <div class="stage-overlay">
@@ -162,6 +173,28 @@
                     </div>
                     <div class="earnings-display" onclick="togglePanel('wallet-box')">
                         💰 $<span id="cash-balance">0.00</span> (<span id="diamond-count">0</span> Diamonds)
+                    </div>
+                </div>
+            </div>
+
+            <!-- PK Live Battle Dual Split Stage -->
+            <div class="pk-stage" id="pk-stage">
+                <div class="pk-timer-badge" id="pk-timer">⚔️ PK 02:00</div>
+                <div class="pk-half">
+                    <video id="pk-host-video" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                    <div class="pk-score-bar">
+                        <span class="host-badge" id="pk-name-1">You</span>
+                        <span class="earnings-display">💎 <span id="pk-score-1">0</span></span>
+                    </div>
+                </div>
+                <div class="pk-half">
+                    <div style="width:100%; height:100%; background:#1e293b; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff;">
+                        <div style="font-size:2rem;">🛡️</div>
+                        <div style="font-size:0.8rem; font-weight:700;" id="pk-challenger-name">Challenger_Bot</div>
+                    </div>
+                    <div class="pk-score-bar">
+                        <span class="host-badge">Challenger</span>
+                        <span class="earnings-display">💎 <span id="pk-score-2">0</span></span>
                     </div>
                 </div>
             </div>
@@ -190,13 +223,13 @@
                 </div>
             </div>
 
-            <!-- Creator Cash-Out Wallet Panel -->
+            <!-- Creator Cash-Out Wallet Panel (20% Cut & 80% Earnings Split) -->
             <div class="panel-box" id="wallet-box">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-money);">💵 Creator Earnings & Cash Exchange</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Gifts received convert instantly into Diamonds (100 Diamonds = $1.00 USD cash).</div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-money);">💵 Creator Earnings & 20% Platform Split</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Platform takes a sustainable 20% fee; creators earn 80% on gifts (100 Diamonds = $1.00 USD).</div>
                 <div style="display:flex; justify-content:space-between; background:#020617; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
-                    <span>Available Cash: <strong style="color: #10b981;">$<span id="wallet-cash">0.00</span></strong></span>
-                    <span>Diamonds: <strong style="color: #38bdf8;"><span id="wallet-diamonds">0</span></strong></span>
+                    <span>Creator Earnings (80%): <strong style="color: #10b981;">$<span id="wallet-cash">0.00</span></strong></span>
+                    <span>Platform Cut (20%): <strong style="color: #38bdf8;">$<span id="platform-revenue-cut">0.00</span></strong></span>
                 </div>
                 <button class="btn btn-money" style="width: 100%; padding: 8px; font-size: 0.85rem;" onclick="requestPayout()">💳 Cash Out to Bank / PayPal</button>
             </div>
@@ -275,15 +308,15 @@
             <div class="chat-stream" id="chat-stream">
                 <div class="msg-bubble bot">
                     <div class="msg-sender">🤖 VibeBot</div>
-                    Welcome to <strong>VibePulse LIVE</strong>! All systems are operational. Tap the buttons below to chat, go live, or search for singles.
+                    Welcome to <strong>VibePulse LIVE PK</strong>! Start a live stream or click <strong>⚔️ PK Battle</strong> to test live combat gifting.
                 </div>
             </div>
 
             <!-- Controls Input Area -->
             <div class="chat-input-bar">
                 <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleCameraStream()">🔴 LIVE</button>
+                <button class="btn btn-pk" id="pk-toggle-btn" title="PK Battle" onclick="togglePkBattle()">⚔️ PK</button>
                 <button class="btn btn-money" title="Send Gift" onclick="togglePanel('gifts-box')">🎁 Gifts</button>
-                <button class="btn btn-tool" title="Doodle" onclick="togglePanel('doodle-box')">🎨</button>
                 <button class="btn btn-tool" title="YouTube Jukebox" onclick="togglePanel('jukebox-box')">🎵</button>
                 <button class="btn btn-buzz" title="BUZZ" onclick="triggerBuzz()">⚡ BUZZ!</button>
                 <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
@@ -320,8 +353,13 @@
         let userAlias = "Guest_" + Math.floor(1000 + Math.random() * 9000);
         let activeRoom = "Global Lounge";
         let isLiveHost = false;
+        let isPkActive = false;
         let totalDiamonds = 0;
         let totalCash = 0.00;
+        let platformTotalRevenue = 0.00;
+        let pkScoreYou = 0;
+        let pkScoreChallenger = 0;
+        let pkTimerInterval = null;
         let localStream = null;
 
         document.getElementById('alias-display').innerText = userAlias;
@@ -337,43 +375,110 @@
             }
         }
 
-        function sendGift(giftName, cashValue, diamondValue, icon) {
+        async function sendGift(giftName, cashValue, diamondValue, icon) {
             togglePanel('gifts-box');
+
+            const platformCut = cashValue * 0.20; 
+            const creatorShare = cashValue * 0.80;
+
+            platformTotalRevenue += platformCut;
+            totalCash += creatorShare;
             totalDiamonds += diamondValue;
-            totalCash += cashValue;
+
+            if (isPkActive) {
+                pkScoreYou += diamondValue;
+                document.getElementById('pk-score-1').innerText = pkScoreYou;
+                // Bot counter-attack simulation
+                pkScoreChallenger += Math.floor(diamondValue * (0.5 + Math.random() * 0.8));
+                document.getElementById('pk-score-2').innerText = pkScoreChallenger;
+            }
 
             document.getElementById('diamond-count').innerText = totalDiamonds;
             document.getElementById('cash-balance').innerText = totalCash.toFixed(2);
             document.getElementById('wallet-cash').innerText = totalCash.toFixed(2);
-            document.getElementById('wallet-diamonds').innerText = totalDiamonds;
+            document.getElementById('platform-revenue-cut').innerText = platformTotalRevenue.toFixed(2);
 
             playSound('gift');
 
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
             document.getElementById('gift-sender-pop').innerText = userAlias;
-            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} / ${diamondValue} Diamonds)!`;
+            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total | 20% platform cut applied)!`;
             modal.classList.add('active');
 
-            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} and tipped $${cashValue} to the stream! 💸`, isGift: true };
+            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator got $${creatorShare.toFixed(2)}, Platform took $${platformCut.toFixed(2)})! 💸`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
 
-            setTimeout(() => modal.classList.remove('active'), 2200);
+            setTimeout(() => modal.classList.remove('active'), 2500);
+        }
+
+        async function togglePkBattle() {
+            const pkStage = document.getElementById('pk-stage');
+            const liveStage = document.getElementById('live-stage');
+            const pkBtn = document.getElementById('pk-toggle-btn');
+
+            if (!isPkActive) {
+                if (!isLiveHost) {
+                    await toggleCameraStream(); // Automatically start camera if not live
+                    if (!isLiveHost) return;
+                }
+                liveStage.classList.remove('active');
+                pkStage.classList.add('active');
+                isPkActive = true;
+                pkScoreYou = 0;
+                pkScoreChallenger = 0;
+                document.getElementById('pk-score-1').innerText = "0";
+                document.getElementById('pk-score-2').innerText = "0";
+                document.getElementById('pk-name-1').innerText = userAlias;
+                pkBtn.innerText = "❌ End PK";
+
+                const stream = document.getElementById('chat-stream');
+                stream.innerHTML += `<div class="msg-bubble pk-msg">⚔️ PK Battle started against Challenger_Bot! Gift now to win!</div>`;
+                stream.scrollTop = stream.scrollHeight;
+
+                let timeLeft = 120; // 2 minutes
+                clearInterval(pkTimerInterval);
+                pkTimerInterval = setInterval(() => {
+                    timeLeft--;
+                    let mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let secs = (timeLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('pk-timer').innerText = `⚔️ PK ${mins}:${secs}`;
+
+                    if (timeLeft <= 0 || !isPkActive) {
+                        clearInterval(pkTimerInterval);
+                        endPkBattle();
+                    }
+                }, 1000);
+            } else {
+                endPkBattle();
+            }
+        }
+
+        function endPkBattle() {
+            clearInterval(pkTimerInterval);
+            isPkActive = false;
+            document.getElementById('pk-stage').classList.remove('active');
+            if (isLiveHost) document.getElementById('live-stage').classList.add('active');
+            document.getElementById('pk-toggle-btn').innerText = "⚔️ PK";
+
+            let resultText = pkScoreYou >= pkScoreChallenger ? `🎉 You won the PK battle with ${pkScoreYou} diamonds!` : `😢 Challenger won the PK battle. Rematch soon!`;
+            const stream = document.getElementById('chat-stream');
+            stream.innerHTML += `<div class="msg-bubble pk-msg">${resultText}</div>`;
+            stream.scrollTop = stream.scrollHeight;
         }
 
         function requestPayout() {
             if (totalCash < 10.00) {
-                alert("Minimum payout threshold is $10.00 USD.");
+                alert("Minimum creator payout threshold is $10.00 USD.");
             } else {
-                alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully!`);
+                alert(`Creator payout request of $${totalCash.toFixed(2)} (80% net earnings share) submitted successfully!`);
                 totalCash = 0.00;
                 totalDiamonds = 0;
                 document.getElementById('cash-balance').innerText = "0.00";
                 document.getElementById('diamond-count').innerText = "0";
                 document.getElementById('wallet-cash').innerText = "0.00";
-                document.getElementById('wallet-diamonds').innerText = "0";
                 togglePanel('wallet-box');
             }
         }
@@ -470,14 +575,16 @@
         async function toggleCameraStream() {
             const stage = document.getElementById('live-stage');
             const videoEl = document.getElementById('live-host-video');
+            const pkVideoEl = document.getElementById('pk-host-video');
             const btn = document.getElementById('live-toggle-btn');
 
             if (!isLiveHost) {
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     videoEl.srcObject = localStream;
-                    stage.classList.add('active');
-                    btn.innerText = "❌ End";
+                    pkVideoEl.srcObject = localStream;
+                    if (!isPkActive) stage.classList.add('active');
+                    btn.innerText = "❌ End LIVE";
                     isLiveHost = true;
                     document.getElementById('host-name').innerText = `Host: ${userAlias}`;
                 } catch (err) {
@@ -486,6 +593,7 @@
             } else {
                 if (localStream) localStream.getTracks().forEach(t => t.stop());
                 stage.classList.remove('active');
+                if (isPkActive) endPkBattle();
                 btn.innerText = "🔴 LIVE";
                 isLiveHost = false;
             }
@@ -572,14 +680,6 @@
             ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         });
         function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-        function postDoodle() {
-            const imgObj = { sender: userAlias, text: "Shared a drawing canvas sketch 🎨", isSelf: true };
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].push(imgObj);
-            renderRoomHistory();
-            clearCanvas();
-            togglePanel('doodle-box');
-        }
         function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
         renderRoomHistory();
     </script>
