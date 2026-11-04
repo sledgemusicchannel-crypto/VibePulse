@@ -36,7 +36,7 @@
         .header-actions { display: flex; align-items: center; gap: 6px; }
         .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.75rem; white-space: nowrap; }
 
-        /* Navigation Bar for Active Sub-Screens (Restored) */
+        /* Navigation Bar for Active Sub-Screens */
         .sub-nav-bar { display: none; background: #1e293b; padding: 6px 12px; border-bottom: 1px solid var(--border-color); align-items: center; gap: 8px; flex-shrink: 0; z-index: 15; }
         .sub-nav-bar.active { display: flex; }
 
@@ -162,7 +162,7 @@
             </div>
         </header>
 
-        <!-- Universal Back Navigation Bar (Restored) -->
+        <!-- Universal Back Navigation Bar -->
         <div class="sub-nav-bar active" id="sub-nav-bar">
             <button class="btn-back" onclick="returnToHomeStream()">← Back to Home</button>
             <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);" id="sub-nav-title">VibePulse Live Stream</span>
@@ -334,7 +334,8 @@
                 <span class="nav-icon">🛍️</span>
                 <span>Shop</span>
             </div>
-            <div class="nav-item" onclick="toggleCameraStream()">
+            <!-- PLUS BUTTON OPENS ACTION SHEET (CAMERA & FILE STORAGE) -->
+            <div class="nav-item" onclick="openTikTokModal('upload-action-modal')">
                 <div class="plus-btn-wrapper">
                     <div class="plus-btn-inner">+</div>
                 </div>
@@ -348,6 +349,27 @@
                 <span>Profile</span>
             </div>
         </nav>
+
+        <!-- CREATOR UPLOAD & STREAM ACTION SHEET MODAL -->
+        <div class="tiktok-modal" id="upload-action-modal">
+            <div class="modal-header">
+                <span>➕ Create & Share Media</span>
+                <span class="modal-close" onclick="closeTikTokModal('upload-action-modal')">✕</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: #1e293b; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-live" style="width: 100%; padding: 12px; font-size: 0.9rem;" onclick="closeTikTokModal('upload-action-modal'); toggleCameraStream();">
+                        🔴 Go Live / Open Camera
+                    </button>
+                    
+                    <button class="btn btn-money" style="width: 100%; padding: 12px; font-size: 0.9rem;" onclick="document.getElementById('file-storage-input').click();">
+                        📁 Open Storage / Upload Video or Audio
+                    </button>
+                    <!-- Hidden File Input for Device Storage Access -->
+                    <input type="file" id="file-storage-input" style="display: none;" accept="video/*,audio/*,image/*" onchange="handleFileSelected(event)">
+                </div>
+            </div>
+        </div>
 
         <!-- GOOGLE PLAY IN-APP COIN PURCHASE STORE MODAL -->
         <div class="tiktok-modal" id="shop-modal">
@@ -559,6 +581,21 @@
 
         document.getElementById('alias-display').innerText = userAlias;
         document.getElementById('profile-handle').innerText = userAlias;
+
+        // HANDLE FILE SHARING FROM DEVICE STORAGE
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            closeTikTokModal('upload-action-modal');
+            const stream = document.getElementById('chat-stream');
+            const fileName = file.name;
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+            stream.innerHTML += `<div class="msg-bubble gift-msg">📁 Shared file: <strong>${fileName}</strong> (${fileSizeMB} MB)</div>`;
+            stream.scrollTop = stream.scrollHeight;
+            alert(`File "${fileName}" selected and ready for stream sharing!`);
+        }
 
         // REAL GOOGLE PLAY IN-APP PURCHASE TRIGGER
         function buyCoinsGooglePlay(sku, coinAmount, priceUsd) {
