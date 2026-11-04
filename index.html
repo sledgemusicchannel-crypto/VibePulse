@@ -27,7 +27,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; }
 
-        /* App Layout Container */
         .app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; }
 
         /* Header */
@@ -54,7 +53,7 @@
         /* Main View Screen */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
-        /* Video / PK Stages */
+        /* Stages */
         .video-stage { display: none; background: #000; position: relative; height: 180px; border-bottom: 2px solid var(--accent-money); flex-shrink: 0; overflow: hidden; }
         .video-stage.active { display: block; }
         .stage-video { width: 100%; height: 100%; object-fit: cover; }
@@ -69,9 +68,12 @@
         .pk-score-bar { position: absolute; top: 6px; left: 6px; right: 6px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
         .pk-timer-badge { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); background: var(--accent-pk); color: #000; font-weight: 900; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; z-index: 20; }
 
-        /* Radio & Player Bars */
-        .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 4px; flex-shrink: 0; }
+        /* Jukebox Stage */
+        .jukebox-stage { display: none; background: #020617; border-bottom: 1px solid var(--border-color); flex-direction: column; align-items: center; padding: 4px; flex-shrink: 0; }
+        .jukebox-stage.active { display: flex; }
         .jukebox-stage iframe { width: 100%; max-width: 360px; height: 110px; border-radius: 6px; border: none; }
+
+        /* Radio Controls Bar */
         .radio-controller { background: #1e293b; padding: 6px 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
         .radio-meta { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); }
         .radio-controls { display: flex; align-items: center; gap: 6px; }
@@ -96,15 +98,14 @@
         .search-results { max-height: 120px; overflow-y: auto; background: var(--bg-input); border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 4px; }
         .profile-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; }
 
-        /* FIXED RESPONSIVE INPUT BAR */
-        .chat-input-bar { padding: 6px 8px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 4px; align-items: center; flex-shrink: 0; z-index: 10; width: 100%; box-sizing: border-bottom-box; }
-        .input-actions-scroll { display: flex; gap: 4px; overflow-x: auto; flex-shrink: 0; max-width: 50%; scrollbar-width: none; }
+        /* Responsive Input Bar */
+        .chat-input-bar { padding: 6px 8px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 4px; align-items: center; flex-shrink: 0; z-index: 10; width: 100%; box-sizing: border-box; }
+        .input-actions-scroll { display: flex; gap: 4px; overflow-x: auto; flex-shrink: 0; max-width: 55%; scrollbar-width: none; }
         .input-actions-scroll::-webkit-scrollbar { display: none; }
         .chat-input-wrapper { display: flex; flex: 1; gap: 4px; min-width: 0; }
-        input[type="text"] { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.85rem; outline: none; }
+        input[type="text"], input[type="email"], input[type="password"] { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.85rem; outline: none; }
 
-        /* Action Buttons */
-        .btn { background: var(--primary); border: none; color: white; padding: 8px 10px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.75rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: justify; white-space: nowrap; flex-shrink: 0; }
+        .btn { background: var(--primary); border: none; color: white; padding: 8px 10px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.75rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0; }
         .btn-buzz { background: var(--accent-buzz); }
         .btn-tool { background: #334155; color: #cbd5e1; }
         .btn-live { background: linear-gradient(135deg, #ef4444, #ec4899); color: #fff; }
@@ -112,18 +113,17 @@
         .btn-money { background: var(--accent-money); }
         .btn-pk { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; }
 
-        /* TIKTOK STYLE BOTTOM NAVIGATION BAR */
+        /* TikTok Navbar */
         .tiktok-navbar { height: 55px; background-color: var(--tiktok-bar); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; position: relative; z-index: 40; flex-shrink: 0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 600; gap: 2px; cursor: pointer; flex: 1; }
         .nav-item.active { color: #ffffff; }
         .nav-icon { font-size: 1.2rem; }
 
-        /* TikTok Center Plus Button */
         .plus-btn-wrapper { position: relative; width: 42px; height: 28px; background: #00f2fe; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .plus-btn-wrapper::before { content: ''; position: absolute; width: 42px; height: 28px; background: #fe2c55; border-radius: 8px; right: -2px; top: 0; z-index: -1; }
         .plus-btn-inner { width: 38px; height: 28px; background: #ffffff; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900; font-size: 1.1rem; }
 
-        /* TikTok Full Screen Modal Overlay Pages */
+        /* TikTok Modals */
         .tiktok-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--tiktok-bg); z-index: 50; display: none; flex-direction: column; animation: slideUp 0.25s ease-out forwards; }
         .tiktok-modal.active { display: flex; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -131,7 +131,14 @@
         .modal-close { cursor: pointer; font-size: 1.2rem; color: var(--text-muted); }
         .modal-body { flex: 1; overflow-y: auto; padding: 16px; }
 
-        /* Popups & Animations */
+        /* TikTok Profile Specific Styles */
+        .tiktok-menu-section { margin-top: 15px; }
+        .tiktok-menu-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+        .tiktok-menu-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #262626; font-size: 0.9rem; cursor: pointer; }
+        .tiktok-menu-item:hover { color: var(--accent-cyan); }
+        .chevron { color: var(--text-muted); }
+
+        /* Popups */
         .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-money); padding: 16px 24px; border-radius: 16px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .gift-alert-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -145,8 +152,8 @@
         <header>
             <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
             <div class="header-actions">
-                <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
-                <button class="btn btn-tool" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('profile-modal')">👤 Profile</button>
+                <div class="nickname-badge" id="alias-display" onclick="openTikTokModal('profile-modal')">Guest_User</div>
+                <button class="btn btn-tool" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('auth-modal')">🔑 Sign In</button>
             </div>
         </header>
 
@@ -161,7 +168,6 @@
                 <div class="room-section-title">💘 Singles & Dating</div>
                 <button class="room-item dating-room" onclick="selectRoom('Single Men & Women', this)">❤️ Singles (18-35)</button>
                 <button class="room-item dating-room" onclick="selectRoom('Divorced & Mature Dating', this)">🌹 Divorced / 36+</button>
-                <button class="room-item dating-room" onclick="selectRoom('Married Hookup & Chat', this)">🔥 Married & Discreet</button>
             </sidebar>
 
             <main id="main-screen">
@@ -201,7 +207,7 @@
                     </div>
                 </div>
 
-                <!-- YouTube Jukebox -->
+                <!-- RESTORED YOUTUBE JUKEBOX STAGE -->
                 <div class="jukebox-stage" id="jukebox-container">
                     <iframe id="youtube-player" src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" title="YouTube Jukebox" allowfullscreen></iframe>
                 </div>
@@ -283,16 +289,17 @@
                 <div class="chat-stream" id="chat-stream">
                     <div class="msg-bubble bot">
                         <div class="msg-sender">🤖 VibeBot</div>
-                        Welcome to <strong>VibePulse LIVE PK</strong>! Clean responsive input bar & TikTok navbar enabled.
+                        Welcome to <strong>VibePulse LIVE</strong>! Tap 🎵 Jukebox or 👤 Profile to manage account settings.
                     </div>
                 </div>
 
-                <!-- REFIXED RESPONSIVE INPUT BAR (No Overflow on Android) -->
+                <!-- RESPONSIVE INPUT BAR WITH RESTORED JUKEBOX BUTTON -->
                 <div class="chat-input-bar">
                     <div class="input-actions-scroll">
                         <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleCameraStream()">🔴 LIVE</button>
                         <button class="btn btn-pk" id="pk-toggle-btn" title="PK Battle" onclick="togglePkBattle()">⚔️ PK</button>
                         <button class="btn btn-money" title="Send Gift" onclick="togglePanel('gifts-box')">🎁 Gifts</button>
+                        <button class="btn btn-tool" title="YouTube Jukebox" onclick="toggleJukeboxStage()">🎵 Jukebox</button>
                         <button class="btn btn-buzz" title="BUZZ" onclick="triggerBuzz()">⚡ BUZZ!</button>
                     </div>
                     <div class="chat-input-wrapper">
@@ -328,52 +335,112 @@
             </div>
         </nav>
 
-        <!-- TikTok Navigation Page Modals -->
+        <!-- TIKTOK STYLE SIGN UP / SIGN IN MODAL -->
+        <div class="tiktok-modal" id="auth-modal">
+            <div class="modal-header">
+                <span id="auth-title">🔒 Sign In or Register Account</span>
+                <span class="modal-close" onclick="closeTikTokModal('auth-modal')">✕</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: #1e293b; padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Account Handle / Username</label>
+                        <input type="text" id="auth-username" placeholder="e.g. ApexCreator">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Email Address</label>
+                        <input type="email" id="auth-email" placeholder="name@example.com">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Password</label>
+                        <input type="password" id="auth-password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-money" style="width: 100%; padding: 10px; font-size: 0.9rem;" onclick="processAccountAuth()">Sign In / Sign Up Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIKTOK PROFILE SETTINGS & MENU MODAL (Matching Screenshot) -->
+        <div class="tiktok-modal" id="profile-modal">
+            <div class="modal-header">
+                <span>👤 Profile & Account Center</span>
+                <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
+            </div>
+            <div class="modal-body">
+                <!-- User Header Card -->
+                <div style="display:flex; align-items:center; gap:12px; background:#1e293b; padding:12px; border-radius:12px; margin-bottom:15px;">
+                    <div style="width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">⚡</div>
+                    <div>
+                        <h3 id="profile-handle" style="font-size: 1rem;">Guest_User</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);" id="profile-status-text">Subscriber Account (Logged In)</p>
+                    </div>
+                </div>
+
+                <!-- Assets Section -->
+                <div class="tiktok-menu-section">
+                    <div class="tiktok-menu-title">Assets</div>
+                    <div class="tiktok-menu-item" onclick="togglePanel('wallet-box'); closeTikTokModal('profile-modal');">
+                        <span>💼 Balance & Creator Earnings</span>
+                        <span class="chevron"><strong>$<span id="menu-balance">0.00</span></strong> ›</span>
+                    </div>
+                </div>
+
+                <!-- Personal Tools Section -->
+                <div class="tiktok-menu-section">
+                    <div class="tiktok-menu-title">Personal tools</div>
+                    <div class="tiktok-menu-item" onclick="alert('Activity Center: 0 warnings, Account Standing Good.')">
+                        <span>🕒 Activity center</span>
+                        <span class="chevron">›</span>
+                    </div>
+                    <div class="tiktok-menu-item" onclick="alert('Offline Videos player feature enabled.')">
+                        <span>📥 Offline videos</span>
+                        <span class="chevron">›</span>
+                    </div>
+                    <div class="tiktok-menu-item" onclick="alert('Your VibePulse QR Code: vibepulse.app/qr/' + userAlias)">
+                        <span>🏁 Your QR code</span>
+                        <span class="chevron">›</span>
+                    </div>
+                </div>
+
+                <!-- Creation & Business Tools -->
+                <div class="tiktok-menu-section">
+                    <div class="tiktok-menu-title">Creation & business tools</div>
+                    <div class="tiktok-menu-item" onclick="alert('TikTok / VibePulse Creator Studio active.')">
+                        <span>✨ VibePulse Studio</span>
+                        <span class="chevron">›</span>
+                    </div>
+                    <div class="tiktok-menu-item" onclick="openTikTokModal('auth-modal'); closeTikTokModal('profile-modal');">
+                        <span>⚙️ Settings and privacy</span>
+                        <span class="chevron">›</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop & Inbox Modals -->
         <div class="tiktok-modal" id="shop-modal">
             <div class="modal-header">
-                <span>🛍️ VibePulse Shop & Gifts</span>
+                <span>🛍️ VibePulse Store</span>
                 <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
             </div>
             <div class="modal-body">
-                <p style="color: var(--text-muted); font-size: 0.85rem;">Discover live creator products, coins top-up, and digital badges.</p>
-                <div style="margin-top: 15px; background: #1e293b; padding: 15px; border-radius: 8px;">
-                    <h3>💎 Diamond Coin Store</h3>
+                <div style="background: #1e293b; padding: 15px; border-radius: 8px;">
+                    <h3>💎 Diamond Coins Store</h3>
                     <p style="font-size: 0.8rem; margin: 8px 0;">100 Diamonds = $1.00 USD</p>
-                    <button class="btn btn-money" onclick="alert('Coin store top-up connected.')">Buy 500 Diamonds ($5.00)</button>
+                    <button class="btn btn-money" onclick="alert('Coin purchase initialized.')">Buy 500 Diamonds ($5.00)</button>
                 </div>
             </div>
         </div>
 
         <div class="tiktok-modal" id="inbox-modal">
             <div class="modal-header">
-                <span>📥 Direct Messages & Notifications</span>
+                <span>📥 Direct Messages</span>
                 <span class="modal-close" onclick="closeTikTokModal('inbox-modal')">✕</span>
             </div>
             <div class="modal-body">
-                <div style="background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                <div style="background: #1e293b; padding: 12px; border-radius: 8px;">
                     <strong>🤖 System Notification</strong>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">Welcome to your VibePulse inbox! Chat requests will appear here.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="tiktok-modal" id="profile-modal">
-            <div class="modal-header">
-                <span>👤 Creator Profile & Settings</span>
-                <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
-            </div>
-            <div class="modal-body">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: auto; display: flex; align-items: center; justify-content: center; font-size: 2rem;">⚡</div>
-                    <h2 style="margin-top: 10px;" id="profile-handle">Guest_User</h2>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">VibePulse Live Broadcaster</p>
-                </div>
-                <div style="background: #1e293b; padding: 12px; border-radius: 8px; font-size: 0.85rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span>Pending Earnings (80%):</span>
-                        <strong style="color: #10b981;">$<span id="profile-cash">0.00</span></strong>
-                    </div>
-                    <button class="btn btn-tool" style="width: 100%; margin-top: 8px;" onclick="changeAlias()">Change Username</button>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">No unread messages.</p>
                 </div>
             </div>
         </div>
@@ -433,6 +500,27 @@
             }
         }
 
+        function toggleJukeboxStage() {
+            const stage = document.getElementById('jukebox-container');
+            stage.classList.toggle('active');
+            togglePanel('jukebox-box');
+        }
+
+        function processAccountAuth() {
+            const handle = document.getElementById('auth-username').value.trim();
+            const email = document.getElementById('auth-email').value.trim();
+            if (handle) {
+                userAlias = handle;
+                document.getElementById('alias-display').innerText = userAlias;
+                document.getElementById('profile-handle').innerText = userAlias;
+                document.getElementById('profile-status-text').innerText = `Verified Member (${email || 'Active Session'})`;
+                alert(`Welcome ${userAlias}! Subscriber profile features unlocked.`);
+                closeTikTokModal('auth-modal');
+            } else {
+                alert("Please enter a username handle.");
+            }
+        }
+
         async function sendGift(giftName, cashValue, diamondValue, icon) {
             togglePanel('gifts-box');
 
@@ -453,7 +541,7 @@
             document.getElementById('diamond-count').innerText = totalDiamonds;
             document.getElementById('cash-balance').innerText = totalCash.toFixed(2);
             document.getElementById('wallet-cash').innerText = totalCash.toFixed(2);
-            document.getElementById('profile-cash').innerText = totalCash.toFixed(2);
+            document.getElementById('menu-balance').innerText = totalCash.toFixed(2);
             document.getElementById('platform-revenue-cut').innerText = platformTotalRevenue.toFixed(2);
 
             playSound('gift');
@@ -537,7 +625,7 @@
                 document.getElementById('cash-balance').innerText = "0.00";
                 document.getElementById('diamond-count').innerText = "0";
                 document.getElementById('wallet-cash').innerText = "0.00";
-                document.getElementById('profile-cash').innerText = "0.00";
+                document.getElementById('menu-balance').innerText = "0.00";
                 togglePanel('wallet-box');
             }
         }
@@ -607,6 +695,7 @@
             if (videoId) {
                 document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
                 document.getElementById('radio-audio').pause();
+                document.getElementById('jukebox-container').classList.add('active');
                 input.value = '';
                 togglePanel('jukebox-box');
             }
@@ -636,15 +725,6 @@
                 if (isPkActive) endPkBattle();
                 btn.innerText = "🔴 LIVE";
                 isLiveHost = false;
-            }
-        }
-
-        function changeAlias() {
-            const input = prompt("Enter your handle:", userAlias);
-            if (input && input.trim()) {
-                userAlias = input.trim();
-                document.getElementById('alias-display').innerText = userAlias;
-                document.getElementById('profile-handle').innerText = userAlias;
             }
         }
 
