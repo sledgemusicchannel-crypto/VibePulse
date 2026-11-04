@@ -158,7 +158,7 @@
             <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
             <div class="header-actions">
                 <div class="nickname-badge" id="alias-display" onclick="openTikTokModal('profile-modal')">Guest_User</div>
-                <button class="btn btn-tool" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('auth-modal')">🔑 Sign In</button>
+                <button class="btn btn-tool" id="auth-btn-header" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('auth-modal')">🔑 Sign In</button>
             </div>
         </header>
 
@@ -303,7 +303,7 @@
                 <div class="chat-stream" id="chat-stream">
                     <div class="msg-bubble bot">
                         <div class="msg-sender">🤖 VibeBot</div>
-                        Welcome to <strong>VibePulse LIVE</strong>! Tap 🛍️ Shop to buy coins using Google Play Pay.
+                        Welcome to <strong>VibePulse LIVE</strong>! Tap 🛍️ Shop to buy coins using Google Pay.
                     </div>
                 </div>
 
@@ -384,7 +384,7 @@
             </div>
         </div>
 
-        <!-- TikTok Sign In / Sign Up Modal -->
+        <!-- TIKTOK SIGN IN / REGISTER AUTHENTICATION MODAL -->
         <div class="tiktok-modal" id="auth-modal">
             <div class="modal-header">
                 <span id="auth-title">🔒 Sign In or Register Account</span>
@@ -404,12 +404,12 @@
                         <label style="font-size: 0.75rem; color: var(--text-muted);">Password</label>
                         <input type="password" id="auth-password" placeholder="••••••••">
                     </div>
-                    <button class="btn btn-money" style="width: 100%; padding: 10px; font-size: 0.9rem;" onclick="processAccountAuth()">Sign In / Register</button>
+                    <button class="btn btn-money" style="width: 100%; padding: 10px; font-size: 0.9rem;" onclick="processAccountAuth()">Sign In / Register Now</button>
                 </div>
             </div>
         </div>
 
-        <!-- TikTok Profile Settings Modal -->
+        <!-- TIKTOK PROFILE SETTINGS MODAL -->
         <div class="tiktok-modal" id="profile-modal">
             <div class="modal-header">
                 <span>👤 Profile & Account Center</span>
@@ -466,6 +466,79 @@
             <div style="font-size: 0.8rem; color: var(--accent-money);" id="gift-name-pop">sent a gift!</div>
         </div>
     </div>
+
+    <!-- FIREBASE AUTHENTICATION SDK INTEGRATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Your Firebase Project Configuration Hook
+        const firebaseConfig = {
+            apiKey: "AIzaSy_YOUR_API_KEY",
+            authDomain: "vibepulse-app.firebaseapp.com",
+            projectId: "vibepulse-app",
+            storageBucket: "vibepulse-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Persistent Auth State Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                const displayName = user.displayName || user.email.split('@')[0];
+                window.userAlias = displayName;
+                document.getElementById('alias-display').innerText = displayName;
+                document.getElementById('profile-handle').innerText = displayName;
+                document.getElementById('profile-status-text').innerText = `Verified Member (${user.email})`;
+                document.getElementById('auth-btn-header').innerText = "👤 Account";
+            }
+        });
+
+        // Live Server Authentication Handler
+        window.processAccountAuth = async function() {
+            const handle = document.getElementById('auth-username').value.trim();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!email || !password) {
+                alert("Please enter both an email address and password.");
+                return;
+            }
+
+            try {
+                // Try Signing In
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                window.userAlias = handle || user.email.split('@')[0];
+                document.getElementById('alias-display').innerText = window.userAlias;
+                document.getElementById('profile-handle').innerText = window.userAlias;
+                document.getElementById('profile-status-text').innerText = `Verified Member (${user.email})`;
+                alert(`Welcome back, ${window.userAlias}!`);
+                closeTikTokModal('auth-modal');
+            } catch (error) {
+                // If User Doesn't Exist, Register Automatically
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    try {
+                        const newCred = await createUserWithEmailAndPassword(auth, email, password);
+                        window.userAlias = handle || newCred.user.email.split('@')[0];
+                        document.getElementById('alias-display').innerText = window.userAlias;
+                        document.getElementById('profile-handle').innerText = window.userAlias;
+                        document.getElementById('profile-status-text').innerText = `Verified Member (${newCred.user.email})`;
+                        alert(`Account registered successfully! Welcome ${window.userAlias}.`);
+                        closeTikTokModal('auth-modal');
+                    } catch (regErr) {
+                        alert("Sign Up Failed: " + regErr.message);
+                    }
+                } else {
+                    alert("Auth Error: " + error.message);
+                }
+            }
+        };
+    </script>
 
     <script>
         const roomStore = {
@@ -546,21 +619,6 @@
             toggleSubView('jukebox-box', 'YouTube Jukebox');
         }
 
-        function processAccountAuth() {
-            const handle = document.getElementById('auth-username').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
-            if (handle) {
-                userAlias = handle;
-                document.getElementById('alias-display').innerText = userAlias;
-                document.getElementById('profile-handle').innerText = userAlias;
-                document.getElementById('profile-status-text').innerText = `Verified Member (${email || 'Active Session'})`;
-                alert(`Welcome ${userAlias}! Subscriber profile features unlocked.`);
-                closeTikTokModal('auth-modal');
-            } else {
-                alert("Please enter a username handle.");
-            }
-        }
-
         async function sendGift(giftName, cashValue, diamondValue, icon) {
             toggleSubView('gifts-box', 'Send Gifts');
 
@@ -588,11 +646,11 @@
 
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
-            document.getElementById('gift-sender-pop').innerText = userAlias;
+            document.getElementById('gift-sender-pop').innerText = window.userAlias || userAlias;
             document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total | 20% cut)!`;
             modal.classList.add('active');
 
-            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform: $${platformCut.toFixed(2)})! 💸`, isGift: true };
+            const giftObj = { sender: window.userAlias || userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform: $${platformCut.toFixed(2)})! 💸`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
@@ -617,7 +675,7 @@
                 pkScoreChallenger = 0;
                 document.getElementById('pk-score-1').innerText = "0";
                 document.getElementById('pk-score-2').innerText = "0";
-                document.getElementById('pk-name-1').innerText = userAlias;
+                document.getElementById('pk-name-1').innerText = window.userAlias || userAlias;
                 pkBtn.innerText = "❌ End PK";
 
                 const stream = document.getElementById('chat-stream');
@@ -661,7 +719,6 @@
                 alert("Minimum creator payout threshold is $10.00 USD.");
             } else {
                 try {
-                    // Call backend webhooks for real transfer execution (e.g. Stripe/PayPal)
                     const confirmPayout = confirm(`Submit real cash-out payout of $${totalCash.toFixed(2)} to your connected bank account?`);
                     if (confirmPayout) {
                         alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully! Funds will arrive via Stripe/PayPal.`);
@@ -764,7 +821,7 @@
                     if (!isPkActive) stage.classList.add('active');
                     btn.innerText = "❌ End";
                     isLiveHost = true;
-                    document.getElementById('host-name').innerText = `Host: ${userAlias}`;
+                    document.getElementById('host-name').innerText = `Host: ${window.userAlias || userAlias}`;
                 } catch (err) {
                     alert("Camera permissions required.");
                 }
@@ -809,7 +866,8 @@
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (!text) return;
-            const msgObj = { sender: userAlias, text: text, isSelf: true };
+            const currentSender = window.userAlias || userAlias;
+            const msgObj = { sender: currentSender, text: text, isSelf: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(msgObj);
             renderRoomHistory();
