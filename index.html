@@ -36,7 +36,7 @@
         .header-actions { display: flex; align-items: center; gap: 6px; }
         .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.75rem; white-space: nowrap; }
 
-        /* Navigation Bar for Active Sub-Screens */
+        /* Navigation Bar for Active Sub-Screens (Restored) */
         .sub-nav-bar { display: none; background: #1e293b; padding: 6px 12px; border-bottom: 1px solid var(--border-color); align-items: center; gap: 8px; flex-shrink: 0; z-index: 15; }
         .sub-nav-bar.active { display: flex; }
 
@@ -162,10 +162,10 @@
             </div>
         </header>
 
-        <!-- Universal Back Navigation Bar -->
-        <div class="sub-nav-bar" id="sub-nav-bar">
+        <!-- Universal Back Navigation Bar (Restored) -->
+        <div class="sub-nav-bar active" id="sub-nav-bar">
             <button class="btn-back" onclick="returnToHomeStream()">← Back to Home</button>
-            <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);" id="sub-nav-title">Active Screen</span>
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);" id="sub-nav-title">VibePulse Live Stream</span>
         </div>
 
         <div class="app-body">
@@ -420,7 +420,7 @@
                     <div style="width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">⚡</div>
                     <div>
                         <h3 id="profile-handle" style="font-size: 1rem;">Guest_User</h3>
-                        <p style="font-size: 0.75rem; color: var(--text-muted);" id="profile-status-text">Guest Account (Local Mode)</p>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);" id="profile-status-text">Subscriber Account (Live)</p>
                     </div>
                 </div>
 
@@ -467,7 +467,74 @@
         </div>
     </div>
 
-    <!-- LOCAL SIMULATED AUTHENTICATION & APP SCRIPT -->
+    <!-- FIREBASE AUTHENTICATION & APP SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB6Ikc36xV6Mh74kx6JYtyZVgcF0Hne6Qc",
+            authDomain: "vibepulse-21950.firebaseapp.com",
+            projectId: "vibepulse-21950",
+            storageBucket: "vibepulse-21950.firebasestorage.app",
+            messagingSenderId: "845177411967",
+            appId: "1:845177411967:web:cc46d730fdd6b161a5224a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                const displayName = user.displayName || user.email.split('@')[0];
+                window.userAlias = displayName;
+                document.getElementById('alias-display').innerText = displayName;
+                document.getElementById('profile-handle').innerText = displayName;
+                document.getElementById('profile-status-text').innerText = `Verified Member (${user.email})`;
+                document.getElementById('auth-btn-header').innerText = "👤 Account";
+            }
+        });
+
+        window.processAccountAuth = async function() {
+            const handle = document.getElementById('auth-username').value.trim();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!email || !password) {
+                alert("Please enter both an email address and password.");
+                return;
+            }
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                window.userAlias = handle || user.email.split('@')[0];
+                document.getElementById('alias-display').innerText = window.userAlias;
+                document.getElementById('profile-handle').innerText = window.userAlias;
+                document.getElementById('profile-status-text').innerText = `Verified Member (${user.email})`;
+                alert(`Welcome back, ${window.userAlias}!`);
+                closeTikTokModal('auth-modal');
+            } catch (error) {
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-email') {
+                    try {
+                        const newCred = await createUserWithEmailAndPassword(auth, email, password);
+                        window.userAlias = handle || newCred.user.email.split('@')[0];
+                        document.getElementById('alias-display').innerText = window.userAlias;
+                        document.getElementById('profile-handle').innerText = window.userAlias;
+                        document.getElementById('profile-status-text').innerText = `Verified Member (${newCred.user.email})`;
+                        alert(`Account registered successfully! Welcome ${window.userAlias}.`);
+                        closeTikTokModal('auth-modal');
+                    } catch (regErr) {
+                        alert("Sign Up Failed: " + regErr.message);
+                    }
+                } else {
+                    alert("Auth Error: " + error.message);
+                }
+            }
+        };
+    </script>
+
     <script>
         const roomStore = {
             'Global Lounge': [],
@@ -492,26 +559,6 @@
 
         document.getElementById('alias-display').innerText = userAlias;
         document.getElementById('profile-handle').innerText = userAlias;
-
-        // LOCAL AUTH HANDLER
-        window.processAccountAuth = function() {
-            const handle = document.getElementById('auth-username').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-
-            if (!email || !password) {
-                alert("Please enter both an email address and password.");
-                return;
-            }
-
-            userAlias = handle || email.split('@')[0];
-            document.getElementById('alias-display').innerText = userAlias;
-            document.getElementById('profile-handle').innerText = userAlias;
-            document.getElementById('profile-status-text').innerText = `Verified Member (${email})`;
-            document.getElementById('auth-btn-header').innerText = "👤 Account";
-            alert(`Welcome, ${userAlias}!`);
-            closeTikTokModal('auth-modal');
-        };
 
         // REAL GOOGLE PLAY IN-APP PURCHASE TRIGGER
         function buyCoinsGooglePlay(sku, coinAmount, priceUsd) {
@@ -594,11 +641,11 @@
 
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
-            document.getElementById('gift-sender-pop').innerText = userAlias;
+            document.getElementById('gift-sender-pop').innerText = window.userAlias || userAlias;
             document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total | 20% cut)!`;
             modal.classList.add('active');
 
-            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform: $${platformCut.toFixed(2)})! 💸`, isGift: true };
+            const giftObj = { sender: window.userAlias || userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform: $${platformCut.toFixed(2)})! 💸`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
@@ -623,7 +670,7 @@
                 pkScoreChallenger = 0;
                 document.getElementById('pk-score-1').innerText = "0";
                 document.getElementById('pk-score-2').innerText = "0";
-                document.getElementById('pk-name-1').innerText = userAlias;
+                document.getElementById('pk-name-1').innerText = window.userAlias || userAlias;
                 pkBtn.innerText = "❌ End PK";
 
                 const stream = document.getElementById('chat-stream');
@@ -665,16 +712,20 @@
             if (totalCash < 10.00) {
                 alert("Minimum creator payout threshold is $10.00 USD.");
             } else {
-                const confirmPayout = confirm(`Submit real cash-out payout of $${totalCash.toFixed(2)} to your connected bank account?`);
-                if (confirmPayout) {
-                    alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully! Funds will arrive via Stripe/PayPal.`);
-                    totalCash = 0.00;
-                    totalDiamonds = 0;
-                    document.getElementById('cash-balance').innerText = "0.00";
-                    document.getElementById('diamond-count').innerText = "0";
-                    document.getElementById('wallet-cash').innerText = "0.00";
-                    document.getElementById('menu-balance').innerText = "0.00";
-                    returnToHomeStream();
+                try {
+                    const confirmPayout = confirm(`Submit real cash-out payout of $${totalCash.toFixed(2)} to your connected bank account?`);
+                    if (confirmPayout) {
+                        alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully! Funds will arrive via Stripe/PayPal.`);
+                        totalCash = 0.00;
+                        totalDiamonds = 0;
+                        document.getElementById('cash-balance').innerText = "0.00";
+                        document.getElementById('diamond-count').innerText = "0";
+                        document.getElementById('wallet-cash').innerText = "0.00";
+                        document.getElementById('menu-balance').innerText = "0.00";
+                        returnToHomeStream();
+                    }
+                } catch(e) {
+                    alert("Payout processing error. Check backend connection.");
                 }
             }
         }
@@ -764,7 +815,7 @@
                     if (!isPkActive) stage.classList.add('active');
                     btn.innerText = "❌ End";
                     isLiveHost = true;
-                    document.getElementById('host-name').innerText = `Host: ${userAlias}`;
+                    document.getElementById('host-name').innerText = `Host: ${window.userAlias || userAlias}`;
                 } catch (err) {
                     alert("Camera permissions required.");
                 }
@@ -809,7 +860,8 @@
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (!text) return;
-            const msgObj = { sender: userAlias, text: text, isSelf: true };
+            const currentSender = window.userAlias || userAlias;
+            const msgObj = { sender: currentSender, text: text, isSelf: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(msgObj);
             renderRoomHistory();
