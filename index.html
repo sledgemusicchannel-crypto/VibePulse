@@ -467,19 +467,18 @@
         </div>
     </div>
 
-    <!-- FIREBASE AUTHENTICATION SDK INTEGRATION -->
+    <!-- FIREBASE AUTHENTICATION SDK INTEGRATION (YOUR REAL KEYS) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Your Firebase Project Configuration Hook
         const firebaseConfig = {
-            apiKey: "AIzaSy_YOUR_API_KEY",
-            authDomain: "vibepulse-app.firebaseapp.com",
-            projectId: "vibepulse-app",
-            storageBucket: "vibepulse-app.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
+            apiKey: "AIzaSyB6Ikc36xV6Mh74kx6JYtyZVgcF0Hne6Qc",
+            authDomain: "vibepulse-21950.firebaseapp.com",
+            projectId: "vibepulse-21950",
+            storageBucket: "vibepulse-21950.firebasestorage.app",
+            messagingSenderId: "845177411967",
+            appId: "1:845177411967:web:cc46d730fdd6b161a5224a"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -521,7 +520,7 @@
                 closeTikTokModal('auth-modal');
             } catch (error) {
                 // If User Doesn't Exist, Register Automatically
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-email') {
                     try {
                         const newCred = await createUserWithEmailAndPassword(auth, email, password);
                         window.userAlias = handle || newCred.user.email.split('@')[0];
@@ -647,10 +646,7 @@
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
             document.getElementById('gift-sender-pop').innerText = window.userAlias || userAlias;
-            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total | 20% cut)!`;
-            modal.classList.add('active');
-
-            const giftObj = { sender: window.userAlias || userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform: $${platformCut.toFixed(2)})! 💸`, isGift: true };
+            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total \vert{} 20\% cut)!`; modal.classList.add('active');  const giftObj = { sender: window.userAlias \vert{}\vert{} userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform:$${platformCut.toFixed(2)})! 💸`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
@@ -719,9 +715,7 @@
                 alert("Minimum creator payout threshold is $10.00 USD.");
             } else {
                 try {
-                    const confirmPayout = confirm(`Submit real cash-out payout of $${totalCash.toFixed(2)} to your connected bank account?`);
-                    if (confirmPayout) {
-                        alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully! Funds will arrive via Stripe/PayPal.`);
+                    const confirmPayout = confirm(`Submit real cash-out payout of $${totalCash.toFixed(2)} to your connected bank account?`); if (confirmPayout) { alert(`Payout request of $${totalCash.toFixed(2)} submitted successfully! Funds will arrive via Stripe/PayPal.`);
                         totalCash = 0.00;
                         totalDiamonds = 0;
                         document.getElementById('cash-balance').innerText = "0.00";
@@ -749,7 +743,7 @@
 
                 resultsBox.innerHTML = "";
                 data.results.forEach(user => {
-                    const fullName = `${user.name.first} ${user.name.last}`;
+                    const fullName = `${user.name.first}${user.name.last}`;
                     const card = document.createElement('div');
                     card.className = 'profile-card';
                     card.innerHTML = `
@@ -759,132 +753,4 @@
                     resultsBox.appendChild(card);
                 });
             } catch (err) {
-                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">Network error.</div>`;
-            }
-        }
-
-        function connectWithProfile(targetName) {
-            returnToHomeStream();
-            const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 Connected with <strong>${targetName}</strong>!</div>`;
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            const now = audioCtx.currentTime;
-            if (type === 'gift') {
-                osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.1);
-                gain.gain.setValueAtTime(0.2, now);
-            } else {
-                osc.frequency.setValueAtTime(300, now);
-                gain.gain.setValueAtTime(0.1, now);
-            }
-            osc.start(now);
-            osc.stop(now + 0.3);
-        }
-
-        function loadYouTubeSong() {
-            const input = document.getElementById('yt-url-input');
-            const url = input.value.trim();
-            if (!url) return;
-            let videoId = "";
-            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1]?.split("?")[0];
-            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1]?.split("&")[0];
-
-            if (videoId) {
-                document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
-                document.getElementById('radio-audio').pause();
-                document.getElementById('jukebox-container').classList.add('active');
-                input.value = '';
-                returnToHomeStream();
-            }
-        }
-
-        async function toggleCameraStream() {
-            const stage = document.getElementById('live-stage');
-            const videoEl = document.getElementById('live-host-video');
-            const pkVideoEl = document.getElementById('pk-host-video');
-            const btn = document.getElementById('live-toggle-btn');
-
-            if (!isLiveHost) {
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    videoEl.srcObject = localStream;
-                    pkVideoEl.srcObject = localStream;
-                    if (!isPkActive) stage.classList.add('active');
-                    btn.innerText = "❌ End";
-                    isLiveHost = true;
-                    document.getElementById('host-name').innerText = `Host: ${window.userAlias || userAlias}`;
-                } catch (err) {
-                    alert("Camera permissions required.");
-                }
-            } else {
-                if (localStream) localStream.getTracks().forEach(t => t.stop());
-                stage.classList.remove('active');
-                if (isPkActive) endPkBattle();
-                btn.innerText = "🔴 LIVE";
-                isLiveHost = false;
-            }
-        }
-
-        function selectRoom(roomName, element) {
-            activeRoom = roomName;
-            document.querySelectorAll('.room-item').forEach(btn => btn.classList.remove('active'));
-            if (element) element.classList.add('active');
-            renderRoomHistory();
-        }
-
-        function renderRoomHistory() {
-            const stream = document.getElementById('chat-stream');
-            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.75rem;">Room: <strong>${activeRoom}</strong></div>`;
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].forEach(msg => {
-                const msgNode = document.createElement('div');
-                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isGift ? 'gift-msg' : ''}`;
-                msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
-                stream.appendChild(msgNode);
-            });
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        function changeRadioStation(url) {
-            if (!url) return;
-            const player = document.getElementById('radio-audio');
-            player.src = url;
-            player.load();
-            player.play().catch(e => console.log("Interaction required"));
-        }
-
-        function dispatchMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-            const currentSender = window.userAlias || userAlias;
-            const msgObj = { sender: currentSender, text: text, isSelf: true };
-            if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
-            roomStore[activeRoom].push(msgObj);
-            renderRoomHistory();
-            input.value = '';
-            playSound('msg');
-        }
-
-        function onKeyPress(e) { if (e.key === 'Enter') dispatchMessage(); }
-
-        function triggerBuzz() {
-            playSound('buzz');
-            document.getElementById('main-screen').classList.add('shake');
-            setTimeout(() => document.getElementById('main-screen').classList.remove('shake'), 500);
-        }
-
-        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-        renderRoomHistory();
-    </script>
-</body>
-</html>
+                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">Network error.</div>
