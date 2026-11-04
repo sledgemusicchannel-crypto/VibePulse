@@ -20,95 +20,91 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
+            --tiktok-bg: #121212;
+            --tiktok-bar: #000000;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; }
 
-        /* Header */
-        header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; height: 56px; flex-shrink: 0; }
-        .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
-        .brand-tag { background: #ef4444; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-        .header-actions { display: flex; align-items: center; gap: 8px; }
-        .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; }
+        /* App Layout Container */
+        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; }
 
-        /* Main Container Layout */
-        .app-body { display: flex; flex: 1; height: calc(100% - 56px); overflow: hidden; flex-direction: column; position: relative; }
+        /* Header */
+        header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20; height: 50px; flex-shrink: 0; }
+        .brand { font-size: 1.1rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; }
+        .brand-tag { background: #ef4444; color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+        .header-actions { display: flex; align-items: center; gap: 6px; }
+        .nickname-badge { background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 0.75rem; white-space: nowrap; }
+
+        /* Main Workspace Body */
+        .app-body { display: flex; flex: 1; height: calc(100% - 105px); overflow: hidden; flex-direction: column; position: relative; }
         @media(min-width: 768px) { .app-body { flex-direction: row; } }
 
-        /* Sidebar - Rooms */
-        sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 8px; gap: 8px; flex-shrink: 0; }
-        @media(min-width: 768px) { sidebar { width: 260px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
+        /* Sidebar Rooms */
+        sidebar { background: var(--bg-panel); width: 100%; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; padding: 6px; gap: 6px; flex-shrink: 0; }
+        @media(min-width: 768px) { sidebar { width: 220px; flex-direction: column; border-right: 1px solid var(--border-color); border-bottom: none; overflow-y: auto; } }
 
-        .room-section-title { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; padding: 6px 8px 2px 8px; display: none; }
+        .room-section-title { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; padding: 4px 6px 2px 6px; display: none; }
         @media(min-width: 768px) { .room-section-title { display: block; } }
 
-        .room-item { background: #334155; border: none; color: #cbd5e1; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .room-item { background: #334155; border: none; color: #cbd5e1; padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .room-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); }
-        .room-item.dating-room.active { background: linear-gradient(135deg, #f43f5e, #fb7185); color: #fff; }
 
-        /* Main Screen */
+        /* Main View Screen */
         main { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative; overflow: hidden; height: 100%; }
 
-        /* Live Monetization Stream Stage */
-        .video-stage { display: none; background: #000; position: relative; height: 210px; border-bottom: 2px solid var(--accent-money); flex-shrink: 0; overflow: hidden; }
+        /* Video / PK Stages */
+        .video-stage { display: none; background: #000; position: relative; height: 180px; border-bottom: 2px solid var(--accent-money); flex-shrink: 0; overflow: hidden; }
         .video-stage.active { display: block; }
         .stage-video { width: 100%; height: 100%; object-fit: cover; }
-        .stage-overlay { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; flex-wrap: wrap; gap: 6px; }
-        .host-badge { background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px); }
-        .live-dot { background: #ef4444; color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; }
-        .earnings-display { background: linear-gradient(135deg, #059669, #10b981); color: #fff; padding: 4px 12px; border-radius: 16px; font-weight: 800; font-size: 0.8rem; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+        .stage-overlay { position: absolute; top: 6px; left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; z-index: 15; flex-wrap: wrap; gap: 4px; }
+        .host-badge { background: rgba(0,0,0,0.7); padding: 3px 8px; border-radius: 16px; font-size: 0.7rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); }
+        .live-dot { background: #ef4444; color: #fff; font-size: 0.55rem; padding: 1px 4px; border-radius: 6px; }
+        .earnings-display { background: linear-gradient(135deg, #059669, #10b981); color: #fff; padding: 3px 8px; border-radius: 14px; font-weight: 800; font-size: 0.75rem; display: flex; gap: 4px; align-items: center; cursor: pointer; }
 
-        /* PK Live Battle Split Stage */
-        .pk-stage { display: none; background: #000; position: relative; height: 210px; border-bottom: 2px solid var(--accent-pk); flex-shrink: 0; overflow: hidden; }
+        .pk-stage { display: none; background: #000; position: relative; height: 180px; border-bottom: 2px solid var(--accent-pk); flex-shrink: 0; overflow: hidden; }
         .pk-stage.active { display: flex; }
         .pk-half { flex: 1; position: relative; height: 100%; border-right: 2px solid var(--accent-pk); }
-        .pk-half video { width: 100%; height: 100%; object-fit: cover; }
-        .pk-score-bar { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
-        .pk-timer-badge { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--accent-pk); color: #000; font-weight: 900; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; z-index: 20; box-shadow: 0 2px 10px rgba(245,158,11,0.5); }
+        .pk-score-bar { position: absolute; top: 6px; left: 6px; right: 6px; display: flex; justify-content: space-between; align-items: center; z-index: 15; }
+        .pk-timer-badge { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); background: var(--accent-pk); color: #000; font-weight: 900; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; z-index: 20; }
 
-        /* YouTube Jukebox Player */
-        .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 6px; flex-shrink: 0; }
-        .jukebox-stage iframe { width: 100%; max-width: 380px; height: 120px; border-radius: 8px; border: none; }
+        /* Radio & Player Bars */
+        .jukebox-stage { background: #020617; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 4px; flex-shrink: 0; }
+        .jukebox-stage iframe { width: 100%; max-width: 360px; height: 110px; border-radius: 6px; border: none; }
+        .radio-controller { background: #1e293b; padding: 6px 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+        .radio-meta { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); }
+        .radio-controls { display: flex; align-items: center; gap: 6px; }
+        select.radio-select { background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); padding: 4px 6px; border-radius: 6px; font-size: 0.75rem; outline: none; }
+        audio { height: 26px; max-width: 120px; }
 
-        /* Radio Bar */
-        .radio-controller { background: #1e293b; padding: 8px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
-        .radio-meta { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
-        .radio-meta strong { color: var(--accent-cyan); font-weight: 700; }
-        .radio-controls { display: flex; align-items: center; gap: 8px; }
-        select.radio-select { background: #0f172a; color: #f8fafc; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; }
-        audio { height: 30px; max-width: 140px; }
-
-        /* Chat Stream */
-        .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
-        .msg-bubble { background: var(--bg-panel); padding: 10px 14px; border-radius: 12px; max-width: 85%; align-self: flex-start; word-break: break-word; font-size: 0.9rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); }
+        /* Stream Chat */
+        .chat-stream { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+        .msg-bubble { background: var(--bg-panel); padding: 8px 12px; border-radius: 10px; max-width: 90%; align-self: flex-start; word-break: break-word; font-size: 0.85rem; line-height: 1.35; border: 1px solid rgba(255,255,255,0.05); }
         .msg-bubble.self { background: var(--primary); align-self: flex-end; border: none; }
         .msg-bubble.bot { background: linear-gradient(135deg, #0284c7, #0369a1); align-self: flex-start; border: 1px solid var(--accent-cyan); }
         .msg-bubble.gift-msg { background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; align-self: center; text-align: center; }
         .msg-bubble.pk-msg { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; align-self: center; text-align: center; }
-        .msg-sender { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
-        .msg-bubble.self .msg-sender { color: #c7d2fe; }
+        .msg-sender { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; font-weight: 700; }
 
-        /* Panels */
-        .panel-box { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .panel-box.active { display: flex; flex-direction: column; gap: 10px; }
-        .gifts-panel { display: none; background: var(--bg-panel); padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .gifts-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
+        /* Floating Panels */
+        .panel-box { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .panel-box.active { display: flex; flex-direction: column; gap: 8px; }
+        .gifts-panel { display: none; background: var(--bg-panel); padding: 10px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .gifts-panel.active { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+        .gift-card { background: #334155; border: 1px solid var(--border-color); padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .search-results { max-height: 120px; overflow-y: auto; background: var(--bg-input); border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 4px; }
+        .profile-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; }
 
-        .gift-card { background: #334155; border: 1px solid var(--border-color); padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .gift-card:hover { transform: scale(1.05); border-color: var(--accent-money); background: #475569; }
+        /* FIXED RESPONSIVE INPUT BAR */
+        .chat-input-bar { padding: 6px 8px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 4px; align-items: center; flex-shrink: 0; z-index: 10; width: 100%; box-sizing: border-bottom-box; }
+        .input-actions-scroll { display: flex; gap: 4px; overflow-x: auto; flex-shrink: 0; max-width: 50%; scrollbar-width: none; }
+        .input-actions-scroll::-webkit-scrollbar { display: none; }
+        .chat-input-wrapper { display: flex; flex: 1; gap: 4px; min-width: 0; }
+        input[type="text"] { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.85rem; outline: none; }
 
-        /* Search Results Container */
-        .search-results { max-height: 140px; overflow-y: auto; background: var(--bg-input); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
-        .profile-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 8px 10px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border-color); }
-
-        /* Controls Bottom Bar */
-        .chat-input-bar { padding: 10px 14px; background: var(--bg-panel); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10; }
-        input[type="text"] { flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: #fff; font-size: 0.9rem; outline: none; }
-        input[type="text"]:focus { border-color: var(--primary); }
-
-        .btn { background: var(--primary); border: none; color: white; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: center; }
-        .btn:hover { background: var(--primary-hover); }
+        /* Action Buttons */
+        .btn { background: var(--primary); border: none; color: white; padding: 8px 10px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.75rem; transition: 0.15s; display: inline-flex; align-items: center; justify-content: justify; white-space: nowrap; flex-shrink: 0; }
         .btn-buzz { background: var(--accent-buzz); }
         .btn-tool { background: #334155; color: #cbd5e1; }
         .btn-live { background: linear-gradient(135deg, #ef4444, #ec4899); color: #fff; }
@@ -116,227 +112,278 @@
         .btn-money { background: var(--accent-money); }
         .btn-pk { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; }
 
-        /* Members Side Drawer */
-        .members-drawer { position: absolute; top: 0; right: -250px; width: 250px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border-color); z-index: 30; transition: right 0.3s ease; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .members-drawer.open { right: 0; }
-        .member-card { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; padding: 6px 0; }
-        .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+        /* TIKTOK STYLE BOTTOM NAVIGATION BAR */
+        .tiktok-navbar { height: 55px; background-color: var(--tiktok-bar); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; position: relative; z-index: 40; flex-shrink: 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 600; gap: 2px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: #ffffff; }
+        .nav-icon { font-size: 1.2rem; }
+
+        /* TikTok Center Plus Button */
+        .plus-btn-wrapper { position: relative; width: 42px; height: 28px; background: #00f2fe; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .plus-btn-wrapper::before { content: ''; position: absolute; width: 42px; height: 28px; background: #fe2c55; border-radius: 8px; right: -2px; top: 0; z-index: -1; }
+        .plus-btn-inner { width: 38px; height: 28px; background: #ffffff; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900; font-size: 1.1rem; }
+
+        /* TikTok Full Screen Modal Overlay Pages */
+        .tiktok-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--tiktok-bg); z-index: 50; display: none; flex-direction: column; animation: slideUp 0.25s ease-out forwards; }
+        .tiktok-modal.active { display: flex; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header { padding: 12px 16px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 1rem; }
+        .modal-close { cursor: pointer; font-size: 1.2rem; color: var(--text-muted); }
+        .modal-body { flex: 1; overflow-y: auto; padding: 16px; }
 
         /* Popups & Animations */
-        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-money); padding: 20px 30px; border-radius: 20px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .gift-alert-popup { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(15, 23, 42, 0.95); border: 3px solid var(--accent-money); padding: 16px 24px; border-radius: 16px; text-align: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .gift-alert-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
         .shake { animation: buzzShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes buzzShake {
-            10%, 90% { transform: translate3d(-3px, 0, 0); }
-            20%, 80% { transform: translate3d(5px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-10px, 0, 0); }
-            40%, 60% { transform: translate3d(10px, 0, 0); }
-        }
+        @keyframes buzzShake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-8px, 0, 0); } 40%, 60% { transform: translate3d(8px, 0, 0); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE PK</span></div>
-        <div class="header-actions">
-            <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
-            <button class="btn btn-tool" style="padding: 6px 10px; font-size: 0.8rem;" onclick="toggleMembersDrawer()">👥 Online</button>
+    <div class="app-container">
+        <!-- Top App Header -->
+        <header>
+            <div class="brand">⚡ VibePulse <span class="brand-tag">LIVE</span></div>
+            <div class="header-actions">
+                <div class="nickname-badge" id="alias-display" onclick="changeAlias()">Guest_User</div>
+                <button class="btn btn-tool" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('profile-modal')">👤 Profile</button>
+            </div>
+        </header>
+
+        <div class="app-body">
+            <!-- Sidebar Navigation Rooms -->
+            <sidebar id="room-list">
+                <div class="room-section-title">General Rooms</div>
+                <button class="room-item active" onclick="selectRoom('Global Lounge', this)">🌐 Global Lounge</button>
+                <button class="room-item" onclick="selectRoom('Retro Beats', this)">📻 Retro Beats</button>
+                <button class="room-item" onclick="selectRoom('App Developers', this)">💻 App Creators</button>
+                
+                <div class="room-section-title">💘 Singles & Dating</div>
+                <button class="room-item dating-room" onclick="selectRoom('Single Men & Women', this)">❤️ Singles (18-35)</button>
+                <button class="room-item dating-room" onclick="selectRoom('Divorced & Mature Dating', this)">🌹 Divorced / 36+</button>
+                <button class="room-item dating-room" onclick="selectRoom('Married Hookup & Chat', this)">🔥 Married & Discreet</button>
+            </sidebar>
+
+            <main id="main-screen">
+                <!-- Solo Stream Stage -->
+                <div class="video-stage" id="live-stage">
+                    <video class="stage-video" id="live-host-video" autoplay muted playsinline></video>
+                    <div class="stage-overlay">
+                        <div class="host-badge">
+                            <span class="live-dot">LIVE</span>
+                            <span id="host-name">Host: Guest_User</span>
+                        </div>
+                        <div class="earnings-display" onclick="togglePanel('wallet-box')">
+                            💰 $<span id="cash-balance">0.00</span> (<span id="diamond-count">0</span> 💎)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PK Battle Split Stage -->
+                <div class="pk-stage" id="pk-stage">
+                    <div class="pk-timer-badge" id="pk-timer">⚔️ PK 02:00</div>
+                    <div class="pk-half">
+                        <video id="pk-host-video" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                        <div class="pk-score-bar">
+                            <span class="host-badge" id="pk-name-1">You</span>
+                            <span class="earnings-display">💎 <span id="pk-score-1">0</span></span>
+                        </div>
+                    </div>
+                    <div class="pk-half">
+                        <div style="width:100%; height:100%; background:#1e293b; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff;">
+                            <div style="font-size:1.8rem;">🛡️</div>
+                            <div style="font-size:0.75rem; font-weight:700;" id="pk-challenger-name">Challenger_Bot</div>
+                        </div>
+                        <div class="pk-score-bar">
+                            <span class="host-badge">Challenger</span>
+                            <span class="earnings-display">💎 <span id="pk-score-2">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- YouTube Jukebox -->
+                <div class="jukebox-stage" id="jukebox-container">
+                    <iframe id="youtube-player" src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" title="YouTube Jukebox" allowfullscreen></iframe>
+                </div>
+
+                <!-- Radio Controls Bar -->
+                <div class="radio-controller">
+                    <div class="radio-meta">
+                        📻 <span><strong id="radio-name">Lo-Fi Chill Hop</strong></span>
+                    </div>
+                    <div class="radio-controls">
+                        <button class="btn btn-dating" style="font-size: 0.7rem; padding: 3px 6px;" onclick="togglePanel('dating-search-box')">🔍 Singles</button>
+                        <button class="btn btn-money" style="font-size: 0.7rem; padding: 3px 6px;" onclick="togglePanel('wallet-box')">💳 Wallet</button>
+                        <select class="radio-select" id="station-picker" onchange="changeRadioStation(this.value)">
+                            <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
+                            <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits</option>
+                        </select>
+                        <audio controls id="radio-audio">
+                            <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
+                        </audio>
+                    </div>
+                </div>
+
+                <!-- Creator Wallet Panel -->
+                <div class="panel-box" id="wallet-box">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-money);">💵 Creator Earnings & 20% Platform Split</div>
+                    <div style="display:flex; justify-content:space-between; background:#020617; padding: 8px; border-radius: 6px; font-size: 0.75rem;">
+                        <span>Creator Earnings (80%): <strong style="color: #10b981;">$<span id="wallet-cash">0.00</span></strong></span>
+                        <span>Platform Cut (20%): <strong style="color: #38bdf8;">$<span id="platform-revenue-cut">0.00</span></strong></span>
+                    </div>
+                    <button class="btn btn-money" style="width: 100%; padding: 6px; font-size: 0.8rem;" onclick="requestPayout()">💳 Cash Out Earnings</button>
+                </div>
+
+                <!-- Dating Search Panel -->
+                <div class="panel-box" id="dating-search-box">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-dating);">💘 Live Global Hookup & Profile Fetcher</div>
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <select id="search-status" class="radio-select">
+                            <option value="Single">Single</option>
+                            <option value="Divorced">Divorced</option>
+                        </select>
+                        <select id="search-gender" class="radio-select">
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                        </select>
+                        <button class="btn btn-dating" style="padding: 4px 8px; font-size: 0.75rem;" onclick="fetchOnlineProfiles()">Fetch Profiles</button>
+                    </div>
+                    <div class="search-results" id="search-results-box">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Click 'Fetch Profiles' to load active singles.</div>
+                    </div>
+                </div>
+
+                <!-- YouTube Jukebox Input Panel -->
+                <div class="panel-box" id="jukebox-box" style="flex-direction: row; align-items: center;">
+                    <input type="text" id="yt-url-input" placeholder="Paste YouTube link...">
+                    <button class="btn" style="padding: 6px 10px; font-size: 0.75rem; background: #ef4444;" onclick="loadYouTubeSong()">Play</button>
+                </div>
+
+                <!-- Gift Donation Panel -->
+                <div class="gifts-panel" id="gifts-box">
+                    <div class="gift-card" onclick="sendGift('Heart', 1, 100, '💖')">
+                        <div style="font-size: 1.2rem;">💖</div>
+                        <div style="font-size: 0.65rem; font-weight: 700;">Heart ($1)</div>
+                    </div>
+                    <div class="gift-card" onclick="sendGift('Rose', 5, 500, '🌹')">
+                        <div style="font-size: 1.2rem;">🌹</div>
+                        <div style="font-size: 0.65rem; font-weight: 700;">Rose ($5)</div>
+                    </div>
+                    <div class="gift-card" onclick="sendGift('Rocket', 20, 2000, '🚀')">
+                        <div style="font-size: 1.2rem;">🚀</div>
+                        <div style="font-size: 0.65rem; font-weight: 700;">Rocket ($20)</div>
+                    </div>
+                    <div class="gift-card" onclick="sendGift('Crown', 50, 5000, '👑')">
+                        <div style="font-size: 1.2rem;">👑</div>
+                        <div style="font-size: 0.65rem; font-weight: 700;">Crown ($50)</div>
+                    </div>
+                </div>
+
+                <!-- Live Stream Chat Area -->
+                <div class="chat-stream" id="chat-stream">
+                    <div class="msg-bubble bot">
+                        <div class="msg-sender">🤖 VibeBot</div>
+                        Welcome to <strong>VibePulse LIVE PK</strong>! Clean responsive input bar & TikTok navbar enabled.
+                    </div>
+                </div>
+
+                <!-- REFIXED RESPONSIVE INPUT BAR (No Overflow on Android) -->
+                <div class="chat-input-bar">
+                    <div class="input-actions-scroll">
+                        <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleCameraStream()">🔴 LIVE</button>
+                        <button class="btn btn-pk" id="pk-toggle-btn" title="PK Battle" onclick="togglePkBattle()">⚔️ PK</button>
+                        <button class="btn btn-money" title="Send Gift" onclick="togglePanel('gifts-box')">🎁 Gifts</button>
+                        <button class="btn btn-buzz" title="BUZZ" onclick="triggerBuzz()">⚡ BUZZ!</button>
+                    </div>
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
+                        <button class="btn" onclick="dispatchMessage()">Send</button>
+                    </div>
+                </div>
+            </main>
         </div>
-    </header>
 
-    <div class="app-body">
-        <!-- Sidebar Room Navigation -->
-        <sidebar id="room-list">
-            <div class="room-section-title">General Rooms</div>
-            <button class="room-item active" onclick="selectRoom('Global Lounge', this)">🌐 Global Lounge</button>
-            <button class="room-item" onclick="selectRoom('Retro Beats', this)">📻 Retro Beats</button>
-            <button class="room-item" onclick="selectRoom('App Developers', this)">💻 App Creators</button>
-            
-            <div class="room-section-title">💘 Singles & Dating</div>
-            <button class="room-item dating-room" onclick="selectRoom('Single Men & Women', this)">❤️ Singles (18-35)</button>
-            <button class="room-item dating-room" onclick="selectRoom('Divorced & Mature Dating', this)">🌹 Divorced / 36+</button>
-            <button class="room-item dating-room" onclick="selectRoom('Married Hookup & Chat', this)">🔥 Married & Discreet</button>
+        <!-- TIKTOK NAVIGATION BOTTOM BAR -->
+        <nav class="tiktok-navbar">
+            <div class="nav-item active" onclick="switchTikTokTab('home')">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="openTikTokModal('shop-modal')">
+                <span class="nav-icon">🛍️</span>
+                <span>Shop</span>
+            </div>
+            <div class="nav-item" onclick="toggleCameraStream()">
+                <div class="plus-btn-wrapper">
+                    <div class="plus-btn-inner">+</div>
+                </div>
+            </div>
+            <div class="nav-item" onclick="openTikTokModal('inbox-modal')">
+                <span class="nav-icon">📥</span>
+                <span>Inbox</span>
+            </div>
+            <div class="nav-item" onclick="openTikTokModal('profile-modal')">
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
+            </div>
+        </nav>
 
-            <div class="room-section-title">LGBTQ+ Communities</div>
-            <button class="room-item rainbow-room" onclick="selectRoom('LGBTQ+ Main Lounge', this)">🏳️‍🌈 LGBTQ+ Lounge</button>
-        </sidebar>
+        <!-- TikTok Navigation Page Modals -->
+        <div class="tiktok-modal" id="shop-modal">
+            <div class="modal-header">
+                <span>🛍️ VibePulse Shop & Gifts</span>
+                <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Discover live creator products, coins top-up, and digital badges.</p>
+                <div style="margin-top: 15px; background: #1e293b; padding: 15px; border-radius: 8px;">
+                    <h3>💎 Diamond Coin Store</h3>
+                    <p style="font-size: 0.8rem; margin: 8px 0;">100 Diamonds = $1.00 USD</p>
+                    <button class="btn btn-money" onclick="alert('Coin store top-up connected.')">Buy 500 Diamonds ($5.00)</button>
+                </div>
+            </div>
+        </div>
 
-        <main id="main-screen">
-            <!-- Solo Live Stage -->
-            <div class="video-stage" id="live-stage">
-                <video class="stage-video" id="live-host-video" autoplay muted playsinline></video>
-                <div class="stage-overlay">
-                    <div class="host-badge">
-                        <span class="live-dot">LIVE</span>
-                        <span id="host-name">Host: Guest_User</span>
+        <div class="tiktok-modal" id="inbox-modal">
+            <div class="modal-header">
+                <span>📥 Direct Messages & Notifications</span>
+                <span class="modal-close" onclick="closeTikTokModal('inbox-modal')">✕</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                    <strong>🤖 System Notification</strong>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Welcome to your VibePulse inbox! Chat requests will appear here.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tiktok-modal" id="profile-modal">
+            <div class="modal-header">
+                <span>👤 Creator Profile & Settings</span>
+                <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: auto; display: flex; align-items: center; justify-content: center; font-size: 2rem;">⚡</div>
+                    <h2 style="margin-top: 10px;" id="profile-handle">Guest_User</h2>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">VibePulse Live Broadcaster</p>
+                </div>
+                <div style="background: #1e293b; padding: 12px; border-radius: 8px; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Pending Earnings (80%):</span>
+                        <strong style="color: #10b981;">$<span id="profile-cash">0.00</span></strong>
                     </div>
-                    <div class="earnings-display" onclick="togglePanel('wallet-box')">
-                        💰 $<span id="cash-balance">0.00</span> (<span id="diamond-count">0</span> Diamonds)
-                    </div>
+                    <button class="btn btn-tool" style="width: 100%; margin-top: 8px;" onclick="changeAlias()">Change Username</button>
                 </div>
             </div>
+        </div>
 
-            <!-- PK Live Battle Dual Split Stage -->
-            <div class="pk-stage" id="pk-stage">
-                <div class="pk-timer-badge" id="pk-timer">⚔️ PK 02:00</div>
-                <div class="pk-half">
-                    <video id="pk-host-video" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
-                    <div class="pk-score-bar">
-                        <span class="host-badge" id="pk-name-1">You</span>
-                        <span class="earnings-display">💎 <span id="pk-score-1">0</span></span>
-                    </div>
-                </div>
-                <div class="pk-half">
-                    <div style="width:100%; height:100%; background:#1e293b; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff;">
-                        <div style="font-size:2rem;">🛡️</div>
-                        <div style="font-size:0.8rem; font-weight:700;" id="pk-challenger-name">Challenger_Bot</div>
-                    </div>
-                    <div class="pk-score-bar">
-                        <span class="host-badge">Challenger</span>
-                        <span class="earnings-display">💎 <span id="pk-score-2">0</span></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- YouTube Jukebox Player Box -->
-            <div class="jukebox-stage" id="jukebox-container">
-                <iframe id="youtube-player" src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" title="YouTube Jukebox" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-
-            <!-- Radio Controller Bar -->
-            <div class="radio-controller">
-                <div class="radio-meta">
-                    📻 <span>Station: <strong id="radio-name">Lo-Fi Chill Hop</strong></span>
-                </div>
-                <div class="radio-controls">
-                    <button class="btn btn-dating" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('dating-search-box')">🔍 Find Singles</button>
-                    <button class="btn btn-money" style="font-size: 0.75rem; padding: 5px 8px;" onclick="togglePanel('wallet-box')">💳 Payouts</button>
-                    <select class="radio-select" id="station-picker" onchange="changeRadioStation(this.value)">
-                        <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
-                        <option value="https://streams.90s90s.de/90s90s-sommerhits/mp3-128/streams.90s90s.de/">📻 90s Hits</option>
-                        <option value="https://stream.qmusic.nl/top40/mp3">🌍 Top 40</option>
-                    </select>
-                    <audio controls id="radio-audio">
-                        <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
-                    </audio>
-                </div>
-            </div>
-
-            <!-- Creator Cash-Out Wallet Panel (20% Cut & 80% Earnings Split) -->
-            <div class="panel-box" id="wallet-box">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-money);">💵 Creator Earnings & 20% Platform Split</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Platform takes a sustainable 20% fee; creators earn 80% on gifts (100 Diamonds = $1.00 USD).</div>
-                <div style="display:flex; justify-content:space-between; background:#020617; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
-                    <span>Creator Earnings (80%): <strong style="color: #10b981;">$<span id="wallet-cash">0.00</span></strong></span>
-                    <span>Platform Cut (20%): <strong style="color: #38bdf8;">$<span id="platform-revenue-cut">0.00</span></strong></span>
-                </div>
-                <button class="btn btn-money" style="width: 100%; padding: 8px; font-size: 0.85rem;" onclick="requestPayout()">💳 Cash Out to Bank / PayPal</button>
-            </div>
-
-            <!-- Dating Search Panel -->
-            <div class="panel-box" id="dating-search-box">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-dating);">💘 Live Global Hookup & Profile Fetcher</div>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <select id="search-status" class="radio-select">
-                        <option value="Single">Single</option>
-                        <option value="Divorced">Divorced</option>
-                        <option value="Married">Married</option>
-                    </select>
-                    <select id="search-gender" class="radio-select">
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                    </select>
-                    <input type="text" id="search-nationality" placeholder="Region / Country (e.g. US, VN)..." style="font-size: 0.8rem; flex: 1; min-width: 120px;">
-                    <button class="btn btn-dating" style="padding: 6px 12px; font-size: 0.8rem;" onclick="fetchOnlineProfiles()">Fetch Online</button>
-                </div>
-                <div class="search-results" id="search-results-box">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Click 'Fetch Online' to load live active profiles.</div>
-                </div>
-            </div>
-
-            <!-- YouTube Jukebox Input Panel -->
-            <div class="panel-box" id="jukebox-box" style="flex-direction: row; align-items: center;">
-                <input type="text" id="yt-url-input" placeholder="Paste YouTube link (https://youtu.be/...)">
-                <button class="btn" style="padding: 8px 12px; font-size: 0.8rem; background: #ef4444;" onclick="loadYouTubeSong()">Play</button>
-            </div>
-
-            <!-- Gift Donation Picker Panel -->
-            <div class="gifts-panel" id="gifts-box">
-                <div class="gift-card" onclick="sendGift('Heart', 1, 100, '💖')">
-                    <div style="font-size: 1.5rem;">💖</div>
-                    <div style="font-size: 0.7rem; font-weight: 700;">Heart ($1)</div>
-                    <div style="font-size: 0.65rem; color: #38bdf8;">100 Diamonds</div>
-                </div>
-                <div class="gift-card" onclick="sendGift('Rose', 5, 500, '🌹')">
-                    <div style="font-size: 1.5rem;">🌹</div>
-                    <div style="font-size: 0.7rem; font-weight: 700;">Rose ($5)</div>
-                    <div style="font-size: 0.65rem; color: #38bdf8;">500 Diamonds</div>
-                </div>
-                <div class="gift-card" onclick="sendGift('Rocket', 20, 2000, '🚀')">
-                    <div style="font-size: 1.5rem;">🚀</div>
-                    <div style="font-size: 0.7rem; font-weight: 700;">Rocket ($20)</div>
-                    <div style="font-size: 0.65rem; color: #38bdf8;">2,000 Diamonds</div>
-                </div>
-                <div class="gift-card" onclick="sendGift('Crown', 50, 5000, '👑')">
-                    <div style="font-size: 1.5rem;">👑</div>
-                    <div style="font-size: 0.7rem; font-weight: 700;">Crown ($50)</div>
-                    <div style="font-size: 0.65rem; color: #38bdf8;">5,000 Diamonds</div>
-                </div>
-            </div>
-
-            <!-- Audibles Menu -->
-            <div class="gifts-panel" id="audibles-box">
-                <button class="btn btn-tool" onclick="triggerAudible('Roar', '🦁 ROAAAAR!')">🦁 Roar</button>
-                <button class="btn btn-tool" onclick="triggerAudible('Whistle', '😗 Whistle!')">😗 Whistle</button>
-                <button class="btn btn-tool" onclick="triggerAudible('Laser', '🔫 Pew Pew!')">🔫 Laser</button>
-                <button class="btn btn-tool" onclick="triggerAudible('Fanfare', '🎺 Ta-Da!')">🎺 Fanfare</button>
-            </div>
-
-            <!-- Canvas Drawing Panel -->
-            <div class="panel-box" id="doodle-box" style="align-items: center;">
-                <div style="display:flex; gap:8px; align-items:center; width:100%; justify-content:center;">
-                    <input type="color" id="draw-color" value="#38bdf8" style="border:none; width:28px; height:28px; background:transparent; cursor:pointer;">
-                    <input type="range" id="draw-size" min="1" max="15" value="3" style="width: 80px;">
-                    <button class="btn btn-tool" style="padding: 4px 10px; font-size: 0.8rem;" onclick="clearCanvas()">Clear</button>
-                    <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; background: #10b981;" onclick="postDoodle()">Post</button>
-                </div>
-                <canvas id="doodle-canvas" width="300" height="120" style="background:#020617; border-radius:8px;"></canvas>
-            </div>
-
-            <!-- Chat Messages Container -->
-            <div class="chat-stream" id="chat-stream">
-                <div class="msg-bubble bot">
-                    <div class="msg-sender">🤖 VibeBot</div>
-                    Welcome to <strong>VibePulse LIVE PK</strong>! Start a live stream or click <strong>⚔️ PK Battle</strong> to test live combat gifting.
-                </div>
-            </div>
-
-            <!-- Controls Input Area -->
-            <div class="chat-input-bar">
-                <button class="btn btn-live" id="live-toggle-btn" title="Go LIVE" onclick="toggleCameraStream()">🔴 LIVE</button>
-                <button class="btn btn-pk" id="pk-toggle-btn" title="PK Battle" onclick="togglePkBattle()">⚔️ PK</button>
-                <button class="btn btn-money" title="Send Gift" onclick="togglePanel('gifts-box')">🎁 Gifts</button>
-                <button class="btn btn-tool" title="YouTube Jukebox" onclick="togglePanel('jukebox-box')">🎵</button>
-                <button class="btn btn-buzz" title="BUZZ" onclick="triggerBuzz()">⚡ BUZZ!</button>
-                <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="onKeyPress(event)">
-                <button class="btn" onclick="dispatchMessage()">Send</button>
-            </div>
-
-            <!-- Animated Gift Popup -->
-            <div class="gift-alert-popup" id="gift-modal">
-                <div style="font-size: 3rem;" id="gift-icon-pop">🎁</div>
-                <div style="font-size: 1.1rem; font-weight: 900; color: #fff; margin-top: 4px;" id="gift-sender-pop">User</div>
-                <div style="font-size: 0.85rem; color: var(--accent-money);" id="gift-name-pop">sent a gift!</div>
-            </div>
-
-            <!-- Active Members Side Drawer -->
-            <div class="members-drawer" id="members-drawer">
-                <div style="font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Room Users</div>
-                <div class="member-card"><div class="online-dot"></div> You (Online)</div>
-                <div class="member-card"><div class="online-dot"></div> 🤖 VibeBot</div>
-            </div>
-        </main>
+        <!-- Animated Gift Popup -->
+        <div class="gift-alert-popup" id="gift-modal">
+            <div style="font-size: 2.5rem;" id="gift-icon-pop">🎁</div>
+            <div style="font-size: 1rem; font-weight: 900; color: #fff; margin-top: 4px;" id="gift-sender-pop">User</div>
+            <div style="font-size: 0.8rem; color: var(--accent-money);" id="gift-name-pop">sent a gift!</div>
+        </div>
     </div>
 
     <script>
@@ -345,9 +392,7 @@
             'Retro Beats': [],
             'App Developers': [],
             'Single Men & Women': [],
-            'Divorced & Mature Dating': [],
-            'Married Hookup & Chat': [],
-            'LGBTQ+ Main Lounge': []
+            'Divorced & Mature Dating': []
         };
 
         let userAlias = "Guest_" + Math.floor(1000 + Math.random() * 9000);
@@ -363,6 +408,19 @@
         let localStream = null;
 
         document.getElementById('alias-display').innerText = userAlias;
+        document.getElementById('profile-handle').innerText = userAlias;
+
+        function openTikTokModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeTikTokModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function switchTikTokTab(tab) {
+            document.querySelectorAll('.tiktok-modal').forEach(m => m.classList.remove('active'));
+        }
 
         function togglePanel(panelId) {
             const panels = document.querySelectorAll('.panel-box, .gifts-panel');
@@ -388,7 +446,6 @@
             if (isPkActive) {
                 pkScoreYou += diamondValue;
                 document.getElementById('pk-score-1').innerText = pkScoreYou;
-                // Bot counter-attack simulation
                 pkScoreChallenger += Math.floor(diamondValue * (0.5 + Math.random() * 0.8));
                 document.getElementById('pk-score-2').innerText = pkScoreChallenger;
             }
@@ -396,6 +453,7 @@
             document.getElementById('diamond-count').innerText = totalDiamonds;
             document.getElementById('cash-balance').innerText = totalCash.toFixed(2);
             document.getElementById('wallet-cash').innerText = totalCash.toFixed(2);
+            document.getElementById('profile-cash').innerText = totalCash.toFixed(2);
             document.getElementById('platform-revenue-cut').innerText = platformTotalRevenue.toFixed(2);
 
             playSound('gift');
@@ -403,15 +461,15 @@
             const modal = document.getElementById('gift-modal');
             document.getElementById('gift-icon-pop').innerText = icon;
             document.getElementById('gift-sender-pop').innerText = userAlias;
-            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total | 20% platform cut applied)!`;
+            document.getElementById('gift-name-pop').innerText = `sent ${icon} ${giftName} ($${cashValue} total | 20% cut)!`;
             modal.classList.add('active');
 
-            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator got $${creatorShare.toFixed(2)}, Platform took $${platformCut.toFixed(2)})! 💸`, isGift: true };
+            const giftObj = { sender: userAlias, text: `sent ${icon} ${giftName} ($${cashValue} | Creator: $${creatorShare.toFixed(2)}, Platform: $${platformCut.toFixed(2)})! 💸`, isGift: true };
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].push(giftObj);
             renderRoomHistory();
 
-            setTimeout(() => modal.classList.remove('active'), 2500);
+            setTimeout(() => modal.classList.remove('active'), 2200);
         }
 
         async function togglePkBattle() {
@@ -421,7 +479,7 @@
 
             if (!isPkActive) {
                 if (!isLiveHost) {
-                    await toggleCameraStream(); // Automatically start camera if not live
+                    await toggleCameraStream();
                     if (!isLiveHost) return;
                 }
                 liveStage.classList.remove('active');
@@ -435,10 +493,10 @@
                 pkBtn.innerText = "❌ End PK";
 
                 const stream = document.getElementById('chat-stream');
-                stream.innerHTML += `<div class="msg-bubble pk-msg">⚔️ PK Battle started against Challenger_Bot! Gift now to win!</div>`;
+                stream.innerHTML += `<div class="msg-bubble pk-msg">⚔️ PK Battle started against Challenger_Bot!</div>`;
                 stream.scrollTop = stream.scrollHeight;
 
-                let timeLeft = 120; // 2 minutes
+                let timeLeft = 120;
                 clearInterval(pkTimerInterval);
                 pkTimerInterval = setInterval(() => {
                     timeLeft--;
@@ -463,7 +521,7 @@
             if (isLiveHost) document.getElementById('live-stage').classList.add('active');
             document.getElementById('pk-toggle-btn').innerText = "⚔️ PK";
 
-            let resultText = pkScoreYou >= pkScoreChallenger ? `🎉 You won the PK battle with ${pkScoreYou} diamonds!` : `😢 Challenger won the PK battle. Rematch soon!`;
+            let resultText = pkScoreYou >= pkScoreChallenger ? `🎉 You won the PK battle!` : `😢 Challenger won the PK battle.`;
             const stream = document.getElementById('chat-stream');
             stream.innerHTML += `<div class="msg-bubble pk-msg">${resultText}</div>`;
             stream.scrollTop = stream.scrollHeight;
@@ -473,12 +531,13 @@
             if (totalCash < 10.00) {
                 alert("Minimum creator payout threshold is $10.00 USD.");
             } else {
-                alert(`Creator payout request of $${totalCash.toFixed(2)} (80% net earnings share) submitted successfully!`);
+                alert(`Creator payout request of $${totalCash.toFixed(2)} submitted successfully!`);
                 totalCash = 0.00;
                 totalDiamonds = 0;
                 document.getElementById('cash-balance').innerText = "0.00";
                 document.getElementById('diamond-count').innerText = "0";
                 document.getElementById('wallet-cash').innerText = "0.00";
+                document.getElementById('profile-cash').innerText = "0.00";
                 togglePanel('wallet-box');
             }
         }
@@ -486,48 +545,34 @@
         async function fetchOnlineProfiles() {
             const status = document.getElementById('search-status').value;
             const gender = document.getElementById('search-gender').value;
-            const natInput = document.getElementById('search-nationality').value.trim();
             const resultsBox = document.getElementById('search-results-box');
 
-            resultsBox.innerHTML = `<div style="font-size:0.75rem; color:var(--accent-cyan); text-align:center; padding: 10px;">🌐 Fetching live profiles...</div>`;
+            resultsBox.innerHTML = `<div style="font-size:0.75rem; color:var(--accent-cyan); text-align:center;">🌐 Fetching profiles...</div>`;
 
             try {
-                let apiUrl = `https://randomuser.me/api/?results=5&gender=${gender}`;
-                if (natInput && natInput.length >= 2) apiUrl += `&nat=${natInput.toUpperCase()}`;
-
-                const response = await fetch(apiUrl);
+                const response = await fetch(`https://randomuser.me/api/?results=4&gender=${gender}`);
                 const data = await response.json();
-
-                if (!data.results || data.results.length === 0) {
-                    resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">No profiles found.</div>`;
-                    return;
-                }
 
                 resultsBox.innerHTML = "";
                 data.results.forEach(user => {
                     const fullName = `${user.name.first} ${user.name.last}`;
-                    const country = user.location.country;
-                    const age = user.dob.age;
-                    const targetRoom = status === "Single" ? "Single Men & Women" : (status === "Divorced" ? "Divorced & Mature Dating" : "Married Hookup & Chat");
-
                     const card = document.createElement('div');
                     card.className = 'profile-card';
                     card.innerHTML = `
-                        <span>🟢 <strong>${fullName}</strong> (${age}, ${status}, ${country})</span>
-                        <button class="btn btn-dating" style="padding: 4px 10px; font-size: 0.75rem;" onclick="connectWithProfile('${fullName}', '${targetRoom}')">Connect</button>
+                        <span>🟢 <strong>${fullName}</strong> (${status})</span>
+                        <button class="btn btn-dating" style="padding: 2px 6px; font-size: 0.7rem;" onclick="connectWithProfile('${fullName}')">Connect</button>
                     `;
                     resultsBox.appendChild(card);
                 });
             } catch (err) {
-                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">Network error fetching profiles.</div>`;
+                resultsBox.innerHTML = `<div style="font-size:0.75rem; color:#ef4444; text-align:center;">Network error.</div>`;
             }
         }
 
-        function connectWithProfile(targetName, targetRoom) {
-            selectRoom(targetRoom);
+        function connectWithProfile(targetName) {
             togglePanel('dating-search-box');
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 Connected with <strong>${targetName}</strong> in ${targetRoom}!</div>`;
+            stream.innerHTML += `<div class="msg-bubble gift-msg">💘 Connected with <strong>${targetName}</strong>!</div>`;
             stream.scrollTop = stream.scrollHeight;
         }
 
@@ -562,13 +607,8 @@
             if (videoId) {
                 document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
                 document.getElementById('radio-audio').pause();
-                const stream = document.getElementById('chat-stream');
-                stream.innerHTML += `<div class="msg-bubble gift-msg">🎵 ${userAlias} queued a YouTube track!</div>`;
-                stream.scrollTop = stream.scrollHeight;
                 input.value = '';
                 togglePanel('jukebox-box');
-            } else {
-                alert("Paste a valid YouTube link.");
             }
         }
 
@@ -584,7 +624,7 @@
                     videoEl.srcObject = localStream;
                     pkVideoEl.srcObject = localStream;
                     if (!isPkActive) stage.classList.add('active');
-                    btn.innerText = "❌ End LIVE";
+                    btn.innerText = "❌ End";
                     isLiveHost = true;
                     document.getElementById('host-name').innerText = `Host: ${userAlias}`;
                 } catch (err) {
@@ -600,10 +640,11 @@
         }
 
         function changeAlias() {
-            const input = prompt("Enter your chat handle / alias:", userAlias);
+            const input = prompt("Enter your handle:", userAlias);
             if (input && input.trim()) {
                 userAlias = input.trim();
                 document.getElementById('alias-display').innerText = userAlias;
+                document.getElementById('profile-handle').innerText = userAlias;
             }
         }
 
@@ -616,11 +657,11 @@
 
         function renderRoomHistory() {
             const stream = document.getElementById('chat-stream');
-            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.8rem;">Room: <strong>${activeRoom}</strong></div>`;
+            stream.innerHTML = `<div class="msg-bubble" style="align-self: center; background: transparent; color: var(--text-muted); font-size: 0.75rem;">Room: <strong>${activeRoom}</strong></div>`;
             if (!roomStore[activeRoom]) roomStore[activeRoom] = [];
             roomStore[activeRoom].forEach(msg => {
                 const msgNode = document.createElement('div');
-                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isBot ? 'bot' : ''} ${msg.isGift ? 'gift-msg' : ''}`;
+                msgNode.className = `msg-bubble ${msg.isSelf ? 'self' : ''} ${msg.isGift ? 'gift-msg' : ''}`;
                 msgNode.innerHTML = `<div class="msg-sender">${escapeHtml(msg.sender)}</div>${escapeHtml(msg.text)}`;
                 stream.appendChild(msgNode);
             });
@@ -655,31 +696,6 @@
             setTimeout(() => document.getElementById('main-screen').classList.remove('shake'), 500);
         }
 
-        function triggerAudible(name, text) {
-            togglePanel('audibles-box');
-            const stream = document.getElementById('chat-stream');
-            stream.innerHTML += `<div class="msg-bubble gift-msg">📢 ${userAlias} played audible: ${text}</div>`;
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        function toggleMembersDrawer() { document.getElementById('members-drawer').classList.toggle('open'); }
-
-        const canvas = document.getElementById('doodle-canvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        canvas.addEventListener('mousedown', () => isDrawing = true);
-        canvas.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineWidth = document.getElementById('draw-size').value;
-            ctx.strokeStyle = document.getElementById('draw-color').value;
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        });
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
         function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
         renderRoomHistory();
     </script>
