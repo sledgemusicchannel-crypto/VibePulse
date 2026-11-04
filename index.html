@@ -12,12 +12,12 @@
 
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --accent: #2563eb;
+            --bg-dark: #000000;
             --accent-pink: #fe2c55;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
+            --accent-cyan: #25f4ee;
+            --accent-blue: #2563eb;
+            --text-light: #ffffff;
+            --text-muted: #a1a1aa;
         }
 
         * {
@@ -25,6 +25,7 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -36,109 +37,257 @@
             overflow: hidden;
         }
 
-        /* Top Header Bar */
-        .header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            background: rgba(15, 23, 42, 0.98);
-            border-bottom: 1px solid #334155;
-            z-index: 100;
-        }
-
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .user-badge {
-            font-size: 0.8rem;
-            background: #334155;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-
-        /* Sub-Header Feature Bar (Jukebox, PK, Live, Radio, Lounge, etc.) */
-        .feature-bar {
-            display: flex;
-            overflow-x: auto;
-            gap: 8px;
-            padding: 8px 12px;
-            background: #090d16;
-            border-bottom: 1px solid #1e293b;
-            white-space: nowrap;
-            scrollbar-width: none;
-        }
-        .feature-bar::-webkit-scrollbar { display: none; }
-
-        .feature-pill {
-            background: #1e293b;
-            color: var(--text-light);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .feature-pill.active {
-            background: var(--accent-pink);
-        }
-
-        /* Main App Area */
-        .main-content {
+        /* Container Viewport */
+        .app-viewport {
             flex: 1;
             position: relative;
+            background: #000;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #000;
             overflow: hidden;
         }
 
-        .live-preview {
+        /* Top Bar Overlay */
+        .top-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        }
+
+        .brand-logo {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-badge {
+            background: var(--accent-pink);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .user-pill {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Floating Horizontal Room Category Bar */
+        .room-bar {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            right: 0;
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 6px 16px;
+            z-index: 40;
+            scrollbar-width: none;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+        }
+        .room-bar::-webkit-scrollbar { display: none; }
+
+        .room-pill {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .room-pill.active {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* Main Video Container */
+        .media-container {
             width: 100%;
             height: 100%;
-            position: relative;
-            background: #1e293b;
+            position: absolute;
+            top: 0;
+            left: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--text-muted);
-            text-align: center;
-            padding: 20px;
+            background: #111;
         }
 
-        /* Properly Contain Camera Feed so it doesn't overflow */
         #live-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
         }
 
-        /* Bottom Navigation Bar */
+        .media-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 20px;
+        }
+
+        /* TikTok Style Right Action Bar */
+        .right-action-bar {
+            position: absolute;
+            right: 12px;
+            bottom: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            z-index: 50;
+        }
+
+        .action-icon-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .icon-circle.live { background: var(--accent-pink); border: none; }
+        .icon-circle.pk { background: linear-gradient(135deg, #ff9900, #ff0055); border: none; }
+
+        /* Floating Radio Pill Widget */
+        .radio-widget {
+            position: absolute;
+            top: 100px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            z-index: 40;
+        }
+
+        .radio-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* Bottom Floating Overlay Area (Chat + Active Room Badge) */
+        .bottom-overlay {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            z-index: 40;
+            background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .active-room-tag {
+            align-self: flex-start;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+        }
+
+        .chat-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 10px 16px;
+            border-radius: 24px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .chat-input::placeholder { color: #aaa; }
+
+        .chat-send-btn {
+            background: var(--accent-pink);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Bottom Navigation Tab Bar */
         .bottom-nav {
+            height: 60px;
+            background: #000000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            height: 60px;
-            background: #0f172a;
-            border-top: 1px solid #334155;
             z-index: 100;
         }
 
@@ -146,7 +295,7 @@
             color: var(--text-muted);
             background: none;
             border: none;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -154,27 +303,50 @@
             cursor: pointer;
         }
 
-        .nav-item.active {
-            color: var(--text-light);
-        }
+        .nav-item.active { color: white; font-weight: bold; }
 
-        /* Dual Action Plus Button */
-        .btn-plus {
-            width: 42px;
-            height: 30px;
-            background: linear-gradient(90deg, #00f2fe 0%, #fe2c55 100%);
+        .btn-plus-tiktok {
+            width: 44px;
+            height: 28px;
+            background: #fff;
             border-radius: 8px;
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.3rem;
-            border: none;
             cursor: pointer;
+            border: none;
         }
 
-        /* Modal Container */
+        .btn-plus-tiktok::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            width: 44px;
+            height: 28px;
+            background: var(--accent-cyan);
+            border-radius: 8px;
+            z-index: -1;
+        }
+
+        .btn-plus-tiktok::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            width: 44px;
+            height: 28px;
+            background: var(--accent-pink);
+            border-radius: 8px;
+            z-index: -2;
+        }
+
+        .btn-plus-icon {
+            color: #000;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        /* Modals */
         .tiktok-modal {
             display: none;
             position: fixed;
@@ -188,14 +360,12 @@
             align-items: flex-end;
         }
 
-        .tiktok-modal.active {
-            display: flex !important;
-        }
+        .tiktok-modal.active { display: flex !important; }
 
         .modal-body-container {
             width: 100%;
             max-width: 500px;
-            background: var(--bg-card);
+            background: #18181b;
             border-top-left-radius: 16px;
             border-top-right-radius: 16px;
             padding: 20px;
@@ -211,87 +381,99 @@
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             padding-bottom: 10px;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #27272a;
         }
 
-        .modal-close {
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--text-muted);
-        }
+        .modal-close { cursor: pointer; font-size: 1.2rem; color: var(--text-muted); }
 
-        .btn {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.95rem;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #334155;
-            color: white;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-            font-size: 0.95rem;
-        }
+        .btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+        .btn-primary { background: var(--accent-pink); color: white; }
+        .btn-secondary { background: #27272a; color: white; }
+        .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation Bar -->
-    <header class="header-bar">
-        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="handleBackAction()">◄ Back</button>
-        <span class="header-title">⚡ VibePulse Live</span>
-        <div class="header-actions">
-            <span class="user-badge" id="wallet-badge" onclick="openTikTokModal('shop-modal')" style="cursor:pointer;">💎 0 Coins</span>
-            <span class="user-badge" id="user-display">Guest</span>
-            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('auth-modal')">Sign In</button>
-        </div>
-    </header>
+    <!-- Main Viewport Container -->
+    <div class="app-viewport">
 
-    <!-- Sub-Header Feature Bar (Restored All Features) -->
-    <div class="feature-bar">
-        <button class="feature-pill active" onclick="switchFeature('live')">🔴 VibePulse Live</button>
-        <button class="feature-pill" onclick="switchFeature('jukebox')">🎵 Jukebox</button>
-        <button class="feature-pill" onclick="switchFeature('rooms')">🏠 Rooms</button>
-        <button class="feature-pill" onclick="switchFeature('pk')">⚔️ PK Battles</button>
-        <button class="feature-pill" onclick="switchFeature('gifts')">🎁 Gifts</button>
-        <button class="feature-pill" onclick="switchFeature('buzz')">🔥 Buzz</button>
-        <button class="feature-pill" onclick="switchFeature('youtube')">▶️ YouTube</button>
-        <button class="feature-pill" onclick="switchFeature('presence')">🟢 Online Presence</button>
-        <button class="feature-pill" onclick="switchFeature('lounge')">🌐 Global Lounge</button>
-        <button class="feature-pill" onclick="switchFeature('radio')">📻 Live Radio</button>
+        <!-- Top Navigation Overlay -->
+        <div class="top-overlay">
+            <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
+            <div class="user-pill" id="user-display" onclick="openTikTokModal('auth-modal')">Guest_2914</div>
+        </div>
+
+        <!-- Horizontal Room Category Bar -->
+        <div class="room-bar">
+            <button class="room-pill active" onclick="switchRoom('Global Lounge', this)">🌐 Global Lounge</button>
+            <button class="room-pill" onclick="switchRoom('Retro Beats', this)">📻 Retro Beats</button>
+            <button class="room-pill" onclick="switchRoom('App Creators', this)">💻 App Creators</button>
+            <button class="room-pill" onclick="switchRoom('Singles (18-35)', this)">❤️ Singles (18-35)</button>
+            <button class="room-pill" onclick="switchRoom('Divorce Support', this)">🥀 Divorce</button>
+            <button class="room-pill" onclick="switchRoom('LGBTQ+ Lounge', this)">🏳️‍🌈 LGBTQ+ Lounge</button>
+            <button class="room-pill" onclick="switchRoom('Lo-Fi Chill Hop', this)">🎧 Lo-Fi Chill Hop</button>
+        </div>
+
+        <!-- Floating Local Radio Player -->
+        <div class="radio-widget">
+            <span id="now-playing">📻 Lo-Fi Radio</span>
+            <button class="radio-control-btn" onclick="toggleRadio()">▶ Play</button>
+            <button class="radio-control-btn" onclick="stopRadio()">⏹ Stop</button>
+        </div>
+        <audio id="radio-audio" src="https://stream.zeno.fm/f3wvbbqmdg8uv" preload="none"></audio>
+
+        <!-- Main Video Container -->
+        <div class="media-container" id="preview-area">
+            <div class="media-placeholder">
+                🎥 Tap '<b>+</b>' to broadcast or pick a room above
+            </div>
+        </div>
+
+        <!-- Right Side Action Bar (TikTok Style) -->
+        <div class="right-action-bar">
+            <button class="action-icon-btn" onclick="startLiveCamera()">
+                <div class="icon-circle live">🔴</div>
+                <span>Go Live</span>
+            </button>
+            <button class="action-icon-btn" onclick="triggerAction('pk')">
+                <div class="icon-circle pk">⚔️</div>
+                <span>PK Battle</span>
+            </button>
+            <button class="action-icon-btn" onclick="triggerAction('gifts')">
+                <div class="icon-circle">🎁</div>
+                <span>Gifts</span>
+            </button>
+            <button class="action-icon-btn" onclick="triggerAction('jukebox')">
+                <div class="icon-circle">🎵</div>
+                <span>Jukebox</span>
+            </button>
+            <button class="action-icon-btn" onclick="openTikTokModal('shop-modal')">
+                <div class="icon-circle">💳</div>
+                <span>Wallet</span>
+            </button>
+        </div>
+
+        <!-- Bottom Floating Overlay Area (Room Label & Chat Input) -->
+        <div class="bottom-overlay">
+            <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
+            <div class="chat-input-row">
+                <input type="text" class="chat-input" id="chat-message-box" placeholder="Send a message...">
+                <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+
     </div>
-
-    <!-- Main View Content -->
-    <main class="main-content">
-        <div class="live-preview" id="preview-area">
-            🎥 Tap '+' to start streaming or select a feature above
-        </div>
-    </main>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchFeature('live')">🏠<span>Home</span></button>
-        <button class="nav-item" onclick="openTikTokModal('shop-modal')">💎<span>Store & Wallet</span></button>
-        <button class="btn-plus" onclick="openTikTokModal('plus-modal')">+</button>
-        <button class="nav-item" onclick="switchFeature('buzz')">💬<span>Inbox</span></button>
+        <button class="nav-item active" onclick="switchRoom('Global Lounge')">🏠<span>Home</span></button>
+        <button class="nav-item" onclick="openTikTokModal('shop-modal')">💎<span>Store</span></button>
+        <button class="btn-plus-tiktok" onclick="openTikTokModal('plus-modal')">
+            <span class="btn-plus-icon">+</span>
+        </button>
+        <button class="nav-item" onclick="triggerAction('inbox')">💬<span>Inbox</span></button>
         <button class="nav-item" onclick="openTikTokModal('auth-modal')">👤<span>Profile</span></button>
     </nav>
 
@@ -322,173 +504,117 @@
         </div>
     </div>
 
-    <!-- 3. CREDIT CARD CHECKOUT SHOP & WALLET MODAL -->
+    <!-- 3. WALLET & LEMON SQUEEZY SHOP MODAL -->
     <div class="tiktok-modal" id="shop-modal">
         <div class="modal-body-container">
             <div class="modal-header">
-                <span>💎 Diamond Store & Wallet</span>
+                <span>💎 Wallet & Diamond Store</span>
                 <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
             </div>
-            <div style="background: #0f172a; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 5px;">
-                <div style="font-size: 0.8rem; color: #94a3b8;">Your Current Balance</div>
-                <div style="font-size: 1.3rem; font-weight: bold; color: #00f2fe;" id="wallet-balance-display">💎 0 Diamonds</div>
+            <div style="background: #09090b; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #27272a;">
+                <div style="font-size: 0.8rem; color: #a1a1aa;">Your Wallet Balance</div>
+                <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent-cyan);">💎 0 Diamonds</div>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                
-                <!-- Tier 1: 100 Diamonds -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
-                    <div>
-                        <strong style="color: #fff; font-size: 0.95rem;">💎 100 Diamonds</strong>
-                        <div style="font-size: 0.75rem; color: #94a3b8;">$1.00 USD</div>
-                    </div>
-                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">
-                        Pay $1.00
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
+                    <div><strong>💎 100 Diamonds</strong><div style="font-size: 0.75rem; color: #a1a1aa;">$1.00 USD</div></div>
+                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">Pay $1.00</button>
                 </div>
-
-                <!-- Tier 2: 500 Diamonds -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
-                    <div>
-                        <strong style="color: #fff; font-size: 0.95rem;">💎 500 Diamonds</strong>
-                        <div style="font-size: 0.75rem; color: #94a3b8;">$5.00 USD</div>
-                    </div>
-                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">
-                        Pay $5.00
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
+                    <div><strong>💎 500 Diamonds</strong><div style="font-size: 0.75rem; color: #a1a1aa;">$5.00 USD</div></div>
+                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">Pay $5.00</button>
                 </div>
-
-                <!-- Tier 3: 2,000 Diamonds -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
-                    <div>
-                        <strong style="color: #fff; font-size: 0.95rem;">💎 2,000 Diamonds</strong>
-                        <div style="font-size: 0.75rem; color: #94a3b8;">$20.00 USD</div>
-                    </div>
-                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">
-                        Pay $20.00
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
+                    <div><strong>💎 2,000 Diamonds</strong><div style="font-size: 0.75rem; color: #a1a1aa;">$20.00 USD</div></div>
+                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">Pay $20.00</button>
                 </div>
-
             </div>
         </div>
     </div>
 
     <!-- Application Script Logic -->
     <script>
-        // --- 1. FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             authDomain: "vibepulse-21950.firebaseapp.com",
             projectId: "vibepulse-21950",
             storageBucket: "vibepulse-21950.appspot.com"
         };
 
-        let auth = null;
-        let db = null;
-
         try {
-            if (typeof firebase !== 'undefined') {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                auth = firebase.auth();
-                db = firebase.firestore();
-
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        const name = user.displayName || user.email.split('@')[0];
-                        document.getElementById('user-display').innerText = name;
-                    } else {
-                        document.getElementById('user-display').innerText = "Guest";
-                    }
-                });
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
             }
-        } catch (e) {
-            console.warn("Firebase standby mode:", e);
-        }
+        } catch (e) { console.warn("Firebase standby:", e); }
 
-        // Modal Controls
         function openTikTokModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
         function closeTikTokModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.remove('active');
+            document.getElementById(id).classList.remove('active');
         }
 
-        // Feature Switcher for Sub-Header Bar
-        function switchFeature(feature) {
-            // Update pill highlights
-            document.querySelectorAll('.feature-pill').forEach(p => p.classList.remove('active'));
-            event && event.target && event.target.classList.add('active');
-
-            const preview = document.getElementById('preview-area');
-            
-            switch(feature) {
-                case 'live':
-                    preview.innerHTML = `🎥 VibePulse Live Stream Feed — Tap '+' to broadcast`;
-                    break;
-                case 'jukebox':
-                    preview.innerHTML = `🎵 Jukebox Hub — Request & Queue Your Favorite Tracks`;
-                    break;
-                case 'rooms':
-                    preview.innerHTML = `🏠 Live Voice & Video Social Rooms — Join a room below`;
-                    break;
-                case 'pk':
-                    preview.innerHTML = `⚔️ PK Battles Arena — Creator vs Creator Live Match`;
-                    break;
-                case 'gifts':
-                    preview.innerHTML = `🎁 Virtual Gift Shop & Animation Effects Center`;
-                    break;
-                case 'buzz':
-                    preview.innerHTML = `🔥 Buzz Feed — Trending Short Clips & Creator Updates`;
-                    break;
-                case 'youtube':
-                    preview.innerHTML = `▶️ YouTube Integration Player — Stream Synced Media`;
-                    break;
-                case 'presence':
-                    preview.innerHTML = `🟢 Online Presence Tracker — Active Users Worldwide`;
-                    break;
-                case 'lounge':
-                    preview.innerHTML = `🌐 Global Lounge — VIP Community Chatroom`;
-                    break;
-                case 'radio':
-                    preview.innerHTML = `📻 Live Radio Stream — 24/7 Independent Music`;
-                    break;
+        function switchRoom(roomName, element) {
+            if (element) {
+                document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
+                element.classList.add('active');
             }
+            document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
         }
 
-        // Back Button Handler
-        function handleBackAction() {
-            const videoEl = document.getElementById('live-video');
-            if (videoEl && videoEl.srcObject) {
-                const tracks = videoEl.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                videoEl.srcObject = null;
-                document.getElementById('preview-area').innerHTML = `🎥 Stream ended. Tap '+' to start streaming.`;
+        function toggleRadio() {
+            const audio = document.getElementById('radio-audio');
+            const playingLabel = document.getElementById('now-playing');
+            if (audio.paused) {
+                audio.play().then(() => {
+                    playingLabel.innerText = "📻 Radio: Live";
+                }).catch(err => {
+                    alert("Radio playback error: " + err.message);
+                });
             } else {
-                window.history.back();
+                audio.pause();
+                playingLabel.innerText = "📻 Radio: Paused";
             }
         }
 
-        // --- 2. AUTHENTICATION HANDLER ---
+        function stopRadio() {
+            const audio = document.getElementById('radio-audio');
+            audio.pause();
+            audio.currentTime = 0;
+            document.getElementById('now-playing').innerText = "📻 Radio: Off";
+        }
+
+        function triggerAction(action) {
+            const preview = document.getElementById('preview-area');
+            if (action === 'pk') preview.innerHTML = `<div class="media-placeholder">⚔️ PK Battles Arena — Searching active creators...</div>`;
+            if (action === 'gifts') preview.innerHTML = `<div class="media-placeholder">🎁 Virtual Gift Animation Store</div>`;
+            if (action === 'jukebox') preview.innerHTML = `<div class="media-placeholder">🎵 Jukebox — Queue your music tracks</div>`;
+            if (action === 'inbox') preview.innerHTML = `<div class="media-placeholder">💬 Direct Messages & Alerts</div>`;
+        }
+
+        function sendChatMessage() {
+            const box = document.getElementById('chat-message-box');
+            const msg = box.value.trim();
+            if (!msg) return;
+            const preview = document.getElementById('preview-area');
+            const chatLog = document.createElement('div');
+            chatLog.style.cssText = "position:absolute; bottom:80px; left:16px; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); padding:8px 14px; border-radius:14px; font-size:0.85rem; color:#fff; z-index:30; border:1px solid rgba(255,255,255,0.1);";
+            chatLog.innerText = `You: ${msg}`;
+            preview.appendChild(chatLog);
+            box.value = '';
+            setTimeout(() => chatLog.remove(), 4000);
+        }
+
         function handleAuth() {
             const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
             const username = document.getElementById('auth-username').value;
-
-            if (!email || !password) {
-                alert("Please fill in both email and password.");
-                return;
-            }
-
-            const displayName = username || email.split('@')[0];
-            document.getElementById('user-display').innerText = displayName;
+            if (!email) { alert("Please enter your email."); return; }
+            const name = username || email.split('@')[0];
+            document.getElementById('user-display').innerText = name;
             closeTikTokModal('auth-modal');
-            alert("Signed in successfully as " + displayName + "!");
+            alert("Signed in as " + name);
         }
 
-        // --- 3. PROPERLY CONTAINED CAMERA STREAM ---
         function startLiveCamera() {
             closeTikTokModal('plus-modal');
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -514,16 +640,13 @@
             }
         }
 
-        // --- 4. LIVE LEMON SQUEEZY CARD CHECKOUT PROCESSOR ---
         function buyCoinsCheckout(sku, coinAmount, priceUsd) {
             const cardPaymentLinks = {
                 'vibepulse_coins_100': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc',
                 'vibepulse_coins_500': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012',
                 'vibepulse_coins_2000': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f'
             };
-
             const checkoutUrl = cardPaymentLinks[sku];
-
             if (checkoutUrl) {
                 window.open(checkoutUrl, '_blank');
             } else {
