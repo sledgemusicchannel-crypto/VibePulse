@@ -57,13 +57,13 @@
             justify-content: space-between;
             align-items: center;
             z-index: 50;
-            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
         }
 
         .left-header-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .back-nav-btn {
@@ -71,25 +71,25 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 5px 12px;
-            border-radius: 16px;
-            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
         }
 
         .brand-logo {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .brand-badge {
             background: var(--accent-pink);
-            font-size: 0.65rem;
-            padding: 2px 6px;
+            font-size: 0.6rem;
+            padding: 2px 5px;
             border-radius: 4px;
             font-weight: bold;
         }
@@ -97,38 +97,37 @@
         .user-pill {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 16px;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Horizontal Room Category Bar */
+        /* Room Category Bar */
         .room-bar {
             position: absolute;
-            top: 50px;
+            top: 48px;
             left: 0;
             right: 0;
             display: flex;
             overflow-x: auto;
-            gap: 8px;
-            padding: 6px 16px;
+            gap: 6px;
+            padding: 6px 12px;
             z-index: 40;
             scrollbar-width: none;
-            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+            background: rgba(0, 0, 0, 0.5);
         }
         .room-bar::-webkit-scrollbar { display: none; }
 
         .room-pill {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.1);
             color: #ccc;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            border-radius: 16px;
-            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 0.7rem;
             font-weight: 600;
             white-space: nowrap;
             cursor: pointer;
@@ -138,24 +137,23 @@
         .room-pill.active {
             background: #ffffff;
             color: #000000;
-            border-color: #ffffff;
             font-weight: 700;
         }
 
-        /* Multi-Genre Radio Widget */
+        /* Radio Widget */
         .radio-widget {
             position: absolute;
-            top: 96px;
-            left: 16px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
+            top: 90px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
-            border-radius: 16px;
+            padding: 4px 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             z-index: 40;
         }
 
@@ -163,9 +161,9 @@
             background: #18181b;
             color: white;
             border: 1px solid #3f3f46;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 0.7rem;
+            padding: 2px 4px;
+            border-radius: 6px;
+            font-size: 0.65rem;
             outline: none;
         }
 
@@ -173,14 +171,14 @@
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            padding: 3px 8px;
-            border-radius: 8px;
+            padding: 2px 6px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: bold;
         }
 
-        /* Main Video Container */
+        /* Main Viewport Container */
         .media-container {
             width: 100%;
             height: 100%;
@@ -201,23 +199,27 @@
 
         .media-placeholder {
             text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            padding: 20px;
-            width: 90%;
-            max-width: 420px;
-            line-height: 1.5;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            padding: 16px;
+            width: 92%;
+            max-width: 440px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
 
-        /* TikTok Style Right Action Bar */
+        /* Right Action Bar */
         .right-action-bar {
             position: absolute;
-            right: 12px;
-            bottom: 110px;
+            right: 10px;
+            bottom: 115px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             z-index: 50;
         }
 
@@ -228,15 +230,15 @@
             background: none;
             border: none;
             color: white;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 600;
             cursor: pointer;
             gap: 2px;
         }
 
         .icon-circle {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
@@ -244,59 +246,55 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 1rem;
         }
 
         .icon-circle.live { background: var(--accent-pink); border: none; }
         .icon-circle.pk { background: linear-gradient(135deg, #ff9900, #ff0055); border: none; }
 
-        /* Bottom Floating Overlay Area (Visible Chat Feed & Input) */
+        /* Bottom Floating Overlay Area */
         .bottom-overlay {
             position: absolute;
-            bottom: 60px;
+            bottom: 56px;
             left: 0;
             right: 0;
-            padding: 10px 16px;
+            padding: 8px 14px;
             z-index: 40;
-            background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0) 100%);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .chat-feed {
-            max-height: 130px;
-            overflow-y: auto;
+            background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%);
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding-right: 55px;
+        }
+
+        .chat-feed {
+            max-height: 110px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 48px;
             scrollbar-width: none;
         }
         .chat-feed::-webkit-scrollbar { display: none; }
 
         .chat-bubble {
             background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(6px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
             color: #fff;
             width: fit-content;
             word-break: break-word;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
         .active-room-tag {
             align-self: flex-start;
             background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
             font-weight: bold;
             color: var(--accent-cyan);
         }
@@ -304,39 +302,36 @@
         .chat-input-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             width: 100%;
-            padding-right: 50px;
+            padding-right: 45px;
         }
 
         .chat-input {
             flex: 1;
             background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 10px 14px;
-            border-radius: 24px;
+            padding: 8px 12px;
+            border-radius: 20px;
             color: white;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             outline: none;
         }
-
-        .chat-input::placeholder { color: #ddd; }
 
         .chat-send-btn {
             background: var(--accent-pink);
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 24px;
+            padding: 8px 14px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
         }
 
-        /* Bottom Navigation Tab Bar */
+        /* Bottom Navigation Bar */
         .bottom-nav {
-            height: 60px;
+            height: 56px;
             background: #000000;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
@@ -349,7 +344,7 @@
             color: var(--text-muted);
             background: none;
             border: none;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -360,10 +355,10 @@
         .nav-item.active { color: white; font-weight: bold; }
 
         .btn-plus-tiktok {
-            width: 44px;
-            height: 28px;
+            width: 40px;
+            height: 26px;
             background: #fff;
-            border-radius: 8px;
+            border-radius: 6px;
             position: relative;
             display: flex;
             justify-content: center;
@@ -375,26 +370,26 @@
         .btn-plus-tiktok::before {
             content: '';
             position: absolute;
-            left: -3px;
-            width: 44px;
-            height: 28px;
+            left: -2px;
+            width: 40px;
+            height: 26px;
             background: var(--accent-cyan);
-            border-radius: 8px;
+            border-radius: 6px;
             z-index: -1;
         }
 
         .btn-plus-tiktok::after {
             content: '';
             position: absolute;
-            right: -3px;
-            width: 44px;
-            height: 28px;
+            right: -2px;
+            width: 40px;
+            height: 26px;
             background: var(--accent-pink);
-            border-radius: 8px;
+            border-radius: 6px;
             z-index: -2;
         }
 
-        .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.2rem; }
+        .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.1rem; }
 
         /* Modals */
         .tiktok-modal {
@@ -414,15 +409,15 @@
 
         .modal-body-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             background: #18181b;
             border-top-left-radius: 16px;
             border-top-right-radius: 16px;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            max-height: 80vh;
+            gap: 12px;
+            max-height: 82vh;
             overflow-y: auto;
         }
 
@@ -431,25 +426,25 @@
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
-            font-size: 1rem;
-            padding-bottom: 10px;
+            font-size: 0.95rem;
+            padding-bottom: 8px;
             border-bottom: 1px solid #27272a;
         }
 
-        .modal-close { cursor: pointer; font-size: 1.2rem; color: var(--text-muted); }
+        .modal-close { cursor: pointer; font-size: 1.1rem; color: var(--text-muted); }
 
-        .btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+        .btn { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--accent-pink); color: white; }
         .btn-secondary { background: #27272a; color: white; }
-        .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.95rem; }
+        .input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.9rem; }
 
-        .gender-filter-select {
+        .filter-select {
             background: #27272a;
             color: #fff;
             border: 1px solid #3f3f46;
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 0.8rem;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             outline: none;
         }
     </style>
@@ -479,19 +474,19 @@
             <button class="room-pill" onclick="switchRoom('Lo-Fi Chill Hop', this)">🎧 Lo-Fi Chill Hop</button>
         </div>
 
-        <!-- Multi-Genre Radio Widget -->
+        <!-- Stable Multi-Genre Live Radio Widget -->
         <div class="radio-widget">
             <select class="radio-select" id="radio-station-select" onchange="changeRadioStation(this.value)">
-                <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
+                <option value="https://icecast.ravewave.net/lofi-128.mp3">Lo-Fi Chill Hop</option>
                 <option value="https://stream.zeno.fm/f95a5yt254zuv">90's Hits Retro</option>
-                <option value="https://stream.zeno.fm/0t3z2h05k9duv">Classic Hip-Hop</option>
+                <option value="https://strm1.publicradio.org/listenersupported">Public Beats</option>
                 <option value="https://stream.zeno.fm/3wy757f5g1duv">R&B Soul Grooves</option>
                 <option value="https://stream.zeno.fm/8xt7yp92k9duv">Rock Anthems</option>
             </select>
             <button class="radio-control-btn" id="radio-play-btn" onclick="toggleRadio()">▶ Play</button>
             <button class="radio-control-btn" onclick="stopRadio()">⏹</button>
         </div>
-        <audio id="radio-audio" src="https://stream.zeno.fm/f3wvbbqmdg8uv" preload="none"></audio>
+        <audio id="radio-audio" src="https://icecast.ravewave.net/lofi-128.mp3" preload="none"></audio>
 
         <!-- Main Video Container -->
         <div class="media-container" id="preview-area">
@@ -583,22 +578,22 @@
                 <span>💎 Wallet & Diamond Store</span>
                 <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
             </div>
-            <div style="background: #09090b; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #27272a;">
-                <div style="font-size: 0.8rem; color: #a1a1aa;">Your Wallet Balance</div>
-                <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-coins-count">💎 0 Diamonds</div>
+            <div style="background: #09090b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #27272a;">
+                <div style="font-size: 0.75rem; color: #a1a1aa;">Your Wallet Balance</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);">💎 0 Diamonds</div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
-                    <div><strong>💎 100 Diamonds</strong><div style="font-size: 0.75rem; color: #a1a1aa;">$1.00 USD</div></div>
-                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">Pay $1.00</button>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
+                    <div><strong>💎 100 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$1.00 USD</div></div>
+                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">Pay $1.00</button>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
-                    <div><strong>💎 500 Diamonds</strong><div style="font-size: 0.75rem; color: #a1a1aa;">$5.00 USD</div></div>
-                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">Pay $5.00</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
+                    <div><strong>💎 500 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$5.00 USD</div></div>
+                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">Pay $5.00</button>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
-                    <div><strong>💎 2,000 Diamonds</strong><div style="font-size: 0.75rem; color: #a1a1aa;">$20.00 USD</div></div>
-                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">Pay $20.00</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
+                    <div><strong>💎 2,000 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$20.00 USD</div></div>
+                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">Pay $20.00</button>
                 </div>
             </div>
         </div>
@@ -638,7 +633,7 @@
             }
         }
 
-        // --- ROOM SWITCHER WITH GENDER & MEMBER SEARCH ---
+        // --- ROOM SWITCHER WITH 20+ MEMBER SEARCH & CONNECT BUTTONS ---
         function switchRoom(roomName, element) {
             if (element) {
                 document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
@@ -649,47 +644,80 @@
             const preview = document.getElementById('preview-area');
             if (!document.getElementById('live-video')) {
                 preview.innerHTML = `
-                    <div class="media-placeholder" style="display:flex; flex-direction:column; gap:12px; align-items:center;">
-                        <div>✨ Joined <b>${roomName}</b></div>
-                        <div style="display:flex; gap:6px; width:100%; max-width:340px;">
-                            <select id="gender-filter" class="gender-filter-select">
+                    <div class="media-placeholder" style="display:flex; flex-direction:column; gap:8px; align-items:center; max-height:85vh; overflow-y:auto;">
+                        <div style="font-size:0.9rem;">✨ <b>${roomName}</b> Online Members</div>
+                        <div style="display:flex; gap:6px; width:100%;">
+                            <select id="gender-filter" class="filter-select" onchange="filterRoomPeople()">
                                 <option value="all">All Genders</option>
                                 <option value="female">Female</option>
                                 <option value="male">Male</option>
                                 <option value="lgbtq">LGBTQ+</option>
                             </select>
-                            <input type="text" id="room-search-input" class="chat-input" placeholder="Search people online..." style="padding:8px 12px; font-size:0.8rem;">
-                            <button class="chat-send-btn" style="padding:8px 12px; font-size:0.8rem;" onclick="searchRoomPeople()">Search</button>
+                            <input type="text" id="room-search-input" class="chat-input" placeholder="Search people..." oninput="filterRoomPeople()" style="padding:6px 10px; font-size:0.75rem;">
                         </div>
-                        <div id="room-search-results" style="font-size:0.75rem; color:#a1a1aa;">Active members online now. Select filter & search.</div>
+                        <div id="room-members-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; width:100%; max-height:220px; overflow-y:auto; text-align:left; padding-right:4px;">
+                            <!-- Populated dynamically -->
+                        </div>
                     </div>
                 `;
+                loadMockMembers();
             }
         }
 
-        function searchRoomPeople() {
-            const query = document.getElementById('room-search-input').value.trim();
-            const gender = document.getElementById('gender-filter').value;
-            const resultsDiv = document.getElementById('room-search-results');
-            
-            let mockData = [
-                { name: "@sarah_vibe", gender: "female" },
-                { name: "@alex_99", gender: "male" },
-                { name: "@taylor_love", gender: "lgbtq" },
-                { name: "@jessica_xo", gender: "female" }
-            ];
+        const mockDirectory = [
+            { name: "@sarah_vibe", gender: "female", age: 24, status: "Active now" },
+            { name: "@alex_99", gender: "male", age: 28, status: "Chatting" },
+            { name: "@taylor_love", gender: "lgbtq", age: 26, status: "Looking for friends" },
+            { name: "@jessica_xo", gender: "female", age: 22, status: "Listening to music" },
+            { name: "@david_k", gender: "male", age: 30, status: "Streams daily" },
+            { name: "@morgan_lee", gender: "lgbtq", age: 25, status: "Chill vibes" },
+            { name: "@chris_m", gender: "male", age: 27, status: "Online" },
+            { name: "@amanda_91", gender: "female", age: 29, status: "Let's connect" },
+            { name: "@kevin_z", gender: "male", age: 24, status: "Gamer" },
+            { name: "@rachel_w", gender: "female", age: 26, status: "Active now" },
+            { name: "@sam_brook", gender: "lgbtq", age: 23, status: "Open to chat" },
+            { name: "@brian_99", gender: "male", age: 31, status: "Listening" },
+            { name: "@emily_rose", gender: "female", age: 21, status: "Coffee lover" },
+            { name: "@ryan_air", gender: "male", age: 26, status: "Traveler" },
+            { name: "@jordan_x", gender: "lgbtq", age: 28, status: "Artist" },
+            { name: "@lucas_p", gender: "male", age: 25, status: "Active" },
+            { name: "@hannah_b", gender: "female", age: 23, status: "Dancing" },
+            { name: "@pat_smith", gender: "lgbtq", age: 27, status: "Supportive" },
+            { name: "@olivia_m", gender: "female", age: 25, status: "Chatty" },
+            { name: "@nathan_k", gender: "male", age: 29, status: "Online" }
+        ];
 
-            let filtered = mockData.filter(user => {
-                const matchesGender = (gender === 'all') || (user.gender === gender);
-                const matchesQuery = !query || user.name.toLowerCase().includes(query.toLowerCase());
-                return matchesGender && matchesQuery;
+        function loadMockMembers(filteredList = mockDirectory) {
+            const grid = document.getElementById('room-members-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            filteredList.forEach(user => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:rgba(255,255,255,0.08); padding:6px 8px; border-radius:8px; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);";
+                card.innerHTML = `
+                    <div style="font-weight:bold; font-size:0.75rem; color:#fff;">${user.name}</div>
+                    <div style="font-size:0.65rem; color:#a1a1aa;">${user.gender} • ${user.age}</div>
+                    <button class="btn btn-primary" style="padding:3px 6px; font-size:0.65rem; margin-top:2px;" onclick="connectWithUser('${user.name}')">Connect 💬</button>
+                `;
+                grid.appendChild(card);
             });
+        }
 
-            if (filtered.length > 0) {
-                resultsDiv.innerHTML = `🔍 Found ${filtered.length} online (${gender}): ` + filtered.map(u => u.name).join(', ');
-            } else {
-                resultsDiv.innerHTML = `No matching users found for "${query}" (${gender}).`;
-            }
+        function filterRoomPeople() {
+            const query = document.getElementById('room-search-input').value.trim().toLowerCase();
+            const gender = document.getElementById('gender-filter').value;
+
+            let results = mockDirectory.filter(u => {
+                const matchGender = (gender === 'all') || (u.gender === gender);
+                const matchQuery = !query || u.name.toLowerCase().includes(query);
+                return matchGender && matchQuery;
+            });
+            loadMockMembers(results);
+        }
+
+        function connectWithUser(username) {
+            alert(`Direct connection request sent to ${username}! Opening chat channel.`);
+            triggerAction('inbox');
         }
 
         // --- RADIO CONTROLS ---
@@ -720,47 +748,51 @@
             document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
-        // --- INTERACTIVE ACTION VIEWS & FIXED PK BATTLE / JUKEBOX ---
+        // --- INTERACTIVE ACTION VIEWS (FIXED JUKEBOX & PK) ---
+        let songQueue = [];
+
         function triggerAction(action) {
             const preview = document.getElementById('preview-area');
             let contentHtml = '';
             
             if (action === 'pk') {
                 contentHtml = `
-                    <div class="media-placeholder" style="background:rgba(217, 119, 6, 0.15); border: 2px dashed #d97706; padding:25px; border-radius:14px;">
+                    <div class="media-placeholder" style="background:rgba(217, 119, 6, 0.15); border: 2px dashed #d97706; padding:20px; border-radius:14px;">
                         ⚔️ <b>PK Battles Arena</b><br><br>
-                        <div id="pk-status-text" style="font-size:0.8rem; color:#fde047; margin-bottom:12px;">1v1 Creator Matching Ready</div>
-                        <button class="btn btn-primary" id="pk-find-btn" style="padding:10px 20px; font-weight:bold;" onclick="startPKMatchSearch()">Find Opponent Now ⚔️</button>
+                        <div id="pk-status-text" style="font-size:0.8rem; color:#fde047; margin-bottom:10px;">1v1 Creator Matching Ready</div>
+                        <button class="btn btn-primary" id="pk-find-btn" style="padding:8px 16px; font-weight:bold; font-size:0.8rem;" onclick="startPKMatchSearch()">Find Opponent Now ⚔️</button>
                     </div>`;
             } else if (action === 'gifts') {
                 contentHtml = `
-                    <div class="media-placeholder" style="background:rgba(5, 150, 105, 0.15); border: 2px dashed #059669; padding:20px; border-radius:14px;">
+                    <div class="media-placeholder" style="background:rgba(5, 150, 105, 0.15); border: 2px dashed #059669; padding:16px; border-radius:14px;">
                         🎁 <b>Virtual Gift Store</b><br><br>
-                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:12px;">
-                            <button class="btn btn-secondary" onclick="sendGiftItem('🌹 Rose (10 Diamonds)', 10)">🌹 Rose (10)</button>
-                            <button class="btn btn-secondary" onclick="sendGiftItem('💎 Diamond Ring (50)', 50)">💍 Ring (50)</button>
-                            <button class="btn btn-secondary" onclick="sendGiftItem('🚀 Rocket (200)', 200)">🚀 Rocket (200)</button>
-                            <button class="btn btn-secondary" onclick="sendGiftItem('👑 Crown (500)', 500)">👑 Crown (500)</button>
+                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-bottom:10px;">
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose (10 Diamonds)', 10)">🌹 Rose (10)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💎 Ring (50)', 50)">💍 Ring (50)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket (200)', 200)">🚀 Rocket (200)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown (500)', 500)">👑 Crown (500)</button>
                         </div>
                     </div>`;
             } else if (action === 'jukebox') {
                 contentHtml = `
-                    <div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:20px; border-radius:14px;">
+                    <div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:16px; border-radius:14px; max-height:80vh; overflow-y:auto;">
                         🎵 <b>Jukebox Song Requester</b><br><br>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube or Audio URL here..." style="font-size:0.85rem; padding:12px;">
-                            <div style="display:flex; gap:8px;">
-                                <button class="btn btn-secondary" style="flex:1; padding:8px;" onclick="pasteFromClipboard()">📋 Paste URL</button>
-                                <button class="btn btn-primary" style="flex:2; padding:8px;" onclick="addSongToQueue()">Add Song to Queue 🎵</button>
+                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube or Audio URL..." style="font-size:0.8rem; padding:10px;">
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn btn-secondary" style="flex:1; padding:6px; font-size:0.75rem;" onclick="pasteFromClipboard()">📋 Paste</button>
+                                <button class="btn btn-primary" style="flex:2; padding:6px; font-size:0.75rem;" onclick="addSongToQueue()">Add to Queue 🎵</button>
                             </div>
                         </div>
-                        <div id="queue-status" style="font-size:0.75rem; color:#a1a1aa; margin-top:10px;">Queue is currently empty.</div>
+                        <div id="queue-list-container" style="margin-top:10px; text-align:left; font-size:0.75rem; max-height:100px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:6px; border-radius:8px;">
+                            <b>Current Queue:</b><br><span id="queue-empty-text" style="color:#a1a1aa;">Queue is empty. Add a song above!</span>
+                        </div>
                     </div>`;
             } else if (action === 'inbox') {
                 contentHtml = `
-                    <div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:25px; border-radius:14px;">
+                    <div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:20px; border-radius:14px;">
                         💬 <b>Inbox & Direct Messages</b><br><br>
-                        <div style="font-size:0.8rem; color:#a1a1aa;">No new unread messages. Start chatting inside any room!</div>
+                        <div style="font-size:0.75rem; color:#a1a1aa;">Active connection threads with room members will show here.</div>
                     </div>`;
             }
             
@@ -804,6 +836,24 @@
             }
         }
 
+        function addSongToQueue() {
+            const linkInput = document.getElementById('song-link-input');
+            const link = linkInput.value.trim();
+            if (!link) { alert("Please paste a song link first."); return; }
+            
+            songQueue.push(link);
+            linkInput.value = '';
+
+            const queueContainer = document.getElementById('queue-list-container');
+            const emptyText = document.getElementById('queue-empty-text');
+            if (emptyText) emptyText.remove();
+
+            const item = document.createElement('div');
+            item.style.cssText = "color:#25f4ee; margin-top:3px; word-break:break-all;";
+            item.innerHTML = `${songQueue.length}. ${link}`;
+            queueContainer.appendChild(item);
+        }
+
         function sendGiftItem(giftName, cost) {
             alert(`Successfully sent ${giftName}! Animation dispatched to stream.`);
             const chatContainer = document.getElementById('chat-messages-container');
@@ -813,14 +863,6 @@
             bubble.innerHTML = `🎁 <b>Gift Event:</b> You sent ${giftName}!`;
             chatContainer.appendChild(bubble);
             chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function addSongToQueue() {
-            const linkInput = document.getElementById('song-link-input');
-            const link = linkInput.value.trim();
-            if (!link) { alert("Please paste a song link first."); return; }
-            document.getElementById('queue-status').innerHTML = `✅ Added to live queue: <a href="${link}" target="_blank" style="color:#25f4ee;">${link.substring(0, 30)}...</a>`;
-            linkInput.value = '';
         }
 
         // --- VISIBLE CHAT LOG HANDLER ---
