@@ -15,6 +15,7 @@
             --bg-dark: #000000;
             --accent-pink: #fe2c55;
             --accent-cyan: #25f4ee;
+            --accent-purple: #a855f7;
             --text-light: #ffffff;
             --text-muted: #a1a1aa;
         }
@@ -51,7 +52,7 @@
             top: 0;
             left: 0;
             right: 0;
-            padding: 10px 16px;
+            padding: 10px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -59,8 +60,26 @@
             background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
         }
 
+        .left-header-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .brand-logo {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -185,11 +204,12 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             padding: 20px;
-            max-width: 85%;
+            width: 90%;
+            max-width: 420px;
             line-height: 1.5;
         }
 
-        /* TikTok Style Right Action Bar (Lowered Go Live button) */
+        /* TikTok Style Right Action Bar */
         .right-action-bar {
             position: absolute;
             right: 12px;
@@ -231,7 +251,7 @@
         .icon-circle.live { background: var(--accent-pink); border: none; }
         .icon-circle.pk { background: linear-gradient(135deg, #ff9900, #ff0055); border: none; }
 
-        /* Bottom Floating Overlay Area (Chat Feed + Input) */
+        /* Bottom Floating Overlay Area (Visible Chat Feed & Input) */
         .bottom-overlay {
             position: absolute;
             bottom: 60px;
@@ -246,12 +266,12 @@
         }
 
         .chat-feed {
-            max-height: 140px;
+            max-height: 130px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding-right: 50px;
+            padding-right: 55px;
             scrollbar-width: none;
         }
         .chat-feed::-webkit-scrollbar { display: none; }
@@ -422,6 +442,16 @@
         .btn-primary { background: var(--accent-pink); color: white; }
         .btn-secondary { background: #27272a; color: white; }
         .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.95rem; }
+
+        .gender-filter-select {
+            background: #27272a;
+            color: #fff;
+            border: 1px solid #3f3f46;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -431,7 +461,10 @@
 
         <!-- Top Navigation Overlay -->
         <div class="top-overlay">
-            <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
+            <div class="left-header-group">
+                <button class="back-nav-btn" onclick="handleBackNavigation()">◄ Back</button>
+                <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
+            </div>
             <div class="user-pill" id="user-display" onclick="openTikTokModal('auth-modal')">Guest_2914</div>
         </div>
 
@@ -467,7 +500,7 @@
             </div>
         </div>
 
-        <!-- Right Side Action Bar (Lowered Live Button) -->
+        <!-- Right Side Action Bar -->
         <div class="right-action-bar">
             <button class="action-icon-btn" onclick="startLiveCamera()">
                 <div class="icon-circle live">🔴</div>
@@ -491,7 +524,7 @@
             </button>
         </div>
 
-        <!-- Bottom Floating Overlay Area (Visible Chat Feed & Input) -->
+        <!-- Bottom Floating Overlay Area -->
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
@@ -593,7 +626,19 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        // --- ROOM SWITCHER WITH MEMBER SEARCH ---
+        function handleBackNavigation() {
+            const video = document.getElementById('live-video');
+            if (video && video.srcObject) {
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+                document.getElementById('preview-area').innerHTML = `<div class="media-placeholder">Stream ended. Tap '+' to go live again.</div>`;
+            } else {
+                switchRoom('Global Lounge');
+            }
+        }
+
+        // --- ROOM SWITCHER WITH GENDER & MEMBER SEARCH ---
         function switchRoom(roomName, element) {
             if (element) {
                 document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
@@ -606,11 +651,17 @@
                 preview.innerHTML = `
                     <div class="media-placeholder" style="display:flex; flex-direction:column; gap:12px; align-items:center;">
                         <div>✨ Joined <b>${roomName}</b></div>
-                        <div style="display:flex; gap:8px; width:100%; max-width:320px;">
-                            <input type="text" id="room-search-input" class="chat-input" placeholder="Search people in room..." style="padding:8px 12px; font-size:0.8rem;">
+                        <div style="display:flex; gap:6px; width:100%; max-width:340px;">
+                            <select id="gender-filter" class="gender-filter-select">
+                                <option value="all">All Genders</option>
+                                <option value="female">Female</option>
+                                <option value="male">Male</option>
+                                <option value="lgbtq">LGBTQ+</option>
+                            </select>
+                            <input type="text" id="room-search-input" class="chat-input" placeholder="Search people online..." style="padding:8px 12px; font-size:0.8rem;">
                             <button class="chat-send-btn" style="padding:8px 12px; font-size:0.8rem;" onclick="searchRoomPeople()">Search</button>
                         </div>
-                        <div id="room-search-results" style="font-size:0.75rem; color:#a1a1aa;">Active members online now. Type to filter.</div>
+                        <div id="room-search-results" style="font-size:0.75rem; color:#a1a1aa;">Active members online now. Select filter & search.</div>
                     </div>
                 `;
             }
@@ -618,12 +669,27 @@
 
         function searchRoomPeople() {
             const query = document.getElementById('room-search-input').value.trim();
+            const gender = document.getElementById('gender-filter').value;
             const resultsDiv = document.getElementById('room-search-results');
-            if (!query) {
-                resultsDiv.innerHTML = "Please enter a name or tag to search.";
-                return;
+            
+            let mockData = [
+                { name: "@sarah_vibe", gender: "female" },
+                { name: "@alex_99", gender: "male" },
+                { name: "@taylor_love", gender: "lgbtq" },
+                { name: "@jessica_xo", gender: "female" }
+            ];
+
+            let filtered = mockData.filter(user => {
+                const matchesGender = (gender === 'all') || (user.gender === gender);
+                const matchesQuery = !query || user.name.toLowerCase().includes(query.toLowerCase());
+                return matchesGender && matchesQuery;
+            });
+
+            if (filtered.length > 0) {
+                resultsDiv.innerHTML = `🔍 Found ${filtered.length} online (${gender}): ` + filtered.map(u => u.name).join(', ');
+            } else {
+                resultsDiv.innerHTML = `No matching users found for "${query}" (${gender}).`;
             }
-            resultsDiv.innerHTML = `🔍 Found 3 matches for "<b>${query}</b>": @alex_99, @sarah_vibe, @dev_master`;
         }
 
         // --- RADIO CONTROLS ---
@@ -654,7 +720,7 @@
             document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
-        // --- INTERACTIVE ACTION VIEWS ---
+        // --- INTERACTIVE ACTION VIEWS & FIXED PK BATTLE / JUKEBOX ---
         function triggerAction(action) {
             const preview = document.getElementById('preview-area');
             let contentHtml = '';
@@ -663,8 +729,8 @@
                 contentHtml = `
                     <div class="media-placeholder" style="background:rgba(217, 119, 6, 0.15); border: 2px dashed #d97706; padding:25px; border-radius:14px;">
                         ⚔️ <b>PK Battles Arena</b><br><br>
-                        <div style="font-size:0.8rem; color:#fde047; margin-bottom:12px;">🔴 Radar Active: Searching matching 1vs1 live creator...</div>
-                        <button class="btn btn-primary" style="padding:8px 16px; font-size:0.8rem;" onclick="alert('Challenge sent to random creator!')">Find Opponent Now</button>
+                        <div id="pk-status-text" style="font-size:0.8rem; color:#fde047; margin-bottom:12px;">1v1 Creator Matching Ready</div>
+                        <button class="btn btn-primary" id="pk-find-btn" style="padding:10px 20px; font-weight:bold;" onclick="startPKMatchSearch()">Find Opponent Now ⚔️</button>
                     </div>`;
             } else if (action === 'gifts') {
                 contentHtml = `
@@ -680,12 +746,15 @@
             } else if (action === 'jukebox') {
                 contentHtml = `
                     <div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:20px; border-radius:14px;">
-                        🎵 <b>Jukebox Hub</b><br><br>
+                        🎵 <b>Jukebox Song Requester</b><br><br>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube / Audio track link..." style="font-size:0.8rem;">
-                            <button class="btn btn-primary" style="padding:8px; font-size:0.85rem;" onclick="addSongToQueue()">Add Song to Queue</button>
+                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube or Audio URL here..." style="font-size:0.85rem; padding:12px;">
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-secondary" style="flex:1; padding:8px;" onclick="pasteFromClipboard()">📋 Paste URL</button>
+                                <button class="btn btn-primary" style="flex:2; padding:8px;" onclick="addSongToQueue()">Add Song to Queue 🎵</button>
+                            </div>
                         </div>
-                        <div id="queue-status" style="font-size:0.75rem; color:#a1a1aa; margin-top:8px;">Queue is currently empty.</div>
+                        <div id="queue-status" style="font-size:0.75rem; color:#a1a1aa; margin-top:10px;">Queue is currently empty.</div>
                     </div>`;
             } else if (action === 'inbox') {
                 contentHtml = `
@@ -698,6 +767,43 @@
             preview.innerHTML = contentHtml;
         }
 
+        function startPKMatchSearch() {
+            const statusText = document.getElementById('pk-status-text');
+            const findBtn = document.getElementById('pk-find-btn');
+            if (!statusText || !findBtn) return;
+
+            findBtn.disabled = true;
+            findBtn.innerText = "Searching Radar...";
+            statusText.innerText = "🔍 Scanning global creators online...";
+
+            let count = 3;
+            const timer = setInterval(() => {
+                if (count > 0) {
+                    statusText.innerText = `🔴 Connecting to creator in ${count}s...`;
+                    count--;
+                } else {
+                    clearInterval(timer);
+                    statusText.innerHTML = `🔥 <b>MATCH FOUND!</b><br>Opponent: @Creator_Vibe_X`;
+                    findBtn.disabled = false;
+                    findBtn.innerText = "Start Battle!";
+                }
+            }, 1000);
+        }
+
+        async function pasteFromClipboard() {
+            const linkInput = document.getElementById('song-link-input');
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    linkInput.value = text;
+                } else {
+                    alert("Clipboard is empty or permissions denied.");
+                }
+            } catch (err) {
+                alert("Tap directly into the input box to paste your link.");
+            }
+        }
+
         function sendGiftItem(giftName, cost) {
             alert(`Successfully sent ${giftName}! Animation dispatched to stream.`);
             const chatContainer = document.getElementById('chat-messages-container');
@@ -707,14 +813,13 @@
             bubble.innerHTML = `🎁 <b>Gift Event:</b> You sent ${giftName}!`;
             chatContainer.appendChild(bubble);
             chatContainer.scrollTop = chatContainer.scrollHeight;
-            setTimeout(() => bubble.remove(), 6000);
         }
 
         function addSongToQueue() {
             const linkInput = document.getElementById('song-link-input');
             const link = linkInput.value.trim();
-            if (!link) { alert("Please paste a song link."); return; }
-            document.getElementById('queue-status').innerHTML = `✅ Successfully added to queue: <a href="${link}" target="_blank" style="color:#25f4ee;">${link.substring(0, 30)}...</a>`;
+            if (!link) { alert("Please paste a song link first."); return; }
+            document.getElementById('queue-status').innerHTML = `✅ Added to live queue: <a href="${link}" target="_blank" style="color:#25f4ee;">${link.substring(0, 30)}...</a>`;
             linkInput.value = '';
         }
 
