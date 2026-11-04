@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VibePulse — Live Stream & Social App</title>
 
+    <!-- Firebase Web SDK (v10 Compat Layer) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -31,6 +36,7 @@
             overflow: hidden;
         }
 
+        /* Top Header Bar */
         .header-bar {
             display: flex;
             align-items: center;
@@ -60,6 +66,7 @@
             border-radius: 6px;
         }
 
+        /* Main App Area */
         .main-content {
             flex: 1;
             position: relative;
@@ -83,6 +90,7 @@
             padding: 20px;
         }
 
+        /* Bottom Navigation Bar */
         .bottom-nav {
             display: flex;
             justify-content: space-around;
@@ -109,6 +117,7 @@
             color: var(--text-light);
         }
 
+        /* Dual Action Plus Button */
         .btn-plus {
             width: 44px;
             height: 32px;
@@ -124,6 +133,7 @@
             cursor: pointer;
         }
 
+        /* Modal Container */
         .tiktok-modal {
             display: none;
             position: fixed;
@@ -201,6 +211,7 @@
 </head>
 <body>
 
+    <!-- Header Navigation Bar -->
     <header class="header-bar">
         <button class="nav-item" onclick="history.back()">◄ Back</button>
         <span class="header-title">VibePulse</span>
@@ -210,12 +221,14 @@
         </div>
     </header>
 
+    <!-- Main View Content -->
     <main class="main-content">
         <div class="live-preview" id="preview-area">
             🎥 Tap '+' to start streaming or share media
         </div>
     </main>
 
+    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <button class="nav-item active">🏠<span>Home</span></button>
         <button class="nav-item" onclick="openTikTokModal('shop-modal')">💎<span>Store</span></button>
@@ -259,6 +272,8 @@
                 <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
+                
+                <!-- Tier 1: 100 Diamonds -->
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px; border-radius: 8px;">
                     <div>
                         <strong style="color: #fff; font-size: 1rem;">💎 100 Diamonds</strong>
@@ -269,6 +284,7 @@
                     </button>
                 </div>
 
+                <!-- Tier 2: 500 Diamonds -->
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px; border-radius: 8px;">
                     <div>
                         <strong style="color: #fff; font-size: 1rem;">💎 500 Diamonds</strong>
@@ -279,6 +295,7 @@
                     </button>
                 </div>
 
+                <!-- Tier 3: 2,000 Diamonds -->
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px; border-radius: 8px;">
                     <div>
                         <strong style="color: #fff; font-size: 1rem;">💎 2,000 Diamonds</strong>
@@ -288,11 +305,45 @@
                         Pay $20.00
                     </button>
                 </div>
+
             </div>
         </div>
     </div>
 
+    <!-- Application Script Logic -->
     <script>
+        // --- 1. FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "YOUR_ACTUAL_FIREBASE_API_KEY", // <--- Replace with real key from Firebase Console
+            authDomain: "vibepulse-21950.firebaseapp.com",
+            projectId: "vibepulse-21950",
+            storageBucket: "vibepulse-21950.appspot.com"
+        };
+
+        let auth = null;
+        let db = null;
+
+        try {
+            if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "YOUR_ACTUAL_FIREBASE_API_KEY") {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        document.getElementById('user-display').innerText = user.displayName || user.email.split('@')[0];
+                    } else {
+                        document.getElementById('user-display').innerText = "Guest";
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn("Firebase waiting for valid API Key:", e);
+        }
+
+        // Modal Controls
         function openTikTokModal(id) {
             const modal = document.getElementById(id);
             if (modal) modal.classList.add('active');
@@ -303,21 +354,50 @@
             if (modal) modal.classList.remove('active');
         }
 
+        // --- 2. AUTHENTICATION HANDLER ---
         function handleAuth() {
             const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
             const username = document.getElementById('auth-username').value;
 
-            if (!email) {
-                alert("Please enter an email address.");
+            if (!email || !password) {
+                alert("Please fill in both email and password.");
                 return;
             }
 
-            const displayName = username || email.split('@')[0];
-            document.getElementById('user-display').innerText = displayName;
-            closeTikTokModal('auth-modal');
-            alert("Signed in successfully as " + displayName + "!");
+            // Fallback if Firebase API Key is not added yet
+            if (!auth) {
+                const displayName = username || email.split('@')[0];
+                document.getElementById('user-display').innerText = displayName;
+                closeTikTokModal('auth-modal');
+                alert("Signed in as " + displayName + "! (Note: Paste your real Firebase API Key in index.html to save accounts permanently).");
+                return;
+            }
+
+            // Live Firebase Auth
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    closeTikTokModal('auth-modal');
+                    alert("Signed in successfully!");
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .then((userCredential) => {
+                                if (username) {
+                                    userCredential.user.updateProfile({ displayName: username });
+                                }
+                                closeTikTokModal('auth-modal');
+                                alert("Account created and signed in!");
+                            })
+                            .catch(err => alert("Auth Notice: " + err.message));
+                    } else {
+                        alert("Auth Notice: " + error.message);
+                    }
+                });
         }
 
+        // --- 3. DUAL ACTION '+' MEDIA HANDLERS ---
         function startLiveCamera() {
             closeTikTokModal('plus-modal');
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -343,6 +423,7 @@
             }
         }
 
+        // --- 4. LIVE LEMON SQUEEZY CARD CHECKOUT PROCESSOR ---
         function buyCoinsCheckout(sku, coinAmount, priceUsd) {
             const cardPaymentLinks = {
                 'vibepulse_coins_100': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc',
@@ -351,6 +432,7 @@
             };
 
             const checkoutUrl = cardPaymentLinks[sku];
+
             if (checkoutUrl) {
                 window.open(checkoutUrl, '_blank');
             } else {
