@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -312,43 +313,56 @@
 
     <!-- Application Script Logic -->
     <script>
-        // --- 1. FIREBASE CONFIGURATION ---
+        // --- 1. SAFE FIREBASE INITIALIZATION ---
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
+            apiKey: "YOUR_API_KEY", // <--- Replace with real API key from Firebase Console
             authDomain: "vibepulse-21950.firebaseapp.com",
             projectId: "vibepulse-21950",
             storageBucket: "vibepulse-21950.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            messagingSenderId: "YOUR_SENDER_ID", // <--- Replace with real Sender ID
+            appId: "YOUR_APP_ID" // <--- Replace with real App ID
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        let auth, db;
 
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Monitor User Authentication State
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                document.getElementById('user-display').innerText = user.displayName || user.email.split('@')[0];
-            } else {
-                document.getElementById('user-display').innerText = "Guest";
+        // Safely catch invalid config errors to prevent app freezing
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
             }
-        });
+            auth = firebase.auth();
+            db = firebase.firestore();
+
+            // Monitor User Authentication State
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    document.getElementById('user-display').innerText = user.displayName || user.email.split('@')[0];
+                } else {
+                    document.getElementById('user-display').innerText = "Guest";
+                }
+            });
+        } catch (e) {
+            console.warn("Firebase initialized with missing credentials:", e);
+        }
 
         // Modal Open/Close Controls
         function openTikTokModal(id) {
-            document.getElementById(id).classList.add('active');
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('active');
         }
 
         function closeTikTokModal(id) {
-            document.getElementById(id).classList.remove('active');
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
         }
 
         // --- 2. AUTHENTICATION HANDLER ---
         function handleAuth() {
+            if (!auth) {
+                alert("Please add your real Firebase API Key inside index.html to enable login.");
+                return;
+            }
+
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const username = document.getElementById('auth-username').value;
@@ -364,10 +378,12 @@
                     alert("Signed in successfully!");
                 })
                 .catch((error) => {
-                    if (error.code === 'auth/user-not-found') {
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                         auth.createUserWithEmailAndPassword(email, password)
                             .then((userCredential) => {
-                                userCredential.user.updateProfile({ displayName: username });
+                                if (username) {
+                                    userCredential.user.updateProfile({ displayName: username });
+                                }
                                 closeTikTokModal('auth-modal');
                                 alert("Account created and signed in!");
                             })
@@ -404,21 +420,20 @@
             }
         }
 
-        // --- 4. CREDIT CARD CHECKOUT PROCESSOR ---
+        // --- 4. LIVE LEMON SQUEEZY CARD CHECKOUT PROCESSOR ---
         function buyCoinsCheckout(sku, coinAmount, priceUsd) {
-            // Replace these placeholder URLs with your live card checkout links (e.g., Lemon Squeezy / Paddle)
             const cardPaymentLinks = {
-                'vibepulse_coins_100': 'https://vibepulse.lemonsqueezy.com/buy/YOUR_1USD_PRODUCT_ID',
-                'vibepulse_coins_500': 'https://vibepulse.lemonsqueezy.com/buy/YOUR_5USD_PRODUCT_ID',
-                'vibepulse_coins_2000': 'https://vibepulse.lemonsqueezy.com/buy/YOUR_20USD_PRODUCT_ID'
+                'vibepulse_coins_100': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc',
+                'vibepulse_coins_500': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012',
+                'vibepulse_coins_2000': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f'
             };
 
             const checkoutUrl = cardPaymentLinks[sku];
 
-            if (checkoutUrl && !checkoutUrl.includes('YOUR_1USD_PRODUCT_ID')) {
+            if (checkoutUrl) {
                 window.open(checkoutUrl, '_blank');
             } else {
-                alert(`Redirecting to secure card checkout for ${coinAmount} Diamonds ($${priceUsd}).\n\nPlease paste your live checkout links into buyCoinsCheckout().`);
+                alert(`Checkout link not found for ${coinAmount} Diamonds.`);
             }
         }
     </script>
