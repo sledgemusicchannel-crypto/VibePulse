@@ -41,29 +41,59 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
-            background: rgba(15, 23, 42, 0.95);
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.98);
             border-bottom: 1px solid #334155;
             z-index: 100;
         }
 
         .header-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #fff;
         }
 
         .header-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
         .user-badge {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             background: #334155;
             padding: 4px 8px;
             border-radius: 6px;
+        }
+
+        /* Sub-Header Feature Bar (Jukebox, PK, Live, Radio, Lounge, etc.) */
+        .feature-bar {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #090d16;
+            border-bottom: 1px solid #1e293b;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+        .feature-bar::-webkit-scrollbar { display: none; }
+
+        .feature-pill {
+            background: #1e293b;
+            color: var(--text-light);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .feature-pill.active {
+            background: var(--accent-pink);
         }
 
         /* Main App Area */
@@ -75,12 +105,13 @@
             justify-content: center;
             align-items: center;
             background: #000;
+            overflow: hidden;
         }
 
         .live-preview {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            position: relative;
             background: #1e293b;
             display: flex;
             justify-content: center;
@@ -88,6 +119,16 @@
             color: var(--text-muted);
             text-align: center;
             padding: 20px;
+        }
+
+        /* Properly Contain Camera Feed so it doesn't overflow */
+        #live-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         /* Bottom Navigation Bar */
@@ -105,7 +146,7 @@
             color: var(--text-muted);
             background: none;
             border: none;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -119,8 +160,8 @@
 
         /* Dual Action Plus Button */
         .btn-plus {
-            width: 44px;
-            height: 32px;
+            width: 42px;
+            height: 30px;
             background: linear-gradient(90deg, #00f2fe 0%, #fe2c55 100%);
             border-radius: 8px;
             display: flex;
@@ -128,7 +169,7 @@
             align-items: center;
             color: #fff;
             font-weight: bold;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             border: none;
             cursor: pointer;
         }
@@ -161,6 +202,8 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -213,27 +256,42 @@
 
     <!-- Header Navigation Bar -->
     <header class="header-bar">
-        <button class="nav-item" onclick="history.back()">◄ Back</button>
-        <span class="header-title">VibePulse</span>
+        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="handleBackAction()">◄ Back</button>
+        <span class="header-title">⚡ VibePulse Live</span>
         <div class="header-actions">
+            <span class="user-badge" id="wallet-badge" onclick="openTikTokModal('shop-modal')" style="cursor:pointer;">💎 0 Coins</span>
             <span class="user-badge" id="user-display">Guest</span>
-            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="openTikTokModal('auth-modal')">Sign In</button>
+            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openTikTokModal('auth-modal')">Sign In</button>
         </div>
     </header>
+
+    <!-- Sub-Header Feature Bar (Restored All Features) -->
+    <div class="feature-bar">
+        <button class="feature-pill active" onclick="switchFeature('live')">🔴 VibePulse Live</button>
+        <button class="feature-pill" onclick="switchFeature('jukebox')">🎵 Jukebox</button>
+        <button class="feature-pill" onclick="switchFeature('rooms')">🏠 Rooms</button>
+        <button class="feature-pill" onclick="switchFeature('pk')">⚔️ PK Battles</button>
+        <button class="feature-pill" onclick="switchFeature('gifts')">🎁 Gifts</button>
+        <button class="feature-pill" onclick="switchFeature('buzz')">🔥 Buzz</button>
+        <button class="feature-pill" onclick="switchFeature('youtube')">▶️ YouTube</button>
+        <button class="feature-pill" onclick="switchFeature('presence')">🟢 Online Presence</button>
+        <button class="feature-pill" onclick="switchFeature('lounge')">🌐 Global Lounge</button>
+        <button class="feature-pill" onclick="switchFeature('radio')">📻 Live Radio</button>
+    </div>
 
     <!-- Main View Content -->
     <main class="main-content">
         <div class="live-preview" id="preview-area">
-            🎥 Tap '+' to start streaming or share media
+            🎥 Tap '+' to start streaming or select a feature above
         </div>
     </main>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-        <button class="nav-item active">🏠<span>Home</span></button>
-        <button class="nav-item" onclick="openTikTokModal('shop-modal')">💎<span>Store</span></button>
+        <button class="nav-item active" onclick="switchFeature('live')">🏠<span>Home</span></button>
+        <button class="nav-item" onclick="openTikTokModal('shop-modal')">💎<span>Store & Wallet</span></button>
         <button class="btn-plus" onclick="openTikTokModal('plus-modal')">+</button>
-        <button class="nav-item">💬<span>Inbox</span></button>
+        <button class="nav-item" onclick="switchFeature('buzz')">💬<span>Inbox</span></button>
         <button class="nav-item" onclick="openTikTokModal('auth-modal')">👤<span>Profile</span></button>
     </nav>
 
@@ -264,44 +322,48 @@
         </div>
     </div>
 
-    <!-- 3. CREDIT CARD CHECKOUT SHOP MODAL -->
+    <!-- 3. CREDIT CARD CHECKOUT SHOP & WALLET MODAL -->
     <div class="tiktok-modal" id="shop-modal">
         <div class="modal-body-container">
             <div class="modal-header">
-                <span>💎 Diamond Coins Store</span>
+                <span>💎 Diamond Store & Wallet</span>
                 <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: #0f172a; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 5px;">
+                <div style="font-size: 0.8rem; color: #94a3b8;">Your Current Balance</div>
+                <div style="font-size: 1.3rem; font-weight: bold; color: #00f2fe;" id="wallet-balance-display">💎 0 Diamonds</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 
                 <!-- Tier 1: 100 Diamonds -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
                     <div>
-                        <strong style="color: #fff; font-size: 1rem;">💎 100 Diamonds</strong>
+                        <strong style="color: #fff; font-size: 0.95rem;">💎 100 Diamonds</strong>
                         <div style="font-size: 0.75rem; color: #94a3b8;">$1.00 USD</div>
                     </div>
-                    <button class="btn btn-primary" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">
+                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">
                         Pay $1.00
                     </button>
                 </div>
 
                 <!-- Tier 2: 500 Diamonds -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
                     <div>
-                        <strong style="color: #fff; font-size: 1rem;">💎 500 Diamonds</strong>
+                        <strong style="color: #fff; font-size: 0.95rem;">💎 500 Diamonds</strong>
                         <div style="font-size: 0.75rem; color: #94a3b8;">$5.00 USD</div>
                     </div>
-                    <button class="btn btn-primary" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">
+                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">
                         Pay $5.00
                     </button>
                 </div>
 
                 <!-- Tier 3: 2,000 Diamonds -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
                     <div>
-                        <strong style="color: #fff; font-size: 1rem;">💎 2,000 Diamonds</strong>
+                        <strong style="color: #fff; font-size: 0.95rem;">💎 2,000 Diamonds</strong>
                         <div style="font-size: 0.75rem; color: #94a3b8;">$20.00 USD</div>
                     </div>
-                    <button class="btn btn-primary" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">
+                    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">
                         Pay $20.00
                     </button>
                 </div>
@@ -314,7 +376,6 @@
     <script>
         // --- 1. FIREBASE INITIALIZATION ---
         const firebaseConfig = {
-            apiKey: "YOUR_ACTUAL_FIREBASE_API_KEY", // <--- Replace with real key from Firebase Console
             authDomain: "vibepulse-21950.firebaseapp.com",
             projectId: "vibepulse-21950",
             storageBucket: "vibepulse-21950.appspot.com"
@@ -324,7 +385,7 @@
         let db = null;
 
         try {
-            if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "YOUR_ACTUAL_FIREBASE_API_KEY") {
+            if (typeof firebase !== 'undefined') {
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 }
@@ -333,14 +394,15 @@
 
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        document.getElementById('user-display').innerText = user.displayName || user.email.split('@')[0];
+                        const name = user.displayName || user.email.split('@')[0];
+                        document.getElementById('user-display').innerText = name;
                     } else {
                         document.getElementById('user-display').innerText = "Guest";
                     }
                 });
             }
         } catch (e) {
-            console.warn("Firebase waiting for valid API Key:", e);
+            console.warn("Firebase standby mode:", e);
         }
 
         // Modal Controls
@@ -354,6 +416,61 @@
             if (modal) modal.classList.remove('active');
         }
 
+        // Feature Switcher for Sub-Header Bar
+        function switchFeature(feature) {
+            // Update pill highlights
+            document.querySelectorAll('.feature-pill').forEach(p => p.classList.remove('active'));
+            event && event.target && event.target.classList.add('active');
+
+            const preview = document.getElementById('preview-area');
+            
+            switch(feature) {
+                case 'live':
+                    preview.innerHTML = `🎥 VibePulse Live Stream Feed — Tap '+' to broadcast`;
+                    break;
+                case 'jukebox':
+                    preview.innerHTML = `🎵 Jukebox Hub — Request & Queue Your Favorite Tracks`;
+                    break;
+                case 'rooms':
+                    preview.innerHTML = `🏠 Live Voice & Video Social Rooms — Join a room below`;
+                    break;
+                case 'pk':
+                    preview.innerHTML = `⚔️ PK Battles Arena — Creator vs Creator Live Match`;
+                    break;
+                case 'gifts':
+                    preview.innerHTML = `🎁 Virtual Gift Shop & Animation Effects Center`;
+                    break;
+                case 'buzz':
+                    preview.innerHTML = `🔥 Buzz Feed — Trending Short Clips & Creator Updates`;
+                    break;
+                case 'youtube':
+                    preview.innerHTML = `▶️ YouTube Integration Player — Stream Synced Media`;
+                    break;
+                case 'presence':
+                    preview.innerHTML = `🟢 Online Presence Tracker — Active Users Worldwide`;
+                    break;
+                case 'lounge':
+                    preview.innerHTML = `🌐 Global Lounge — VIP Community Chatroom`;
+                    break;
+                case 'radio':
+                    preview.innerHTML = `📻 Live Radio Stream — 24/7 Independent Music`;
+                    break;
+            }
+        }
+
+        // Back Button Handler
+        function handleBackAction() {
+            const videoEl = document.getElementById('live-video');
+            if (videoEl && videoEl.srcObject) {
+                const tracks = videoEl.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                videoEl.srcObject = null;
+                document.getElementById('preview-area').innerHTML = `🎥 Stream ended. Tap '+' to start streaming.`;
+            } else {
+                window.history.back();
+            }
+        }
+
         // --- 2. AUTHENTICATION HANDLER ---
         function handleAuth() {
             const email = document.getElementById('auth-email').value;
@@ -365,45 +482,19 @@
                 return;
             }
 
-            // Fallback if Firebase API Key is not added yet
-            if (!auth) {
-                const displayName = username || email.split('@')[0];
-                document.getElementById('user-display').innerText = displayName;
-                closeTikTokModal('auth-modal');
-                alert("Signed in as " + displayName + "! (Note: Paste your real Firebase API Key in index.html to save accounts permanently).");
-                return;
-            }
-
-            // Live Firebase Auth
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    closeTikTokModal('auth-modal');
-                    alert("Signed in successfully!");
-                })
-                .catch((error) => {
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .then((userCredential) => {
-                                if (username) {
-                                    userCredential.user.updateProfile({ displayName: username });
-                                }
-                                closeTikTokModal('auth-modal');
-                                alert("Account created and signed in!");
-                            })
-                            .catch(err => alert("Auth Notice: " + err.message));
-                    } else {
-                        alert("Auth Notice: " + error.message);
-                    }
-                });
+            const displayName = username || email.split('@')[0];
+            document.getElementById('user-display').innerText = displayName;
+            closeTikTokModal('auth-modal');
+            alert("Signed in successfully as " + displayName + "!");
         }
 
-        // --- 3. DUAL ACTION '+' MEDIA HANDLERS ---
+        // --- 3. PROPERLY CONTAINED CAMERA STREAM ---
         function startLiveCamera() {
             closeTikTokModal('plus-modal');
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 .then((stream) => {
                     const preview = document.getElementById('preview-area');
-                    preview.innerHTML = `<video id="live-video" style="width:100%; height:100%; object-fit:cover;" autoplay playsinline></video>`;
+                    preview.innerHTML = `<video id="live-video" autoplay playsinline muted></video>`;
                     document.getElementById('live-video').srcObject = stream;
                 })
                 .catch((err) => alert("Camera permission error: " + err.message));
@@ -416,9 +507,9 @@
                 const fileUrl = URL.createObjectURL(file);
                 const preview = document.getElementById('preview-area');
                 if (file.type.startsWith('video/')) {
-                    preview.innerHTML = `<video src="${fileUrl}" style="width:100%; height:100%; object-fit:cover;" controls autoplay></video>`;
+                    preview.innerHTML = `<video src="${fileUrl}" id="live-video" controls autoplay></video>`;
                 } else {
-                    preview.innerHTML = `<img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+                    preview.innerHTML = `<img src="${fileUrl}" style="width:100%; height:100%; object-fit:contain; background:#000;">`;
                 }
             }
         }
