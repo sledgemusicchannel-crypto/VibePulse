@@ -36,7 +36,6 @@
             overflow: hidden;
         }
 
-        /* Container Viewport */
         .app-viewport {
             flex: 1;
             position: relative;
@@ -87,7 +86,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Floating Horizontal Room Category Bar */
+        /* Horizontal Room Category Bar */
         .room-bar {
             position: absolute;
             top: 50px;
@@ -124,29 +123,39 @@
             font-weight: 700;
         }
 
-        /* Floating Radio Pill Widget */
+        /* Multi-Genre Radio Widget */
         .radio-widget {
             position: absolute;
             top: 96px;
             left: 16px;
-            background: rgba(0, 0, 0, 0.65);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 5px 12px;
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-size: 0.75rem;
             z-index: 40;
+        }
+
+        .radio-select {
+            background: #18181b;
+            color: white;
+            border: 1px solid #3f3f46;
+            padding: 3px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            outline: none;
         }
 
         .radio-control-btn {
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 3px 8px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.7rem;
             font-weight: bold;
@@ -176,15 +185,15 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             padding: 20px;
-            max-width: 80%;
+            max-width: 85%;
             line-height: 1.5;
         }
 
-        /* TikTok Style Right Action Bar (Properly spaced so it doesn't overlap text) */
+        /* TikTok Style Right Action Bar (Lowered Go Live button) */
         .right-action-bar {
             position: absolute;
             right: 12px;
-            bottom: 130px;
+            bottom: 110px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -209,7 +218,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
@@ -222,7 +231,7 @@
         .icon-circle.live { background: var(--accent-pink); border: none; }
         .icon-circle.pk { background: linear-gradient(135deg, #ff9900, #ff0055); border: none; }
 
-        /* Bottom Floating Overlay Area (Chat + Active Room Badge) */
+        /* Bottom Floating Overlay Area (Chat Feed + Input) */
         .bottom-overlay {
             position: absolute;
             bottom: 60px;
@@ -230,15 +239,39 @@
             right: 0;
             padding: 10px 16px;
             z-index: 40;
-            background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0) 100%);
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
+        .chat-feed {
+            max-height: 140px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 50px;
+            scrollbar-width: none;
+        }
+        .chat-feed::-webkit-scrollbar { display: none; }
+
+        .chat-bubble {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #fff;
+            width: fit-content;
+            word-break: break-word;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
         .active-room-tag {
             align-self: flex-start;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
             backdrop-filter: blur(6px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 3px 10px;
@@ -253,7 +286,7 @@
             align-items: center;
             gap: 8px;
             width: 100%;
-            padding-right: 50px; /* Leave space so input doesn't hide behind right action icons */
+            padding-right: 50px;
         }
 
         .chat-input {
@@ -268,7 +301,7 @@
             outline: none;
         }
 
-        .chat-input::placeholder { color: #aaa; }
+        .chat-input::placeholder { color: #ddd; }
 
         .chat-send-btn {
             background: var(--accent-pink);
@@ -341,11 +374,7 @@
             z-index: -2;
         }
 
-        .btn-plus-icon {
-            color: #000;
-            font-weight: 900;
-            font-size: 1.2rem;
-        }
+        .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.2rem; }
 
         /* Modals */
         .tiktok-modal {
@@ -417,11 +446,17 @@
             <button class="room-pill" onclick="switchRoom('Lo-Fi Chill Hop', this)">🎧 Lo-Fi Chill Hop</button>
         </div>
 
-        <!-- Floating Local Radio Player -->
+        <!-- Multi-Genre Radio Widget -->
         <div class="radio-widget">
-            <span id="now-playing">📻 Lo-Fi Radio</span>
-            <button class="radio-control-btn" onclick="toggleRadio()">▶ Play</button>
-            <button class="radio-control-btn" onclick="stopRadio()">⏹ Stop</button>
+            <select class="radio-select" id="radio-station-select" onchange="changeRadioStation(this.value)">
+                <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Lo-Fi Chill Hop</option>
+                <option value="https://stream.zeno.fm/f95a5yt254zuv">90's Hits Retro</option>
+                <option value="https://stream.zeno.fm/0t3z2h05k9duv">Classic Hip-Hop</option>
+                <option value="https://stream.zeno.fm/3wy757f5g1duv">R&B Soul Grooves</option>
+                <option value="https://stream.zeno.fm/8xt7yp92k9duv">Rock Anthems</option>
+            </select>
+            <button class="radio-control-btn" id="radio-play-btn" onclick="toggleRadio()">▶ Play</button>
+            <button class="radio-control-btn" onclick="stopRadio()">⏹</button>
         </div>
         <audio id="radio-audio" src="https://stream.zeno.fm/f3wvbbqmdg8uv" preload="none"></audio>
 
@@ -432,7 +467,7 @@
             </div>
         </div>
 
-        <!-- Right Side Action Bar (TikTok Style) -->
+        <!-- Right Side Action Bar (Lowered Live Button) -->
         <div class="right-action-bar">
             <button class="action-icon-btn" onclick="startLiveCamera()">
                 <div class="icon-circle live">🔴</div>
@@ -456,9 +491,12 @@
             </button>
         </div>
 
-        <!-- Bottom Floating Overlay Area (Room Label & Fixed Chat Input) -->
+        <!-- Bottom Floating Overlay Area (Visible Chat Feed & Input) -->
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
+            <div class="chat-feed" id="chat-messages-container">
+                <div class="chat-bubble"><b>System:</b> Welcome to VibePulse! Chat messages will appear here.</div>
+            </div>
             <div class="chat-input-row">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a message..." onkeypress="handleChatKeyPress(event)">
                 <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
@@ -514,7 +552,7 @@
             </div>
             <div style="background: #09090b; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #27272a;">
                 <div style="font-size: 0.8rem; color: #a1a1aa;">Your Wallet Balance</div>
-                <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent-cyan);">💎 0 Diamonds</div>
+                <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-coins-count">💎 0 Diamonds</div>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 10px; border-radius: 8px;">
@@ -548,15 +586,14 @@
         } catch (e) { console.warn("Firebase standby:", e); }
 
         function openTikTokModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
         function closeTikTokModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.remove('active');
+            document.getElementById(id).classList.remove('active');
         }
 
+        // --- ROOM SWITCHER WITH MEMBER SEARCH ---
         function switchRoom(roomName, element) {
             if (element) {
                 document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
@@ -566,22 +603,47 @@
             
             const preview = document.getElementById('preview-area');
             if (!document.getElementById('live-video')) {
-                preview.innerHTML = `<div class="media-placeholder">Joined <b>${roomName}</b>. Tap '+' to broadcast or chat below!</div>`;
+                preview.innerHTML = `
+                    <div class="media-placeholder" style="display:flex; flex-direction:column; gap:12px; align-items:center;">
+                        <div>✨ Joined <b>${roomName}</b></div>
+                        <div style="display:flex; gap:8px; width:100%; max-width:320px;">
+                            <input type="text" id="room-search-input" class="chat-input" placeholder="Search people in room..." style="padding:8px 12px; font-size:0.8rem;">
+                            <button class="chat-send-btn" style="padding:8px 12px; font-size:0.8rem;" onclick="searchRoomPeople()">Search</button>
+                        </div>
+                        <div id="room-search-results" style="font-size:0.75rem; color:#a1a1aa;">Active members online now. Type to filter.</div>
+                    </div>
+                `;
             }
+        }
+
+        function searchRoomPeople() {
+            const query = document.getElementById('room-search-input').value.trim();
+            const resultsDiv = document.getElementById('room-search-results');
+            if (!query) {
+                resultsDiv.innerHTML = "Please enter a name or tag to search.";
+                return;
+            }
+            resultsDiv.innerHTML = `🔍 Found 3 matches for "<b>${query}</b>": @alex_99, @sarah_vibe, @dev_master`;
+        }
+
+        // --- RADIO CONTROLS ---
+        function changeRadioStation(streamUrl) {
+            const audio = document.getElementById('radio-audio');
+            audio.src = streamUrl;
+            audio.play().catch(e => console.log("Stream switch note:", e));
+            document.getElementById('radio-play-btn').innerText = "⏸ Pause";
         }
 
         function toggleRadio() {
             const audio = document.getElementById('radio-audio');
-            const playingLabel = document.getElementById('now-playing');
+            const btn = document.getElementById('radio-play-btn');
             if (audio.paused) {
                 audio.play().then(() => {
-                    playingLabel.innerText = "📻 Radio: Live";
-                }).catch(err => {
-                    alert("Radio playback error: " + err.message);
-                });
+                    btn.innerText = "⏸ Pause";
+                }).catch(err => alert("Radio error: " + err.message));
             } else {
                 audio.pause();
-                playingLabel.innerText = "📻 Radio: Paused";
+                btn.innerText = "▶ Play";
             }
         }
 
@@ -589,39 +651,87 @@
             const audio = document.getElementById('radio-audio');
             audio.pause();
             audio.currentTime = 0;
-            document.getElementById('now-playing').innerText = "📻 Radio: Off";
+            document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
+        // --- INTERACTIVE ACTION VIEWS ---
         function triggerAction(action) {
             const preview = document.getElementById('preview-area');
             let contentHtml = '';
             
             if (action === 'pk') {
-                contentHtml = `<div class="media-placeholder" style="background:rgba(217, 119, 6, 0.2); border: 2px dashed #d97706; padding:25px; border-radius:12px;">⚔️ <b>PK Battles Arena</b><br>Matching active creators for live 1v1 battle...</div>`;
+                contentHtml = `
+                    <div class="media-placeholder" style="background:rgba(217, 119, 6, 0.15); border: 2px dashed #d97706; padding:25px; border-radius:14px;">
+                        ⚔️ <b>PK Battles Arena</b><br><br>
+                        <div style="font-size:0.8rem; color:#fde047; margin-bottom:12px;">🔴 Radar Active: Searching matching 1vs1 live creator...</div>
+                        <button class="btn btn-primary" style="padding:8px 16px; font-size:0.8rem;" onclick="alert('Challenge sent to random creator!')">Find Opponent Now</button>
+                    </div>`;
             } else if (action === 'gifts') {
-                contentHtml = `<div class="media-placeholder" style="background:rgba(5, 150, 105, 0.2); border: 2px dashed #059669; padding:25px; border-radius:12px;">🎁 <b>Virtual Gift Store</b><br>Send animated roses, diamonds, and rockets to streamers!</div>`;
+                contentHtml = `
+                    <div class="media-placeholder" style="background:rgba(5, 150, 105, 0.15); border: 2px dashed #059669; padding:20px; border-radius:14px;">
+                        🎁 <b>Virtual Gift Store</b><br><br>
+                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:12px;">
+                            <button class="btn btn-secondary" onclick="sendGiftItem('🌹 Rose (10 Diamonds)', 10)">🌹 Rose (10)</button>
+                            <button class="btn btn-secondary" onclick="sendGiftItem('💎 Diamond Ring (50)', 50)">💍 Ring (50)</button>
+                            <button class="btn btn-secondary" onclick="sendGiftItem('🚀 Rocket (200)', 200)">🚀 Rocket (200)</button>
+                            <button class="btn btn-secondary" onclick="sendGiftItem('👑 Crown (500)', 500)">👑 Crown (500)</button>
+                        </div>
+                    </div>`;
             } else if (action === 'jukebox') {
-                contentHtml = `<div class="media-placeholder" style="background:rgba(79, 70, 229, 0.2); border: 2px dashed #4f46e5; padding:25px; border-radius:12px;">🎵 <b>Jukebox Hub</b><br>Queue your favorite independent tracks and request songs.</div>`;
+                contentHtml = `
+                    <div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:20px; border-radius:14px;">
+                        🎵 <b>Jukebox Hub</b><br><br>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube / Audio track link..." style="font-size:0.8rem;">
+                            <button class="btn btn-primary" style="padding:8px; font-size:0.85rem;" onclick="addSongToQueue()">Add Song to Queue</button>
+                        </div>
+                        <div id="queue-status" style="font-size:0.75rem; color:#a1a1aa; margin-top:8px;">Queue is currently empty.</div>
+                    </div>`;
             } else if (action === 'inbox') {
-                contentHtml = `<div class="media-placeholder" style="background:rgba(37, 99, 235, 0.2); border: 2px dashed #2563eb; padding:25px; border-radius:12px;">💬 <b>Inbox & Direct Messages</b><br>No unread messages. Connect with creators!</div>`;
+                contentHtml = `
+                    <div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:25px; border-radius:14px;">
+                        💬 <b>Inbox & Direct Messages</b><br><br>
+                        <div style="font-size:0.8rem; color:#a1a1aa;">No new unread messages. Start chatting inside any room!</div>
+                    </div>`;
             }
             
             preview.innerHTML = contentHtml;
         }
 
+        function sendGiftItem(giftName, cost) {
+            alert(`Successfully sent ${giftName}! Animation dispatched to stream.`);
+            const chatContainer = document.getElementById('chat-messages-container');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.style.background = "rgba(5, 150, 105, 0.8)";
+            bubble.innerHTML = `🎁 <b>Gift Event:</b> You sent ${giftName}!`;
+            chatContainer.appendChild(bubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            setTimeout(() => bubble.remove(), 6000);
+        }
+
+        function addSongToQueue() {
+            const linkInput = document.getElementById('song-link-input');
+            const link = linkInput.value.trim();
+            if (!link) { alert("Please paste a song link."); return; }
+            document.getElementById('queue-status').innerHTML = `✅ Successfully added to queue: <a href="${link}" target="_blank" style="color:#25f4ee;">${link.substring(0, 30)}...</a>`;
+            linkInput.value = '';
+        }
+
+        // --- VISIBLE CHAT LOG HANDLER ---
         function sendChatMessage() {
             const box = document.getElementById('chat-box');
             if (!box) return;
             const msg = box.value.trim();
             if (!msg) return;
 
-            const preview = document.getElementById('preview-area');
-            const chatLog = document.createElement('div');
-            chatLog.style.cssText = "position:absolute; bottom:90px; left:16px; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); padding:8px 14px; border-radius:14px; font-size:0.85rem; color:#fff; z-index:30; border:1px solid rgba(255,255,255,0.15); max-width: 75%; word-break: break-word;";
-            chatLog.innerHTML = `<b>You:</b> ${msg}`;
-            preview.appendChild(chatLog);
+            const chatContainer = document.getElementById('chat-messages-container');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.innerHTML = `<b>You:</b> ${msg}`;
+            chatContainer.appendChild(bubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
             box.value = '';
-            setTimeout(() => chatLog.remove(), 5000);
         }
 
         function handleChatKeyPress(event) {
