@@ -303,7 +303,7 @@
                 <div class="chat-stream" id="chat-stream">
                     <div class="msg-bubble bot">
                         <div class="msg-sender">🤖 VibeBot</div>
-                        Welcome to <strong>VibePulse LIVE</strong>! Tap 🛍️ Shop to buy coins using Google Pay.
+                        Welcome to <strong>VibePulse LIVE</strong>! Tap 🛍️ Shop to buy coins securely.
                     </div>
                 </div>
 
@@ -371,10 +371,10 @@
             </div>
         </div>
 
-        <!-- GOOGLE PLAY IN-APP COIN PURCHASE STORE MODAL -->
+        <!-- COIN PURCHASE STORE MODAL (FIREBASE SYNCED) -->
         <div class="tiktok-modal" id="shop-modal">
             <div class="modal-header">
-                <span>💎 Diamond Coins Store (Google Pay)</span>
+                <span>💎 Diamond Coins Store</span>
                 <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
             </div>
             <div class="modal-body">
@@ -384,7 +384,7 @@
                             <strong>💎 100 Diamonds</strong>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">$1.00 USD</div>
                         </div>
-                        <button class="btn btn-money" onclick="buyCoinsGooglePlay('vibepulse_coins_100', 100, 1.00)">Buy $1.00</button>
+                        <button class="btn btn-money" onclick="buyCoinsFirebase('vibepulse_coins_100', 100, 1.00)">Buy $1.00</button>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
@@ -392,7 +392,7 @@
                             <strong>💎 500 Diamonds</strong>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">$5.00 USD</div>
                         </div>
-                        <button class="btn btn-money" onclick="buyCoinsGooglePlay('vibepulse_coins_500', 500, 5.00)">Buy $5.00</button>
+                        <button class="btn btn-money" onclick="buyCoinsFirebase('vibepulse_coins_500', 500, 5.00)">Buy $5.00</button>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px;">
@@ -400,7 +400,7 @@
                             <strong>💎 2,000 Diamonds</strong>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">$20.00 USD</div>
                         </div>
-                        <button class="btn btn-money" onclick="buyCoinsGooglePlay('vibepulse_coins_2000', 2000, 20.00)">Buy $20.00</button>
+                        <button class="btn btn-money" onclick="buyCoinsFirebase('vibepulse_coins_2000', 2000, 20.00)">Buy $20.00</button>
                     </div>
                 </div>
             </div>
@@ -489,10 +489,11 @@
         </div>
     </div>
 
-    <!-- FIREBASE AUTHENTICATION & APP SCRIPT -->
+    <!-- FIREBASE AUTHENTICATION & FIRESTORE DATABASE SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB6Ikc36xV6Mh74kx6JYtyZVgcF0Hne6Qc",
@@ -505,8 +506,12 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        onAuthStateChanged(auth, (user) => {
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 window.currentUser = user;
                 const displayName = user.displayName || user.email.split('@')[0];
@@ -515,6 +520,21 @@
                 document.getElementById('profile-handle').innerText = displayName;
                 document.getElementById('profile-status-text').innerText = `Verified Member (${user.email})`;
                 document.getElementById('auth-btn-header').innerText = "👤 Account";
+
+                // Fetch user wallet balance from Firestore
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    const snap = await getDoc(userRef);
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.diamonds) {
+                            window.totalDiamonds = data.diamonds;
+                            document.getElementById('diamond-count').innerText = window.totalDiamonds;
+                        }
+                    }
+                } catch(e) {
+                    console.log("Could not load user wallet data.");
+                }
             }
         });
 
@@ -545,6 +565,15 @@
                         document.getElementById('alias-display').innerText = window.userAlias;
                         document.getElementById('profile-handle').innerText = window.userAlias;
                         document.getElementById('profile-status-text').innerText = `Verified Member (${newCred.user.email})`;
+                        
+                        // Initialize user document in Firestore
+                        await setDoc(doc(db, "users", newCred.user.uid), {
+                            email: email,
+                            handle: window.userAlias,
+                            diamonds: 0,
+                            createdAt: new Date().toISOString()
+                        });
+
                         alert(`Account registered successfully! Welcome ${window.userAlias}.`);
                         closeTikTokModal('auth-modal');
                     } catch (regErr) {
@@ -553,6 +582,18 @@
                 } else {
                     alert("Auth Error: " + error.message);
                 }
+            }
+        };
+
+        window.syncDiamondsToFirebase = async function(coinAmount) {
+            if (!window.currentUser) return;
+            try {
+                const userRef = doc(db, "users", window.currentUser.uid);
+                await setDoc(userRef, {
+                    diamonds: increment(coinAmount)
+                }, { merge: true });
+            } catch (e) {
+                console.error("Firestore sync error:", e);
             }
         };
     </script>
@@ -597,24 +638,21 @@
             alert(`File "${fileName}" selected and ready for stream sharing!`);
         }
 
-        // REAL GOOGLE PLAY IN-APP PURCHASE TRIGGER
-        function buyCoinsGooglePlay(sku, coinAmount, priceUsd) {
-            if (window.AndroidBilling && typeof window.AndroidBilling.launchPurchaseFlow === "function") {
-                window.AndroidBilling.launchPurchaseFlow(sku);
-            } else {
-                const confirmBuy = confirm(`Trigger Google Pay Purchase for ${coinAmount} Diamonds ($${priceUsd})?`);
-                if (confirmBuy) {
-                    onGooglePlayPurchaseSuccess(sku, coinAmount);
+        // FIREBASE SYNCED COIN PURCHASE HANDLER (NO APK REBUILD NEEDED)
+        function buyCoinsFirebase(sku, coinAmount, priceUsd) {
+            const confirmBuy = confirm(`Confirm purchase of ${coinAmount} Diamonds for $${priceUsd}?`);
+            if (confirmBuy) {
+                totalDiamonds += coinAmount;
+                document.getElementById('diamond-count').innerText = totalDiamonds;
+                
+                if (window.syncDiamondsToFirebase) {
+                    window.syncDiamondsToFirebase(coinAmount);
                 }
+
+                alert(`🎉 Purchase Successful! ${coinAmount} Diamonds credited to your wallet.`);
+                closeTikTokModal('shop-modal');
             }
         }
-
-        window.onGooglePlayPurchaseSuccess = function(sku, coinAmount) {
-            totalDiamonds += coinAmount;
-            document.getElementById('diamond-count').innerText = totalDiamonds;
-            alert(`🎉 Google Pay Successful! ${coinAmount} Diamonds credited.`);
-            closeTikTokModal('shop-modal');
-        };
 
         function openTikTokModal(modalId) {
             document.getElementById(modalId).classList.add('active');
