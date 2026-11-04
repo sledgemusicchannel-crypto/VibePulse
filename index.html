@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibePulse — Live Stream & Social Network</title>
+    <title>VibePulse — Live Stream & Real Social Platform</title>
 
     <!-- Firebase Web SDK (v10 Compat Layer) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -789,11 +789,11 @@
                         connectWithUser("User_" + targetId.substring(0,6));
                     }
                 }).catch(() => {
-                    alert("Added connection request to User ID: " + targetId);
+                    alert(`Added connection request to User ID: ${targetId}`);
                     connectWithUser("User_" + targetId.substring(0,6));
                 });
             } else {
-                alert("Connected with User ID: " + targetId);
+                alert(`Connected with User ID: ${targetId}`);
                 connectWithUser("User_" + targetId.substring(0,6));
             }
         }
@@ -954,15 +954,21 @@
 
         // --- FULL PROFILE DASHBOARD HANDLER ---
         function saveProfileDetails() {
-            const name = document.getElementById('edit-name').value.trim();
-            const bio = document.getElementById('edit-bio').value.trim();
-            const gender = document.getElementById('edit-gender').value;
+            const nameInput = document.getElementById('edit-name');
+            const bioInput = document.getElementById('edit-bio');
+            const genderSelect = document.getElementById('edit-gender');
+
+            const name = nameInput ? nameInput.value.trim() : "";
+            const bio = bioInput ? bioInput.value.trim() : "";
+            const gender = genderSelect ? genderSelect.value : "Member";
 
             if (name) {
                 document.getElementById('profile-card-name').innerText = name;
                 document.getElementById('user-display').innerText = name;
             }
-            if (bio) document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
+            if (bio) {
+                document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
+            }
 
             if (currentUser && db) {
                 db.collection("users").doc(currentUser.uid).set({
@@ -1006,9 +1012,13 @@
         }
 
         function handleAuth() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const username = document.getElementById('auth-username').value;
+            const emailInput = document.getElementById('auth-email');
+            const passwordInput = document.getElementById('auth-password');
+            const usernameInput = document.getElementById('auth-username');
+
+            const email = emailInput ? emailInput.value : "";
+            const password = passwordInput ? passwordInput.value : "";
+            const username = usernameInput ? usernameInput.value : "";
 
             if (!email || !password) { alert("Please enter email and password."); return; }
 
