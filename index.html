@@ -485,16 +485,17 @@
             </div>
         </div>
 
-        <!-- Bottom Overlay -->
+        <!-- Bottom Overlay with Form Submit Wrapper -->
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
                 <div class="chat-bubble">🟢 <b>System:</b> Connected to VibePulse live network.</div>
             </div>
-            <div class="chat-input-row">
-                <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." onkeypress="handleChatKeyPress(event)">
-                <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
-            </div>
+            
+            <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
+                <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
+                <button type="submit" class="chat-send-btn" id="send-btn" onclick="sendChatMessage()" ontouchstart="sendChatMessage()">Send</button>
+            </form>
         </div>
 
     </div>
@@ -668,7 +669,6 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
 
-                // FIX 1: Enforce Local Auth State Persistence across tab closures/swipes
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
                     .then(() => {
                         auth.onAuthStateChanged((user) => {
@@ -870,7 +870,6 @@
             document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
             
             const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-            // FIX 2: Sort IDs alphabetically so both devices join the same thread document
             const sortedIds = [myUid, targetUid].sort();
             const threadId = sortedIds[0] + "_" + sortedIds[1];
             
@@ -894,14 +893,27 @@
             }
         }
 
-        // --- CHAT MESSAGE DISPATCHER ---
+        // --- CHAT MESSAGE DISPATCHER WITH FORM SUBMIT & CLEAR FIX ---
         function sendChatMessage() {
             const box = document.getElementById('chat-box');
             if (!box) return;
-            const msg = box.value.trim();
+
+            const msg = box.value ? box.value.trim() : "";
             if (!msg) return;
 
-            const myHandle = document.getElementById('user-display').innerText;
+            box.value = '';
+            box.blur();
+
+            const myHandle = document.getElementById('user-display').innerText || "Guest";
+
+            const chatContainer = document.getElementById('chat-messages-container');
+            if (chatContainer) {
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble';
+                bubble.innerHTML = `🟢 <b>${myHandle}:</b> ${msg}`;
+                chatContainer.appendChild(bubble);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
 
             if (activeDirectTarget && db) {
                 const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
@@ -912,13 +924,13 @@
                     sender: myHandle,
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => { box.value = ''; });
+                }).catch(err => console.error("Direct send error:", err));
             } else if (db) {
                 db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
                     sender: myHandle,
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => { box.value = ''; });
+                }).catch(err => console.error("Room send error:", err));
             }
         }
 
