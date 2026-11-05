@@ -123,7 +123,7 @@
             box-shadow: 0 4px 12px rgba(254, 44, 85, 0.4);
         }
 
-        /* Feature Navigation Dropdown Menu */
+        /* Dropdown Menu */
         .feature-menu-panel {
             display: none;
             position: absolute;
@@ -231,7 +231,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        /* Bottom Floating Overlay Area */
+        /* Bottom Overlay */
         .bottom-overlay {
             position: absolute;
             bottom: 56px;
@@ -307,7 +307,7 @@
             cursor: pointer;
         }
 
-        /* Bottom Navigation Bar */
+        /* Bottom Nav */
         .bottom-nav {
             height: 56px;
             background: #000000;
@@ -485,7 +485,7 @@
             </div>
         </div>
 
-        <!-- Bottom Floating Chat Overlay Area -->
+        <!-- Bottom Overlay -->
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
@@ -574,7 +574,7 @@
                 <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
             </div>
 
-            <!-- Address Book Add Friend Area -->
+            <!-- Address Book Connect -->
             <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
                 <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📇 Address Book — Connect by User ID:</label>
                 <div style="display:flex; gap:6px;">
@@ -642,7 +642,7 @@
         let usersUnsubscribe = null;
         let directUnsubscribe = null;
 
-        // Persistent Device Identity Generator
+        // Persistent Local Identity
         function getDeviceUser() {
             let localId = localStorage.getItem('vibepulse_uid');
             let localName = localStorage.getItem('vibepulse_name');
@@ -668,28 +668,35 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
 
-                auth.onAuthStateChanged((user) => {
-                    const signoutBtn = document.getElementById('signout-btn');
-                    let activeUid = myDevice.uid;
-                    let activeName = myDevice.name;
+                // FIX 1: Enforce Local Auth State Persistence across tab closures/swipes
+                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                    .then(() => {
+                        auth.onAuthStateChanged((user) => {
+                            const signoutBtn = document.getElementById('signout-btn');
+                            let activeUid = myDevice.uid;
+                            let activeName = myDevice.name;
 
-                    if (user) {
-                        currentUser = user;
-                        activeUid = user.uid;
-                        activeName = user.displayName || user.email.split('@')[0];
-                        if (signoutBtn) signoutBtn.style.display = "block";
-                    } else {
-                        currentUser = null;
-                        if (signoutBtn) signoutBtn.style.display = "none";
-                    }
+                            if (user) {
+                                currentUser = user;
+                                activeUid = user.uid;
+                                activeName = user.displayName || user.email.split('@')[0];
+                                localStorage.setItem('vibepulse_uid', activeUid);
+                                localStorage.setItem('vibepulse_name', activeName);
+                                if (signoutBtn) signoutBtn.style.display = "block";
+                            } else {
+                                currentUser = null;
+                                if (signoutBtn) signoutBtn.style.display = "none";
+                            }
 
-                    document.getElementById('user-display').innerText = activeName;
-                    document.getElementById('profile-card-name').innerText = activeName;
-                    document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
+                            document.getElementById('user-display').innerText = activeName;
+                            document.getElementById('profile-card-name').innerText = activeName;
+                            document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
 
-                    updatePresence(activeUid, activeName);
-                    subscribeToActiveRoom(activeRoom);
-                });
+                            updatePresence(activeUid, activeName);
+                            subscribeToActiveRoom(activeRoom);
+                        });
+                    })
+                    .catch((err) => console.warn("Persistence set error:", err));
             }
         } catch (e) { console.warn("Firebase standby mode:", e); }
 
@@ -705,7 +712,7 @@
                 }, { merge: true });
             };
             sendHeartbeat();
-            setInterval(sendHeartbeat, 15000);
+            setInterval(sendHeartbeat, 12000);
         }
 
         function toggleFeatureMenu() {
@@ -765,7 +772,7 @@
             subscribeToActiveRoom(roomName);
         }
 
-        // --- REAL-TIME ROOM MESSAGES (INDEX-FREE UNBLOCK QUERY) ---
+        // --- REAL-TIME ROOM MESSAGES ---
         function subscribeToActiveRoom(roomName) {
             const chatContainer = document.getElementById('chat-messages-container');
             if (!chatContainer) return;
@@ -784,8 +791,6 @@
                         chatContainer.appendChild(bubble);
                     });
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-                }, (err) => {
-                    console.warn("Snapshot fallback:", err);
                 });
             }
         }
@@ -848,7 +853,7 @@
                         alert(`Found User: ${targetUser.name}! Opening Direct Chat...`);
                         connectWithUser(targetUser.name, targetUser.uid);
                     } else {
-                        alert(`User ID "${targetId}" added to contacts.`);
+                        alert(`Connected to User ID "${targetId}".`);
                         connectWithUser("User_" + targetId.substring(0,6), targetId);
                     }
                 }).catch(() => {
@@ -864,8 +869,10 @@
             activeDirectTarget = { name: targetName, uid: targetUid };
             document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
             
-            const myUid = currentUser ? currentUser.uid : myDevice.uid;
-            const threadId = [myUid, targetUid].sort().join("_");
+            const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+            // FIX 2: Sort IDs alphabetically so both devices join the same thread document
+            const sortedIds = [myUid, targetUid].sort();
+            const threadId = sortedIds[0] + "_" + sortedIds[1];
             
             triggerAction('inbox');
             
@@ -887,7 +894,7 @@
             }
         }
 
-        // --- CHAT MESSAGE DISPATCHER (WITH INSTANT OPTIMISTIC APPEND) ---
+        // --- CHAT MESSAGE DISPATCHER ---
         function sendChatMessage() {
             const box = document.getElementById('chat-box');
             if (!box) return;
@@ -896,30 +903,22 @@
 
             const myHandle = document.getElementById('user-display').innerText;
 
-            // Instant UI Render (Bypasses silent listener blocks)
-            const chatContainer = document.getElementById('chat-messages-container');
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            bubble.innerHTML = `🟢 <b>${myHandle}:</b> ${msg}`;
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            box.value = '';
-
-            // Remote Sync
             if (activeDirectTarget && db) {
-                const myUid = currentUser ? currentUser.uid : myDevice.uid;
-                const threadId = [myUid, activeDirectTarget.uid].sort().join("_");
+                const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+                const sortedIds = [myUid, activeDirectTarget.uid].sort();
+                const threadId = sortedIds[0] + "_" + sortedIds[1];
+
                 db.collection("direct_chats").doc(threadId).collection("messages").add({
                     sender: myHandle,
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                }).then(() => { box.value = ''; });
             } else if (db) {
                 db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
                     sender: myHandle,
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                }).then(() => { box.value = ''; });
             }
         }
 
@@ -927,7 +926,7 @@
             if (event.key === 'Enter') sendChatMessage();
         }
 
-        // --- RELIABLE RADIO PLAYER ENGINE ---
+        // --- RADIO PLAYER ---
         function changeRadioStation(streamUrl) {
             const audio = document.getElementById('radio-audio');
             const btn = document.getElementById('radio-play-btn');
