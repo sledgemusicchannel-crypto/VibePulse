@@ -217,24 +217,44 @@
             object-fit: cover;
         }
 
-        /* Integrated PK Battle Split View Overlay */
-        .pk-stream-overlay {
-            position: absolute;
-            top: 60px;
-            right: 12px;
-            width: 130px;
-            height: 170px;
-            background: rgba(0,0,0,0.85);
-            border: 2px solid var(--accent-pink);
-            border-radius: 12px;
+        /* Split Screen PK Battle Viewport Container */
+        .pk-split-container {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #111;
+            position: relative;
+        }
+
+        .pk-pane {
+            position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 0.75rem;
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(254, 44, 85, 0.5);
-            z-index: 45;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .pk-pane video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pk-label-tag {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            z-index: 10;
         }
 
         .live-pk-toggle-btn {
@@ -769,17 +789,12 @@
         }
 
         function handleBackNavigation() {
-            const video = document.getElementById('live-video');
-            if (video && video.srcObject) {
-                const tracks = video.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                video.srcObject = null;
-            }
-            const pkOverlay = document.getElementById('pk-overlay-box');
-            if (pkOverlay) pkOverlay.remove();
-            const pkBtn = document.getElementById('pk-toggle-btn');
-            if (pkBtn) pkBtn.remove();
-            
+            const preview = document.getElementById('preview-area');
+            preview.innerHTML = `
+                <div class="media-placeholder" id="content-display-text">
+                    🎥 Tap '<b>⚡ Menu</b>' above to pick a Chatroom or start connecting!
+                </div>
+            `;
             switchRoom('Global Lounge');
         }
 
@@ -794,7 +809,7 @@
             document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
             
             const preview = document.getElementById('preview-area');
-            if (!document.getElementById('live-video')) {
+            if (!document.getElementById('live-video') && !document.getElementById('pk-split-view')) {
                 preview.innerHTML = `
                     <div class="media-placeholder" style="display:flex; flex-direction:column; gap:8px; align-items:center; max-height:85vh; overflow-y:auto;">
                         <div style="font-size:0.9rem;">✨ <b>${roomName}</b> Members</div>
@@ -998,32 +1013,43 @@
                 .then((stream) => {
                     const preview = document.getElementById('preview-area');
                     preview.innerHTML = `
-                        <video id="live-video" autoplay playsinline muted></video>
-                        <div id="pk-overlay-box" class="pk-stream-overlay" style="display:none;">
-                            <span style="font-size:1.2rem;">⚔️</span>
-                            <strong>PK Battle</strong>
-                            <div id="pk-score-text" style="font-size:0.65rem; color:#fde047; margin-top:4px; text-align:center;">Score: You 180 | Opponent 150</div>
+                        <div id="pk-split-view" class="pk-split-container">
+                            <div class="pk-pane">
+                                <div class="pk-label-tag">🔴 You (Live)</div>
+                                <video id="local-live-video" autoplay playsinline muted></video>
+                            </div>
+                            <div class="pk-pane" id="opponent-pane" style="display:none; background:#1e1e24;">
+                                <div class="pk-label-tag">⚔️ Opponent PK</div>
+                                <video id="opponent-live-video" autoplay playsinline></video>
+                            </div>
                         </div>
                         <button id="pk-toggle-btn" class="live-pk-toggle-btn" onclick="toggleLivePKBattle()">⚔️ Activate PK Battle</button>
                     `;
-                    document.getElementById('live-video').srcObject = stream;
+                    document.getElementById('local-live-video').srcObject = stream;
                 })
                 .catch((err) => alert("Camera error: " + err.message));
         }
 
         let isPkActive = false;
         function toggleLivePKBattle() {
-            const pkOverlay = document.getElementById('pk-overlay-box');
+            const opponentPane = document.getElementById('opponent-pane');
+            const opponentVideo = document.getElementById('opponent-live-video');
             const pkBtn = document.getElementById('pk-toggle-btn');
             isPkActive = !isPkActive;
 
             if (isPkActive) {
-                pkOverlay.style.display = 'flex';
+                if (opponentPane) opponentPane.style.display = 'flex';
+                // Clone local stream or attach dummy simulation source for opponent testing view
+                const localVideo = document.getElementById('local-live-video');
+                if (localVideo && localVideo.srcObject) {
+                    opponentVideo.srcObject = localVideo.srcObject;
+                }
                 pkBtn.innerText = '⏹ End PK Battle';
                 pkBtn.style.background = '#ef4444';
-                alert('⚔️ PK Battle Arena activated! Split stream is live.');
+                alert('⚔️ PK Battle Arena activated! Split-screen challenge live.');
             } else {
-                pkOverlay.style.display = 'none';
+                if (opponentPane) opponentPane.style.display = 'none';
+                if (opponentVideo) opponentVideo.srcObject = null;
                 pkBtn.innerText = '⚔️ Activate PK Battle';
                 pkBtn.style.background = 'linear-gradient(135deg, #fe2c55, #ff007f)';
             }
