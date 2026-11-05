@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibePulse — Live Stream & Real Social Network</title>
+    <title>VibePulse — Real-Time Social & Stream Network</title>
 
     <!-- Firebase Web SDK (v10 Compat Layer) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -160,7 +160,7 @@
 
         .menu-item-btn:hover { background: rgba(255, 255, 255, 0.18); }
 
-        /* Radio Stream Controller Widget */
+        /* Radio Controller Widget */
         .radio-widget {
             position: absolute;
             top: 48px;
@@ -434,8 +434,6 @@
             cursor: pointer;
             text-align: left;
         }
-
-        .room-tab-btn:hover { background: rgba(255, 255, 255, 0.18); }
     </style>
 </head>
 <body>
@@ -466,7 +464,7 @@
             <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
         </div>
 
-        <!-- Direct Live Radio Stream Audio Widget -->
+        <!-- Radio Stream Widget -->
         <div class="radio-widget">
             <select class="radio-select" id="radio-station-select" onchange="changeRadioStation(this.value)">
                 <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
@@ -480,7 +478,7 @@
         </div>
         <audio id="radio-audio" crossorigin="anonymous" preload="none"></audio>
 
-        <!-- Main Video / Dating Grid Container -->
+        <!-- Main Video / Member Grid Container -->
         <div class="media-container" id="preview-area">
             <div class="media-placeholder" id="content-display-text">
                 🎥 Tap '<b>⚡ Menu</b>' above to pick a Chatroom or start connecting!
@@ -491,7 +489,7 @@
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
-                <div class="chat-bubble">🟢 <b>System:</b> Connected to live Firestore cross-device chat feed.</div>
+                <div class="chat-bubble">🟢 <b>System:</b> Connected to VibePulse live network.</div>
             </div>
             <div class="chat-input-row">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." onkeypress="handleChatKeyPress(event)">
@@ -544,18 +542,17 @@
         </div>
     </div>
 
-    <!-- 2. UNIFIED SIGN UP / SIGN IN & SIGN OUT MODAL -->
+    <!-- 2. UNIFIED AUTH MODAL -->
     <div class="tiktok-modal" id="auth-modal">
         <div class="modal-body-container">
             <div class="modal-header">
-                <span id="auth-modal-title">Subscriber Account Sign In / Sign Up</span>
+                <span id="auth-modal-title">Sign In or Register Subscriber</span>
                 <span class="modal-close" onclick="closeTikTokModal('auth-modal')">✕</span>
             </div>
-            <div style="font-size:0.75rem; color:#a1a1aa;" id="auth-modal-desc">Sign in or register to sync your profile, active online status, and address book.</div>
             <input type="text" class="input-field" id="auth-username" placeholder="Display Handle (e.g., Alex_Vibe)">
             <input type="email" class="input-field" id="auth-email" placeholder="Email Address">
-            <input type="password" class="input-field" id="auth-password" placeholder="Password (Min 6 characters)">
-            <button class="btn btn-primary" id="auth-submit-btn" onclick="executeAuthAction()">Sign In / Register Now 🚀</button>
+            <input type="password" class="input-field" id="auth-password" placeholder="Password (Min 6 chars)">
+            <button class="btn btn-primary" id="auth-submit-btn" onclick="executeAuthAction()">Sign In / Register 🚀</button>
         </div>
     </div>
 
@@ -570,7 +567,7 @@
             <div style="display:flex; flex-direction:column; gap:8px; background:#09090b; padding:12px; border-radius:10px; border:1px solid #27272a;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <strong style="color:var(--accent-cyan);" id="profile-card-name">Guest User</strong>
-                    <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="copyMyUserId()">📋 Copy ID</button>
+                    <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="copyMyUserId()">📋 Copy My ID</button>
                 </div>
                 <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: usr_guest_2914</div>
                 <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
@@ -579,7 +576,7 @@
 
             <!-- Address Book Add Friend Area -->
             <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
-                <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📇 Address Book — Add Friend by User ID:</label>
+                <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📇 Address Book — Connect by User ID:</label>
                 <div style="display:flex; gap:6px;">
                     <input type="text" id="profile-add-id-input" class="input-field" placeholder="Paste Friend's User ID..." style="padding:6px 10px; font-size:0.75rem;">
                     <button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="addFriendFromProfile()">Add Friend</button>
@@ -600,7 +597,7 @@
         </div>
     </div>
 
-    <!-- 4. WALLET & LEMON SQUEEZY SHOP MODAL -->
+    <!-- 4. WALLET & SHOP MODAL -->
     <div class="tiktok-modal" id="shop-modal">
         <div class="modal-body-container">
             <div class="modal-header">
@@ -640,8 +637,10 @@
         let db = null;
         let currentUser = null;
         let activeRoom = "Global Lounge";
+        let activeDirectTarget = null;
         let roomUnsubscribe = null;
         let usersUnsubscribe = null;
+        let directUnsubscribe = null;
 
         try {
             if (typeof firebase !== 'undefined') {
@@ -694,7 +693,7 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        function openAuthModal(mode) {
+        function openAuthModal() {
             closeTikTokModal('profile-modal');
             openTikTokModal('auth-modal');
         }
@@ -716,17 +715,16 @@
             switchRoom(roomName);
         }
 
-        const userDirectory = [
+        const fallbackUserDirectory = [
             { name: "@sarah_vibe", uid: "usr_vibe_01", online: true },
             { name: "@alex_99", uid: "usr_vibe_02", online: true },
             { name: "@taylor_love", uid: "usr_vibe_03", online: false },
-            { name: "@jessica_xo", uid: "usr_vibe_04", online: true },
-            { name: "@david_k", uid: "usr_vibe_05", online: false },
-            { name: "@morgan_lee", uid: "usr_vibe_06", online: true }
+            { name: "@jessica_xo", uid: "usr_vibe_04", online: true }
         ];
 
         function switchRoom(roomName) {
             activeRoom = roomName;
+            activeDirectTarget = null;
             document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
             
             const preview = document.getElementById('preview-area');
@@ -747,7 +745,7 @@
             subscribeToActiveRoom(roomName);
         }
 
-        // --- REAL-TIME FIRESTORE CHAT ROOM LISTENER ---
+        // --- REAL-TIME FIRESTORE ROOM LISTENER ---
         function subscribeToActiveRoom(roomName) {
             const chatContainer = document.getElementById('chat-messages-container');
             if (!chatContainer) return;
@@ -766,7 +764,7 @@
                         chatContainer.appendChild(bubble);
                     });
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-                }, (err) => console.warn("Firestore chat listening error:", err));
+                });
             }
         }
 
@@ -778,7 +776,7 @@
             if (usersUnsubscribe) usersUnsubscribe();
 
             if (db) {
-                usersUnsubscribe = db.collection("users").limit(20).onSnapshot((snapshot) => {
+                usersUnsubscribe = db.collection("users").limit(30).onSnapshot((snapshot) => {
                     grid.innerHTML = '';
                     if (snapshot.empty) {
                         loadFallbackMembers();
@@ -795,7 +793,7 @@
         }
 
         function loadFallbackMembers() {
-            userDirectory.forEach(u => renderMemberCard(u.name, u.uid, u.online));
+            fallbackUserDirectory.forEach(u => renderMemberCard(u.name, u.uid, u.online));
         }
 
         function renderMemberCard(name, uid, isOnline) {
@@ -809,11 +807,12 @@
                     <span style="font-size:0.6rem; color:${isOnline ? '#25f4ee' : '#a1a1aa'};">${isOnline ? '🟢 Active' : '⚪ Offline'}</span>
                 </div>
                 <div style="font-size:0.65rem; color:#a1a1aa;">ID: ${uid}</div>
-                <button class="btn btn-primary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}')">Chat Direct 💬</button>
+                <button class="btn btn-primary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}')">Chat Direct 💬</button>
             `;
             grid.appendChild(card);
         }
 
+        // --- FIXED FRIEND SEARCH (DOES NOT OVERWRITE YOUR OWN PROFILE) ---
         function addUserById() {
             const targetId = document.getElementById('add-id-input').value.trim();
             if (!targetId) { alert("Please enter a User ID."); return; }
@@ -828,36 +827,92 @@
         }
 
         function processAddUser(targetId) {
-            const foundLocal = userDirectory.find(u => u.uid.toLowerCase() === targetId.toLowerCase());
-            if (foundLocal) {
-                alert(`Found User: ${foundLocal.name}! Added to address book.`);
-                connectWithUser(foundLocal.name);
-                return;
-            }
-
             if (db) {
                 db.collection("users").doc(targetId).get().then((doc) => {
                     if (doc.exists) {
-                        const u = doc.data();
-                        alert(`Found User: ${u.name}! Added to address book.`);
-                        connectWithUser(u.name);
+                        const targetUser = doc.data();
+                        alert(`Found User: ${targetUser.name}! Opening Direct Chat...`);
+                        connectWithUser(targetUser.name, targetUser.uid);
                     } else {
-                        alert(`Address book connection request sent to ID: ${targetId}`);
-                        connectWithUser("User_" + targetId.substring(0,6));
+                        alert(`User ID "${targetId}" added to contacts.`);
+                        connectWithUser("User_" + targetId.substring(0,6), targetId);
                     }
                 }).catch(() => {
-                    alert(`Address book connection request sent to ID: ${targetId}`);
-                    connectWithUser("User_" + targetId.substring(0,6));
+                    connectWithUser("User_" + targetId.substring(0,6), targetId);
                 });
             } else {
-                alert(`Connected with User ID: ${targetId}`);
-                connectWithUser("User_" + targetId.substring(0,6));
+                connectWithUser("User_" + targetId.substring(0,6), targetId);
             }
         }
 
-        function connectWithUser(username) {
-            alert(`Direct chat connected with ${username}! Message thread opened.`);
+        // --- REAL-TIME 1-ON-1 MESSENGER ---
+        function connectWithUser(targetName, targetUid) {
+            activeDirectTarget = { name: targetName, uid: targetUid };
+            document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
+            
+            const myUid = currentUser ? currentUser.uid : "guest_me";
+            const threadId = [myUid, targetUid].sort().join("_");
+            
             triggerAction('inbox');
+            
+            const chatContainer = document.getElementById('chat-messages-container');
+            if (directUnsubscribe) directUnsubscribe();
+
+            if (db) {
+                directUnsubscribe = db.collection("direct_chats").doc(threadId).collection("messages").orderBy("timestamp", "asc").onSnapshot((snapshot) => {
+                    chatContainer.innerHTML = `<div class="chat-bubble">💬 <b>Direct Message Thread with ${targetName}</b></div>`;
+                    snapshot.forEach((doc) => {
+                        const m = doc.data();
+                        const bubble = document.createElement('div');
+                        bubble.className = 'chat-bubble';
+                        bubble.innerHTML = `<b>${m.sender}:</b> ${m.text}`;
+                        chatContainer.appendChild(bubble);
+                    });
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                });
+            }
+        }
+
+        // --- CHAT MESSAGE DISPATCHER ---
+        function sendChatMessage() {
+            const box = document.getElementById('chat-box');
+            if (!box) return;
+            const msg = box.value.trim();
+            if (!msg) return;
+
+            const myHandle = document.getElementById('user-display').innerText;
+
+            if (activeDirectTarget && db) {
+                const myUid = currentUser ? currentUser.uid : "guest_me";
+                const threadId = [myUid, activeDirectTarget.uid].sort().join("_");
+                db.collection("direct_chats").doc(threadId).collection("messages").add({
+                    sender: myHandle,
+                    text: msg,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => { box.value = ''; });
+            } else if (db) {
+                db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+                    sender: myHandle,
+                    text: msg,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => { box.value = ''; });
+            } else {
+                fallbackSendMsg(myHandle, msg);
+            }
+        }
+
+        function fallbackSendMsg(handle, msg) {
+            const chatContainer = document.getElementById('chat-messages-container');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.innerHTML = `🟢 <b>${handle}:</b> ${msg}`;
+            chatContainer.appendChild(bubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            document.getElementById('chat-box').value = '';
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') sendChatMessage();
         }
 
         // --- RELIABLE RADIO PLAYER ENGINE ---
@@ -870,12 +925,7 @@
             
             const playPromise = audio.play();
             if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    btn.innerText = "⏸ Pause";
-                }).catch(error => {
-                    console.log("Audio waiting for user gesture:", error);
-                    btn.innerText = "▶ Play";
-                });
+                playPromise.then(() => { btn.innerText = "⏸ Pause"; }).catch(() => { btn.innerText = "▶ Play"; });
             }
         }
 
@@ -884,16 +934,10 @@
             const btn = document.getElementById('radio-play-btn');
             const select = document.getElementById('radio-station-select');
             
-            if (!audio.src || audio.src === "") {
-                audio.src = select.value;
-            }
+            if (!audio.src) audio.src = select.value;
 
             if (audio.paused) {
-                audio.play().then(() => {
-                    btn.innerText = "⏸ Pause";
-                }).catch(err => {
-                    alert("Tap Play again to start live audio stream.");
-                });
+                audio.play().then(() => { btn.innerText = "⏸ Pause"; }).catch(() => alert("Tap Play again to start audio."));
             } else {
                 audio.pause();
                 btn.innerText = "▶ Play";
@@ -907,9 +951,7 @@
             document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
-        // --- YOUTUBE JUKEBOX & PK BATTLE ENGINE ---
-        let pkInterval = null;
-
+        // --- FEATURE ACTIONS ---
         function triggerAction(action) {
             const preview = document.getElementById('preview-area');
             let contentHtml = '';
@@ -920,7 +962,7 @@
                         ⚔️ <b>PK Battles Arena</b><br><br>
                         <div id="pk-status-text" style="font-size:0.8rem; color:#fde047; margin-bottom:10px;">Connect with active creator for live 1v1 battle</div>
                         <div style="display:flex; gap:6px; justify-content:center;">
-                            <button class="btn btn-primary" id="pk-find-btn" style="padding:8px 12px; font-size:0.8rem;" onclick="startPKMatchSearch()">Search Live Match ⚔️</button>
+                            <button class="btn btn-primary" style="padding:8px 12px; font-size:0.8rem;" onclick="startPKMatchSearch()">Search Live Match ⚔️</button>
                             <button class="btn btn-secondary" style="padding:8px 12px; font-size:0.8rem;" onclick="stopPKMatch()">Stop Battle ⏹</button>
                         </div>
                     </div>`;
@@ -929,10 +971,10 @@
                     <div class="media-placeholder" style="background:rgba(5, 150, 105, 0.15); border: 2px dashed #059669; padding:16px; border-radius:14px;">
                         🎁 <b>Virtual Gift Store</b><br><br>
                         <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-bottom:10px;">
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose (10 Diamonds)', 10)">🌹 Rose (10)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💎 Ring (50)', 50)">💍 Ring (50)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket (200)', 200)">🚀 Rocket (200)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown (500)', 500)">👑 Crown (500)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose (10 Diamonds)')">🌹 Rose (10)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💎 Ring (50)')">💍 Ring (50)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket (200)')">🚀 Rocket (200)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown (500)')">👑 Crown (500)</button>
                         </div>
                     </div>`;
             } else if (action === 'jukebox') {
@@ -950,45 +992,40 @@
             } else if (action === 'inbox') {
                 contentHtml = `
                     <div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:20px; border-radius:14px;">
-                        💬 <b>Inbox & Direct Messages</b><br><br>
-                        <div style="font-size:0.75rem; color:#a1a1aa;">Connected User ID threads and private chats appear here.</div>
+                        💬 <b>Messenger & Direct Chats</b><br><br>
+                        <div style="font-size:0.75rem; color:#a1a1aa;">Direct 1-on-1 chats synced via User ID. Use bottom chat bar to message.</div>
                     </div>`;
             }
-            
             preview.innerHTML = contentHtml;
         }
 
         function playYouTubeTrack() {
             const rawUrl = document.getElementById('song-link-input').value.trim();
             const frame = document.getElementById('youtube-player-frame');
-            if (!rawUrl) { alert("Please paste a valid YouTube song link."); return; }
+            if (!rawUrl) return;
 
-            let videoId = '';
-            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-            const match = rawUrl.match(regex);
-            
+            const match = rawUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
             if (match && match[1]) {
-                videoId = match[1];
-                frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1&enablejsapi=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             } else {
-                alert("Please paste a standard YouTube link (e.g. https://youtu.be/... or https://www.youtube.com/watch?v=...)");
+                alert("Please paste a standard YouTube video URL.");
             }
         }
 
+        let pkInterval = null;
         function startPKMatchSearch() {
             const statusText = document.getElementById('pk-status-text');
             if (!statusText) return;
-            statusText.innerText = "🔍 Connecting to live creator queue...";
-
+            statusText.innerText = "🔍 Connecting to live queue...";
             let count = 3;
             if (pkInterval) clearInterval(pkInterval);
             pkInterval = setInterval(() => {
                 if (count > 0) {
-                    statusText.innerText = `🔴 Matching live creator in ${count}s...`;
+                    statusText.innerText = `🔴 Matching creator in ${count}s...`;
                     count--;
                 } else {
                     clearInterval(pkInterval);
-                    statusText.innerHTML = `🔥 <b>PK BATTLE CONNECTED!</b><br>Opponent: @Sarah_Vibe<br>Score: You 180 pts | Opponent 150 pts`;
+                    statusText.innerHTML = `🔥 <b>PK BATTLE CONNECTED!</b><br>Score: You 180 pts | Opponent 150 pts`;
                 }
             }, 1000);
         }
@@ -999,7 +1036,7 @@
             if (statusText) statusText.innerText = "⏹ Battle stopped.";
         }
 
-        function sendGiftItem(giftName, cost) {
+        function sendGiftItem(giftName) {
             const handle = document.getElementById('user-display').innerText;
             if (db) {
                 db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
@@ -1011,45 +1048,7 @@
             alert(`Sent ${giftName}! Broadcasted to active stream.`);
         }
 
-        // --- REAL-TIME FIRESTORE MESSAGE SENDER ---
-        function sendChatMessage() {
-            const box = document.getElementById('chat-box');
-            if (!box) return;
-            const msg = box.value.trim();
-            if (!msg) return;
-
-            const handle = document.getElementById('user-display').innerText;
-
-            if (db) {
-                db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-                    sender: handle,
-                    text: msg,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                    box.value = '';
-                }).catch(() => fallbackSendMsg(handle, msg));
-            } else {
-                fallbackSendMsg(handle, msg);
-            }
-        }
-
-        function fallbackSendMsg(handle, msg) {
-            const chatContainer = document.getElementById('chat-messages-container');
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            bubble.innerHTML = `🟢 <b>${handle}:</b> ${msg}`;
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            document.getElementById('chat-box').value = '';
-        }
-
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
-            }
-        }
-
-        // --- AUTHENTICATION & SIGN OUT HANDLERS ---
+        // --- AUTHENTICATION ACTIONS ---
         function executeAuthAction() {
             const emailInput = document.getElementById('auth-email');
             const passwordInput = document.getElementById('auth-password');
@@ -1059,38 +1058,25 @@
             const password = passwordInput ? passwordInput.value.trim() : "";
             const username = usernameInput ? usernameInput.value.trim() : "Subscriber";
 
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
+            if (!email || !password) { alert("Please enter email and password."); return; }
 
             if (!auth) {
                 document.getElementById('user-display').innerText = username;
                 document.getElementById('profile-card-name').innerText = username;
-                document.getElementById('profile-card-status').innerText = "🟢 Status: Active Online";
-                document.getElementById('signout-btn').style.display = "block";
                 closeTikTokModal('auth-modal');
-                alert(`Successfully signed in as ${username}!`);
+                alert(`Signed in as ${username}!`);
                 return;
             }
 
             auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    closeTikTokModal('auth-modal');
-                    alert("Signed in successfully!");
-                })
+                .then(() => closeTikTokModal('auth-modal'))
                 .catch(() => {
                     auth.createUserWithEmailAndPassword(email, password)
                         .then((res) => {
-                            if (username && res.user) {
-                                res.user.updateProfile({ displayName: username });
-                            }
+                            if (username && res.user) res.user.updateProfile({ displayName: username });
                             closeTikTokModal('auth-modal');
-                            alert(`Subscriber account created & signed in as ${username}!`);
                         })
-                        .catch((err) => {
-                            alert("Authentication Error: " + err.message);
-                        });
+                        .catch(err => alert("Auth Error: " + err.message));
                 });
         }
 
@@ -1098,22 +1084,11 @@
             if (auth) {
                 auth.signOut().then(() => {
                     closeTikTokModal('profile-modal');
-                    alert("Signed out successfully.");
-                }).catch((error) => {
-                    alert("Sign out error: " + error.message);
+                    alert("Signed out.");
                 });
-            } else {
-                currentUser = null;
-                document.getElementById('user-display').innerText = "Guest_2914";
-                document.getElementById('profile-card-name').innerText = "Guest User";
-                document.getElementById('profile-card-status').innerText = "⚪ Status: Guest Mode";
-                document.getElementById('signout-btn').style.display = "none";
-                closeTikTokModal('profile-modal');
-                alert("Signed out successfully.");
             }
         }
 
-        // --- PROFILE DASHBOARD HANDLER ---
         function saveProfileDetails() {
             const nameInput = document.getElementById('edit-name');
             const bioInput = document.getElementById('edit-bio');
@@ -1125,9 +1100,7 @@
                 document.getElementById('profile-card-name').innerText = name;
                 document.getElementById('user-display').innerText = name;
             }
-            if (bio) {
-                document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
-            }
+            if (bio) document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
 
             if (currentUser && db) {
                 db.collection("users").doc(currentUser.uid).set({
@@ -1135,9 +1108,8 @@
                     bio: bio
                 }, { merge: true });
             }
-
             closeTikTokModal('profile-modal');
-            alert("Profile dashboard updated!");
+            alert("Profile updated!");
         }
 
         function copyMyUserId() {
@@ -1154,7 +1126,7 @@
                     preview.innerHTML = `<video id="live-video" autoplay playsinline muted></video>`;
                     document.getElementById('live-video').srcObject = stream;
                 })
-                .catch((err) => alert("Camera permission error: " + err.message));
+                .catch((err) => alert("Camera error: " + err.message));
         }
 
         function handleFileSelect(event) {
@@ -1178,11 +1150,7 @@
                 'vibepulse_coins_2000': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f'
             };
             const checkoutUrl = cardPaymentLinks[sku];
-            if (checkoutUrl) {
-                window.open(checkoutUrl, '_blank');
-            } else {
-                alert(`Checkout link not found for ${coinAmount} Diamonds.`);
-            }
+            if (checkoutUrl) window.open(checkoutUrl, '_blank');
         }
     </script>
 </body>
