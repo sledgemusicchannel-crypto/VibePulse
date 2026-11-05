@@ -448,7 +448,7 @@
                 <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
             </div>
             <div class="right-header-group">
-                <div class="user-pill" id="user-display" onclick="openTikTokModal('profile-modal')">Guest_2914</div>
+                <div class="user-pill" id="user-display" onclick="openTikTokModal('profile-modal')">Guest</div>
                 <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
             </div>
         </div>
@@ -464,7 +464,7 @@
             <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
         </div>
 
-        <!-- Radio Stream Widget -->
+        <!-- Radio Controller Widget -->
         <div class="radio-widget">
             <select class="radio-select" id="radio-station-select" onchange="changeRadioStation(this.value)">
                 <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
@@ -569,7 +569,7 @@
                     <strong style="color:var(--accent-cyan);" id="profile-card-name">Guest User</strong>
                     <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="copyMyUserId()">📋 Copy My ID</button>
                 </div>
-                <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: usr_guest_2914</div>
+                <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
                 <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
                 <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
             </div>
@@ -642,6 +642,24 @@
         let usersUnsubscribe = null;
         let directUnsubscribe = null;
 
+        // Persistent Device Identity Generator
+        function getDeviceUser() {
+            let localId = localStorage.getItem('vibepulse_uid');
+            let localName = localStorage.getItem('vibepulse_name');
+
+            if (!localId) {
+                localId = 'usr_' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem('vibepulse_uid', localId);
+            }
+            if (!localName) {
+                localName = 'User_' + localId.substring(4, 9);
+                localStorage.setItem('vibepulse_name', localName);
+            }
+            return { uid: localId, name: localName };
+        }
+
+        const myDevice = getDeviceUser();
+
         try {
             if (typeof firebase !== 'undefined') {
                 if (!firebase.apps.length) {
@@ -652,34 +670,43 @@
 
                 auth.onAuthStateChanged((user) => {
                     const signoutBtn = document.getElementById('signout-btn');
+                    let activeUid = myDevice.uid;
+                    let activeName = myDevice.name;
+
                     if (user) {
                         currentUser = user;
-                        const handle = user.displayName || user.email.split('@')[0];
-                        document.getElementById('user-display').innerText = handle;
-                        document.getElementById('profile-card-name').innerText = handle;
-                        document.getElementById('profile-card-uid').innerText = "ID: " + user.uid;
-                        document.getElementById('profile-card-status').innerText = "🟢 Status: Active Online";
+                        activeUid = user.uid;
+                        activeName = user.displayName || user.email.split('@')[0];
                         if (signoutBtn) signoutBtn.style.display = "block";
-                        
-                        db.collection("users").doc(user.uid).set({
-                            uid: user.uid,
-                            name: handle,
-                            email: user.email,
-                            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                            online: true
-                        }, { merge: true });
                     } else {
                         currentUser = null;
-                        document.getElementById('user-display').innerText = "Guest_2914";
-                        document.getElementById('profile-card-name').innerText = "Guest User";
-                        document.getElementById('profile-card-uid').innerText = "ID: usr_guest_2914";
-                        document.getElementById('profile-card-status').innerText = "⚪ Status: Guest Mode";
                         if (signoutBtn) signoutBtn.style.display = "none";
                     }
+
+                    document.getElementById('user-display').innerText = activeName;
+                    document.getElementById('profile-card-name').innerText = activeName;
+                    document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
+
+                    updatePresence(activeUid, activeName);
                     subscribeToActiveRoom(activeRoom);
                 });
             }
         } catch (e) { console.warn("Firebase standby mode:", e); }
+
+        function updatePresence(uid, name) {
+            if (!db) return;
+            const userRef = db.collection("users").doc(uid);
+            const sendHeartbeat = () => {
+                userRef.set({
+                    uid: uid,
+                    name: name,
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    online: true
+                }, { merge: true });
+            };
+            sendHeartbeat();
+            setInterval(sendHeartbeat, 15000);
+        }
 
         function toggleFeatureMenu() {
             document.getElementById('feature-dropdown-menu').classList.toggle('active');
@@ -715,13 +742,6 @@
             switchRoom(roomName);
         }
 
-        const fallbackUserDirectory = [
-            { name: "@sarah_vibe", uid: "usr_vibe_01", online: true },
-            { name: "@alex_99", uid: "usr_vibe_02", online: true },
-            { name: "@taylor_love", uid: "usr_vibe_03", online: false },
-            { name: "@jessica_xo", uid: "usr_vibe_04", online: true }
-        ];
-
         function switchRoom(roomName) {
             activeRoom = roomName;
             activeDirectTarget = null;
@@ -745,7 +765,7 @@
             subscribeToActiveRoom(roomName);
         }
 
-        // --- REAL-TIME FIRESTORE ROOM LISTENER ---
+        // --- REAL-TIME ROOM MESSAGES ---
         function subscribeToActiveRoom(roomName) {
             const chatContainer = document.getElementById('chat-messages-container');
             if (!chatContainer) return;
@@ -778,22 +798,15 @@
             if (db) {
                 usersUnsubscribe = db.collection("users").limit(30).onSnapshot((snapshot) => {
                     grid.innerHTML = '';
-                    if (snapshot.empty) {
-                        loadFallbackMembers();
-                        return;
-                    }
                     snapshot.forEach((doc) => {
                         const u = doc.data();
-                        renderMemberCard(u.name || "User", u.uid, u.online !== false);
+                        const nowSeconds = Date.now() / 1000;
+                        const lastActiveSeconds = u.lastActive ? u.lastActive.seconds : 0;
+                        const isOnline = (nowSeconds - lastActiveSeconds) < 45;
+                        renderMemberCard(u.name || "User", u.uid, isOnline);
                     });
-                }, () => loadFallbackMembers());
-            } else {
-                loadFallbackMembers();
+                });
             }
-        }
-
-        function loadFallbackMembers() {
-            fallbackUserDirectory.forEach(u => renderMemberCard(u.name, u.uid, u.online));
         }
 
         function renderMemberCard(name, uid, isOnline) {
@@ -812,7 +825,6 @@
             grid.appendChild(card);
         }
 
-        // --- FIXED FRIEND SEARCH (DOES NOT OVERWRITE YOUR OWN PROFILE) ---
         function addUserById() {
             const targetId = document.getElementById('add-id-input').value.trim();
             if (!targetId) { alert("Please enter a User ID."); return; }
@@ -845,12 +857,12 @@
             }
         }
 
-        // --- REAL-TIME 1-ON-1 MESSENGER ---
+        // --- REAL-TIME DIRECT MESSENGER ---
         function connectWithUser(targetName, targetUid) {
             activeDirectTarget = { name: targetName, uid: targetUid };
             document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
             
-            const myUid = currentUser ? currentUser.uid : "guest_me";
+            const myUid = currentUser ? currentUser.uid : myDevice.uid;
             const threadId = [myUid, targetUid].sort().join("_");
             
             triggerAction('inbox');
@@ -883,7 +895,7 @@
             const myHandle = document.getElementById('user-display').innerText;
 
             if (activeDirectTarget && db) {
-                const myUid = currentUser ? currentUser.uid : "guest_me";
+                const myUid = currentUser ? currentUser.uid : myDevice.uid;
                 const threadId = [myUid, activeDirectTarget.uid].sort().join("_");
                 db.collection("direct_chats").doc(threadId).collection("messages").add({
                     sender: myHandle,
@@ -896,19 +908,7 @@
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => { box.value = ''; });
-            } else {
-                fallbackSendMsg(myHandle, msg);
             }
-        }
-
-        function fallbackSendMsg(handle, msg) {
-            const chatContainer = document.getElementById('chat-messages-container');
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            bubble.innerHTML = `🟢 <b>${handle}:</b> ${msg}`;
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            document.getElementById('chat-box').value = '';
         }
 
         function handleChatKeyPress(event) {
@@ -1048,7 +1048,7 @@
             alert(`Sent ${giftName}! Broadcasted to active stream.`);
         }
 
-        // --- AUTHENTICATION ACTIONS ---
+        // --- AUTH ACTIONS ---
         function executeAuthAction() {
             const emailInput = document.getElementById('auth-email');
             const passwordInput = document.getElementById('auth-password');
@@ -1061,6 +1061,7 @@
             if (!email || !password) { alert("Please enter email and password."); return; }
 
             if (!auth) {
+                localStorage.setItem('vibepulse_name', username);
                 document.getElementById('user-display').innerText = username;
                 document.getElementById('profile-card-name').innerText = username;
                 closeTikTokModal('auth-modal');
@@ -1097,14 +1098,16 @@
             const bio = bioInput ? bioInput.value.trim() : "";
 
             if (name) {
+                localStorage.setItem('vibepulse_name', name);
                 document.getElementById('profile-card-name').innerText = name;
                 document.getElementById('user-display').innerText = name;
             }
             if (bio) document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
 
-            if (currentUser && db) {
-                db.collection("users").doc(currentUser.uid).set({
-                    name: name || currentUser.displayName,
+            const activeUid = currentUser ? currentUser.uid : myDevice.uid;
+            if (db) {
+                db.collection("users").doc(activeUid).set({
+                    name: name || myDevice.name,
                     bio: bio
                 }, { merge: true });
             }
@@ -1113,7 +1116,7 @@
         }
 
         function copyMyUserId() {
-            const uidText = currentUser ? currentUser.uid : "usr_guest_2914";
+            const uidText = currentUser ? currentUser.uid : myDevice.uid;
             navigator.clipboard.writeText(uidText);
             alert("Copied User ID: " + uidText);
         }
