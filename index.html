@@ -765,7 +765,7 @@
             subscribeToActiveRoom(roomName);
         }
 
-        // --- REAL-TIME ROOM MESSAGES ---
+        // --- REAL-TIME ROOM MESSAGES (INDEX-FREE UNBLOCK QUERY) ---
         function subscribeToActiveRoom(roomName) {
             const chatContainer = document.getElementById('chat-messages-container');
             if (!chatContainer) return;
@@ -773,7 +773,7 @@
             if (roomUnsubscribe) roomUnsubscribe();
 
             if (db) {
-                const roomDocRef = db.collection("chat_rooms").doc(roomName).collection("messages").orderBy("timestamp", "asc").limit(50);
+                const roomDocRef = db.collection("chat_rooms").doc(roomName).collection("messages").limit(50);
                 roomUnsubscribe = roomDocRef.onSnapshot((snapshot) => {
                     chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName} Live Stream</div>`;
                     snapshot.forEach((doc) => {
@@ -784,6 +784,8 @@
                         chatContainer.appendChild(bubble);
                     });
                     chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, (err) => {
+                    console.warn("Snapshot fallback:", err);
                 });
             }
         }
@@ -871,7 +873,7 @@
             if (directUnsubscribe) directUnsubscribe();
 
             if (db) {
-                directUnsubscribe = db.collection("direct_chats").doc(threadId).collection("messages").orderBy("timestamp", "asc").onSnapshot((snapshot) => {
+                directUnsubscribe = db.collection("direct_chats").doc(threadId).collection("messages").limit(50).onSnapshot((snapshot) => {
                     chatContainer.innerHTML = `<div class="chat-bubble">💬 <b>Direct Message Thread with ${targetName}</b></div>`;
                     snapshot.forEach((doc) => {
                         const m = doc.data();
@@ -885,7 +887,7 @@
             }
         }
 
-        // --- CHAT MESSAGE DISPATCHER ---
+        // --- CHAT MESSAGE DISPATCHER (WITH INSTANT OPTIMISTIC APPEND) ---
         function sendChatMessage() {
             const box = document.getElementById('chat-box');
             if (!box) return;
@@ -894,6 +896,16 @@
 
             const myHandle = document.getElementById('user-display').innerText;
 
+            // Instant UI Render (Bypasses silent listener blocks)
+            const chatContainer = document.getElementById('chat-messages-container');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.innerHTML = `🟢 <b>${myHandle}:</b> ${msg}`;
+            chatContainer.appendChild(bubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            box.value = '';
+
+            // Remote Sync
             if (activeDirectTarget && db) {
                 const myUid = currentUser ? currentUser.uid : myDevice.uid;
                 const threadId = [myUid, activeDirectTarget.uid].sort().join("_");
@@ -901,13 +913,13 @@
                     sender: myHandle,
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => { box.value = ''; });
+                });
             } else if (db) {
                 db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
                     sender: myHandle,
                     text: msg,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => { box.value = ''; });
+                });
             }
         }
 
