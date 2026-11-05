@@ -246,7 +246,7 @@
         }
 
         .chat-feed {
-            max-height: 110px;
+            max-height: 120px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -455,7 +455,7 @@
             </div>
         </div>
 
-        <!-- Floating Dropdown Menu (De-Clustered with Chatrooms Included) -->
+        <!-- Floating Dropdown Menu -->
         <div class="feature-menu-panel" id="feature-dropdown-menu">
             <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
             <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live Broadcast</button>
@@ -491,7 +491,7 @@
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
-                <div class="chat-bubble">🟢 <b>System:</b> Welcome to VibePulse! Chatrooms moved to ⚡ Menu.</div>
+                <div class="chat-bubble">🟢 <b>System:</b> Connected to live Firestore cross-device chat feed.</div>
             </div>
             <div class="chat-input-row">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." onkeypress="handleChatKeyPress(event)">
@@ -639,6 +639,9 @@
         let auth = null;
         let db = null;
         let currentUser = null;
+        let activeRoom = "Global Lounge";
+        let roomUnsubscribe = null;
+        let usersUnsubscribe = null;
 
         try {
             if (typeof firebase !== 'undefined') {
@@ -674,6 +677,7 @@
                         document.getElementById('profile-card-status').innerText = "⚪ Status: Guest Mode";
                         if (signoutBtn) signoutBtn.style.display = "none";
                     }
+                    subscribeToActiveRoom(activeRoom);
                 });
             }
         } catch (e) { console.warn("Firebase standby mode:", e); }
@@ -712,7 +716,6 @@
             switchRoom(roomName);
         }
 
-        // --- DIRECTORY & ACTIVE USERS WITH ONLINE ICON ---
         const userDirectory = [
             { name: "@sarah_vibe", uid: "usr_vibe_01", online: true },
             { name: "@alex_99", uid: "usr_vibe_02", online: true },
@@ -723,6 +726,7 @@
         ];
 
         function switchRoom(roomName) {
+            activeRoom = roomName;
             document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
             
             const preview = document.getElementById('preview-area');
@@ -738,17 +742,44 @@
                         </div>
                     </div>
                 `;
-                fetchRoomMembers();
+                subscribeToOnlineUsers();
+            }
+            subscribeToActiveRoom(roomName);
+        }
+
+        // --- REAL-TIME FIRESTORE CHAT ROOM LISTENER ---
+        function subscribeToActiveRoom(roomName) {
+            const chatContainer = document.getElementById('chat-messages-container');
+            if (!chatContainer) return;
+
+            if (roomUnsubscribe) roomUnsubscribe();
+
+            if (db) {
+                const roomDocRef = db.collection("chat_rooms").doc(roomName).collection("messages").orderBy("timestamp", "asc").limit(50);
+                roomUnsubscribe = roomDocRef.onSnapshot((snapshot) => {
+                    chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName} Live Stream</div>`;
+                    snapshot.forEach((doc) => {
+                        const m = doc.data();
+                        const bubble = document.createElement('div');
+                        bubble.className = 'chat-bubble';
+                        bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${m.text}`;
+                        chatContainer.appendChild(bubble);
+                    });
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, (err) => console.warn("Firestore chat listening error:", err));
             }
         }
 
-        function fetchRoomMembers() {
+        // --- REAL-TIME ONLINE MEMBERS LISTENER ---
+        function subscribeToOnlineUsers() {
             const grid = document.getElementById('room-members-grid');
             if (!grid) return;
-            grid.innerHTML = '';
+
+            if (usersUnsubscribe) usersUnsubscribe();
 
             if (db) {
-                db.collection("users").limit(15).get().then((snapshot) => {
+                usersUnsubscribe = db.collection("users").limit(20).onSnapshot((snapshot) => {
+                    grid.innerHTML = '';
                     if (snapshot.empty) {
                         loadFallbackMembers();
                         return;
@@ -757,7 +788,7 @@
                         const u = doc.data();
                         renderMemberCard(u.name || "User", u.uid, u.online !== false);
                     });
-                }).catch(() => loadFallbackMembers());
+                }, () => loadFallbackMembers());
             } else {
                 loadFallbackMembers();
             }
@@ -969,14 +1000,53 @@
         }
 
         function sendGiftItem(giftName, cost) {
-            alert(`Sent ${giftName}! Animation dispatched to stream.`);
+            const handle = document.getElementById('user-display').innerText;
+            if (db) {
+                db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+                    sender: "🎁 GIFT EVENT",
+                    text: `${handle} sent ${giftName}!`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            alert(`Sent ${giftName}! Broadcasted to active stream.`);
+        }
+
+        // --- REAL-TIME FIRESTORE MESSAGE SENDER ---
+        function sendChatMessage() {
+            const box = document.getElementById('chat-box');
+            if (!box) return;
+            const msg = box.value.trim();
+            if (!msg) return;
+
+            const handle = document.getElementById('user-display').innerText;
+
+            if (db) {
+                db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+                    sender: handle,
+                    text: msg,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    box.value = '';
+                }).catch(() => fallbackSendMsg(handle, msg));
+            } else {
+                fallbackSendMsg(handle, msg);
+            }
+        }
+
+        function fallbackSendMsg(handle, msg) {
             const chatContainer = document.getElementById('chat-messages-container');
             const bubble = document.createElement('div');
             bubble.className = 'chat-bubble';
-            bubble.style.background = "rgba(5, 150, 105, 0.8)";
-            bubble.innerHTML = `🎁 <b>Gift Event:</b> You sent ${giftName}!`;
+            bubble.innerHTML = `🟢 <b>${handle}:</b> ${msg}`;
             chatContainer.appendChild(bubble);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+            document.getElementById('chat-box').value = '';
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
         }
 
         // --- AUTHENTICATION & SIGN OUT HANDLERS ---
@@ -1040,30 +1110,6 @@
                 document.getElementById('signout-btn').style.display = "none";
                 closeTikTokModal('profile-modal');
                 alert("Signed out successfully.");
-            }
-        }
-
-        // --- CHAT MESSAGING ENGINE WITH LIVE ONLINE STATUS ---
-        function sendChatMessage() {
-            const box = document.getElementById('chat-box');
-            if (!box) return;
-            const msg = box.value.trim();
-            if (!msg) return;
-
-            const chatContainer = document.getElementById('chat-messages-container');
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            const handle = document.getElementById('user-display').innerText;
-            const isOnline = currentUser ? "🟢" : "🟢";
-            bubble.innerHTML = `${isOnline} <b>${handle}:</b> ${msg}`;
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            box.value = '';
-        }
-
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
             }
         }
 
