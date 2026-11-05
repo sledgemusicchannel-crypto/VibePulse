@@ -134,7 +134,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 14px;
             padding: 10px;
-            width: 210px;
+            width: 220px;
             z-index: 100;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             flex-direction: column;
@@ -160,45 +160,10 @@
 
         .menu-item-btn:hover { background: rgba(255, 255, 255, 0.18); }
 
-        /* Room Category Horizontal Scroll */
-        .room-bar {
-            position: absolute;
-            top: 48px;
-            left: 0;
-            right: 0;
-            display: flex;
-            overflow-x: auto;
-            gap: 6px;
-            padding: 6px 12px;
-            z-index: 40;
-            scrollbar-width: none;
-            background: rgba(0, 0, 0, 0.4);
-        }
-        .room-bar::-webkit-scrollbar { display: none; }
-
-        .room-pill {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ccc;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.68rem;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .room-pill.active {
-            background: #ffffff;
-            color: #000000;
-            font-weight: 700;
-        }
-
         /* Radio Stream Controller Widget */
         .radio-widget {
             position: absolute;
-            top: 86px;
+            top: 48px;
             left: 12px;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
@@ -451,6 +416,26 @@
         .btn-secondary { background: #27272a; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.85rem; }
+
+        .room-grid-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .room-tab-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .room-tab-btn:hover { background: rgba(255, 255, 255, 0.18); }
     </style>
 </head>
 <body>
@@ -470,25 +455,15 @@
             </div>
         </div>
 
-        <!-- De-Clustered Floating Feature Dropdown Menu -->
+        <!-- Floating Dropdown Menu (De-Clustered with Chatrooms Included) -->
         <div class="feature-menu-panel" id="feature-dropdown-menu">
+            <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
             <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live Broadcast</button>
             <button class="menu-item-btn" onclick="triggerAction('pk'); toggleFeatureMenu();">⚔️ PK Battles Arena</button>
             <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
             <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send Stream Gifts</button>
             <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">💎 Diamond Wallet</button>
             <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
-        </div>
-
-        <!-- Horizontal Room Category Bar -->
-        <div class="room-bar">
-            <button class="room-pill active" onclick="switchRoom('Global Lounge', this)">🌐 Global Lounge</button>
-            <button class="room-pill" onclick="switchRoom('Retro Beats', this)">📻 Retro Beats</button>
-            <button class="room-pill" onclick="switchRoom('App Creators', this)">💻 App Creators</button>
-            <button class="room-pill" onclick="switchRoom('Singles (18-35)', this)">❤️ Singles (18-35)</button>
-            <button class="room-pill" onclick="switchRoom('Divorce Support', this)">🥀 Divorce</button>
-            <button class="room-pill" onclick="switchRoom('LGBTQ+ Lounge', this)">🏳️‍🌈 LGBTQ+ Lounge</button>
-            <button class="room-pill" onclick="switchRoom('Lo-Fi Chill Hop', this)">🎧 Lo-Fi Chill Hop</button>
         </div>
 
         <!-- Direct Live Radio Stream Audio Widget -->
@@ -508,7 +483,7 @@
         <!-- Main Video / Dating Grid Container -->
         <div class="media-container" id="preview-area">
             <div class="media-placeholder" id="content-display-text">
-                🎥 Tap '<b>⚡ Menu</b>' above or pick a room to start connecting!
+                🎥 Tap '<b>⚡ Menu</b>' above to pick a Chatroom or start connecting!
             </div>
         </div>
 
@@ -516,7 +491,7 @@
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
-                <div class="chat-bubble"><b>System:</b> Welcome to VibePulse Network! Online status & Auth fully fixed.</div>
+                <div class="chat-bubble">🟢 <b>System:</b> Welcome to VibePulse! Chatrooms moved to ⚡ Menu.</div>
             </div>
             <div class="chat-input-row">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." onkeypress="handleChatKeyPress(event)">
@@ -536,6 +511,25 @@
         <button class="nav-item" onclick="triggerAction('inbox')">💬<span>Inbox</span></button>
         <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
     </nav>
+
+    <!-- 0. CHATROOM SELECTION MODAL -->
+    <div class="tiktok-modal" id="chatrooms-modal">
+        <div class="modal-body-container">
+            <div class="modal-header">
+                <span>💬 Choose a Chatroom</span>
+                <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
+            </div>
+            <div class="room-grid-list">
+                <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
+                <button class="room-tab-btn" onclick="selectRoomFromModal('Retro Beats')">📻 Retro Beats</button>
+                <button class="room-tab-btn" onclick="selectRoomFromModal('App Creators')">💻 App Creators</button>
+                <button class="room-tab-btn" onclick="selectRoomFromModal('Singles (18-35)')">❤️ Singles (18-35)</button>
+                <button class="room-tab-btn" onclick="selectRoomFromModal('Divorce Support')">🥀 Divorce Support</button>
+                <button class="room-tab-btn" onclick="selectRoomFromModal('LGBTQ+ Lounge')">🏳️‍🌈 LGBTQ+ Lounge</button>
+                <button class="room-tab-btn" onclick="selectRoomFromModal('Lo-Fi Chill Hop')">🎧 Lo-Fi Chill Hop</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 1. DUAL ACTION '+' MODAL -->
     <div class="tiktok-modal" id="plus-modal">
@@ -713,6 +707,11 @@
             }
         }
 
+        function selectRoomFromModal(roomName) {
+            closeTikTokModal('chatrooms-modal');
+            switchRoom(roomName);
+        }
+
         // --- DIRECTORY & ACTIVE USERS WITH ONLINE ICON ---
         const userDirectory = [
             { name: "@sarah_vibe", uid: "usr_vibe_01", online: true },
@@ -723,11 +722,7 @@
             { name: "@morgan_lee", uid: "usr_vibe_06", online: true }
         ];
 
-        function switchRoom(roomName, element) {
-            if (element) {
-                document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
-                element.classList.add('active');
-            }
+        function switchRoom(roomName) {
             document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
             
             const preview = document.getElementById('preview-area');
@@ -881,7 +876,7 @@
             document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
-        // --- FIXED YOUTUBE JUKEBOX & PK BATTLE ENGINE ---
+        // --- YOUTUBE JUKEBOX & PK BATTLE ENGINE ---
         let pkInterval = null;
 
         function triggerAction(action) {
@@ -1000,7 +995,6 @@
             }
 
             if (!auth) {
-                // Fallback simulation mode
                 document.getElementById('user-display').innerText = username;
                 document.getElementById('profile-card-name').innerText = username;
                 document.getElementById('profile-card-status').innerText = "🟢 Status: Active Online";
@@ -1010,7 +1004,6 @@
                 return;
             }
 
-            // Try sign in, if account doesn't exist create new subscriber account
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     closeTikTokModal('auth-modal');
@@ -1050,6 +1043,30 @@
             }
         }
 
+        // --- CHAT MESSAGING ENGINE WITH LIVE ONLINE STATUS ---
+        function sendChatMessage() {
+            const box = document.getElementById('chat-box');
+            if (!box) return;
+            const msg = box.value.trim();
+            if (!msg) return;
+
+            const chatContainer = document.getElementById('chat-messages-container');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            const handle = document.getElementById('user-display').innerText;
+            const isOnline = currentUser ? "🟢" : "🟢";
+            bubble.innerHTML = `${isOnline} <b>${handle}:</b> ${msg}`;
+            chatContainer.appendChild(bubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            box.value = '';
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
         // --- PROFILE DASHBOARD HANDLER ---
         function saveProfileDetails() {
             const nameInput = document.getElementById('edit-name');
@@ -1081,29 +1098,6 @@
             const uidText = currentUser ? currentUser.uid : "usr_guest_2914";
             navigator.clipboard.writeText(uidText);
             alert("Copied User ID: " + uidText);
-        }
-
-        // --- CHAT MESSAGING ENGINE ---
-        function sendChatMessage() {
-            const box = document.getElementById('chat-box');
-            if (!box) return;
-            const msg = box.value.trim();
-            if (!msg) return;
-
-            const chatContainer = document.getElementById('chat-messages-container');
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            const handle = document.getElementById('user-display').innerText;
-            bubble.innerHTML = `<b>${handle}:</b> ${msg}`;
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            box.value = '';
-        }
-
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
-            }
         }
 
         function startLiveCamera() {
