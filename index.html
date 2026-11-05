@@ -449,6 +449,7 @@
         .btn { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
         .btn-primary { background: var(--accent-pink); color: white; }
         .btn-secondary { background: #27272a; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
         .input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.85rem; }
     </style>
 </head>
@@ -515,7 +516,7 @@
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
-                <div class="chat-bubble"><b>System:</b> Welcome to VibePulse Network! Sign up & Address book active.</div>
+                <div class="chat-bubble"><b>System:</b> Welcome to VibePulse Network! Online status & Auth fully fixed.</div>
             </div>
             <div class="chat-input-row">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." onkeypress="handleChatKeyPress(event)">
@@ -549,18 +550,18 @@
         </div>
     </div>
 
-    <!-- 2. SIGN UP / SIGN IN MODAL -->
+    <!-- 2. UNIFIED SIGN UP / SIGN IN & SIGN OUT MODAL -->
     <div class="tiktok-modal" id="auth-modal">
         <div class="modal-body-container">
             <div class="modal-header">
-                <span>Sign Up / Sign In Subscriber Account</span>
+                <span id="auth-modal-title">Subscriber Account Sign In / Sign Up</span>
                 <span class="modal-close" onclick="closeTikTokModal('auth-modal')">✕</span>
             </div>
-            <div style="font-size:0.75rem; color:#a1a1aa;">Create an account to save your profile and add friends to your address book.</div>
+            <div style="font-size:0.75rem; color:#a1a1aa;" id="auth-modal-desc">Sign in or register to sync your profile, active online status, and address book.</div>
             <input type="text" class="input-field" id="auth-username" placeholder="Display Handle (e.g., Alex_Vibe)">
             <input type="email" class="input-field" id="auth-email" placeholder="Email Address">
-            <input type="password" class="input-field" id="auth-password" placeholder="Password (Min 6 chars)">
-            <button class="btn btn-primary" onclick="handleAuthSignupLogin()">Register / Sign In Now 🚀</button>
+            <input type="password" class="input-field" id="auth-password" placeholder="Password (Min 6 characters)">
+            <button class="btn btn-primary" id="auth-submit-btn" onclick="executeAuthAction()">Sign In / Register Now 🚀</button>
         </div>
     </div>
 
@@ -579,6 +580,7 @@
                 </div>
                 <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: usr_guest_2914</div>
                 <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
+                <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
             </div>
 
             <!-- Address Book Add Friend Area -->
@@ -597,7 +599,10 @@
             <input type="text" class="input-field" id="edit-bio" placeholder="Update Status / Bio">
             
             <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Updates</button>
-            <button class="btn btn-secondary" onclick="openTikTokModal('auth-modal')">🔑 Sign Up / Switch Account</button>
+            <div id="auth-action-buttons" style="display:flex; gap:6px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="openAuthModal('signin')">🔑 Sign In / Sign Up</button>
+                <button class="btn btn-danger" id="signout-btn" style="flex:1; display:none;" onclick="executeSignOut()">🚪 Sign Out</button>
+            </div>
         </div>
     </div>
 
@@ -650,12 +655,15 @@
                 db = firebase.firestore();
 
                 auth.onAuthStateChanged((user) => {
+                    const signoutBtn = document.getElementById('signout-btn');
                     if (user) {
                         currentUser = user;
                         const handle = user.displayName || user.email.split('@')[0];
                         document.getElementById('user-display').innerText = handle;
                         document.getElementById('profile-card-name').innerText = handle;
                         document.getElementById('profile-card-uid').innerText = "ID: " + user.uid;
+                        document.getElementById('profile-card-status').innerText = "🟢 Status: Active Online";
+                        if (signoutBtn) signoutBtn.style.display = "block";
                         
                         db.collection("users").doc(user.uid).set({
                             uid: user.uid,
@@ -667,7 +675,10 @@
                     } else {
                         currentUser = null;
                         document.getElementById('user-display').innerText = "Guest_2914";
+                        document.getElementById('profile-card-name').innerText = "Guest User";
                         document.getElementById('profile-card-uid').innerText = "ID: usr_guest_2914";
+                        document.getElementById('profile-card-status').innerText = "⚪ Status: Guest Mode";
+                        if (signoutBtn) signoutBtn.style.display = "none";
                     }
                 });
             }
@@ -683,6 +694,11 @@
 
         function closeTikTokModal(id) {
             document.getElementById(id).classList.remove('active');
+        }
+
+        function openAuthModal(mode) {
+            closeTikTokModal('profile-modal');
+            openTikTokModal('auth-modal');
         }
 
         function handleBackNavigation() {
@@ -744,7 +760,7 @@
                     }
                     snapshot.forEach((doc) => {
                         const u = doc.data();
-                        renderMemberCard(u.name || "User", u.uid, true);
+                        renderMemberCard(u.name || "User", u.uid, u.online !== false);
                     });
                 }).catch(() => loadFallbackMembers());
             } else {
@@ -968,8 +984,8 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // --- SIGN UP / SIGN IN AUTHENTICATION HANDLER ---
-        function handleAuthSignupLogin() {
+        // --- AUTHENTICATION & SIGN OUT HANDLERS ---
+        function executeAuthAction() {
             const emailInput = document.getElementById('auth-email');
             const passwordInput = document.getElementById('auth-password');
             const usernameInput = document.getElementById('auth-username');
@@ -984,33 +1000,54 @@
             }
 
             if (!auth) {
-                // Fallback simulation mode if offline
+                // Fallback simulation mode
                 document.getElementById('user-display').innerText = username;
                 document.getElementById('profile-card-name').innerText = username;
+                document.getElementById('profile-card-status').innerText = "🟢 Status: Active Online";
+                document.getElementById('signout-btn').style.display = "block";
                 closeTikTokModal('auth-modal');
-                alert(`Successfully signed up/in as ${username}!`);
+                alert(`Successfully signed in as ${username}!`);
                 return;
             }
 
-            // Attempt Sign In first, if fails create new subscriber account
+            // Try sign in, if account doesn't exist create new subscriber account
             auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
+                .then(() => {
                     closeTikTokModal('auth-modal');
-                    alert("Welcome back! Signed in successfully.");
+                    alert("Signed in successfully!");
                 })
-                .catch((error) => {
+                .catch(() => {
                     auth.createUserWithEmailAndPassword(email, password)
                         .then((res) => {
                             if (username && res.user) {
                                 res.user.updateProfile({ displayName: username });
                             }
                             closeTikTokModal('auth-modal');
-                            alert(`New subscriber account registered successfully as ${username}!`);
+                            alert(`Subscriber account created & signed in as ${username}!`);
                         })
                         .catch((err) => {
                             alert("Authentication Error: " + err.message);
                         });
                 });
+        }
+
+        function executeSignOut() {
+            if (auth) {
+                auth.signOut().then(() => {
+                    closeTikTokModal('profile-modal');
+                    alert("Signed out successfully.");
+                }).catch((error) => {
+                    alert("Sign out error: " + error.message);
+                });
+            } else {
+                currentUser = null;
+                document.getElementById('user-display').innerText = "Guest_2914";
+                document.getElementById('profile-card-name').innerText = "Guest User";
+                document.getElementById('profile-card-status').innerText = "⚪ Status: Guest Mode";
+                document.getElementById('signout-btn').style.display = "none";
+                closeTikTokModal('profile-modal');
+                alert("Signed out successfully.");
+            }
         }
 
         // --- PROFILE DASHBOARD HANDLER ---
