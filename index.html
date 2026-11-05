@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibePulse — Clean Live Stream & Social Network</title>
+    <title>VibePulse — Live Stream & Real Social Network</title>
 
     <!-- Firebase Web SDK (v10 Compat Layer) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -450,16 +450,6 @@
         .btn-primary { background: var(--accent-pink); color: white; }
         .btn-secondary { background: #27272a; color: white; }
         .input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.85rem; }
-
-        .filter-select {
-            background: #27272a;
-            color: #fff;
-            border: 1px solid #3f3f46;
-            padding: 6px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            outline: none;
-        }
     </style>
 </head>
 <body>
@@ -514,7 +504,7 @@
         </div>
         <audio id="radio-audio" crossorigin="anonymous" preload="none"></audio>
 
-        <!-- Main Video / dating Grid Container -->
+        <!-- Main Video / Dating Grid Container -->
         <div class="media-container" id="preview-area">
             <div class="media-placeholder" id="content-display-text">
                 🎥 Tap '<b>⚡ Menu</b>' above or pick a room to start connecting!
@@ -525,7 +515,7 @@
         <div class="bottom-overlay">
             <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
             <div class="chat-feed" id="chat-messages-container">
-                <div class="chat-bubble"><b>System:</b> Welcome to VibePulse Network! Interface upgraded & declustered.</div>
+                <div class="chat-bubble"><b>System:</b> Welcome to VibePulse Network! Sign up & Address book active.</div>
             </div>
             <div class="chat-input-row">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." onkeypress="handleChatKeyPress(event)">
@@ -559,17 +549,18 @@
         </div>
     </div>
 
-    <!-- 2. AUTHENTICATION & LOGIN MODAL -->
+    <!-- 2. SIGN UP / SIGN IN MODAL -->
     <div class="tiktok-modal" id="auth-modal">
         <div class="modal-body-container">
             <div class="modal-header">
-                <span>Sign In or Register Account</span>
+                <span>Sign Up / Sign In Subscriber Account</span>
                 <span class="modal-close" onclick="closeTikTokModal('auth-modal')">✕</span>
             </div>
+            <div style="font-size:0.75rem; color:#a1a1aa;">Create an account to save your profile and add friends to your address book.</div>
             <input type="text" class="input-field" id="auth-username" placeholder="Display Handle (e.g., Alex_Vibe)">
             <input type="email" class="input-field" id="auth-email" placeholder="Email Address">
-            <input type="password" class="input-field" id="auth-password" placeholder="Password">
-            <button class="btn btn-primary" onclick="handleAuth()">Sign In / Register Now</button>
+            <input type="password" class="input-field" id="auth-password" placeholder="Password (Min 6 chars)">
+            <button class="btn btn-primary" onclick="handleAuthSignupLogin()">Register / Sign In Now 🚀</button>
         </div>
     </div>
 
@@ -606,7 +597,7 @@
             <input type="text" class="input-field" id="edit-bio" placeholder="Update Status / Bio">
             
             <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Updates</button>
-            <button class="btn btn-secondary" onclick="openTikTokModal('auth-modal')">🔑 Sign In / Switch Account</button>
+            <button class="btn btn-secondary" onclick="openTikTokModal('auth-modal')">🔑 Sign Up / Switch Account</button>
         </div>
     </div>
 
@@ -706,14 +697,14 @@
             }
         }
 
-        // --- DIRECTORY & USER SEARCH BY ID ---
+        // --- DIRECTORY & ACTIVE USERS WITH ONLINE ICON ---
         const userDirectory = [
-            { name: "@sarah_vibe", uid: "usr_vibe_01", gender: "Female" },
-            { name: "@alex_99", uid: "usr_vibe_02", gender: "Male" },
-            { name: "@taylor_love", uid: "usr_vibe_03", gender: "LGBTQ+" },
-            { name: "@jessica_xo", uid: "usr_vibe_04", gender: "Female" },
-            { name: "@david_k", uid: "usr_vibe_05", gender: "Male" },
-            { name: "@morgan_lee", uid: "usr_vibe_06", gender: "LGBTQ+" }
+            { name: "@sarah_vibe", uid: "usr_vibe_01", online: true },
+            { name: "@alex_99", uid: "usr_vibe_02", online: true },
+            { name: "@taylor_love", uid: "usr_vibe_03", online: false },
+            { name: "@jessica_xo", uid: "usr_vibe_04", online: true },
+            { name: "@david_k", uid: "usr_vibe_05", online: false },
+            { name: "@morgan_lee", uid: "usr_vibe_06", online: true }
         ];
 
         function switchRoom(roomName, element) {
@@ -727,7 +718,7 @@
             if (!document.getElementById('live-video')) {
                 preview.innerHTML = `
                     <div class="media-placeholder" style="display:flex; flex-direction:column; gap:8px; align-items:center; max-height:85vh; overflow-y:auto;">
-                        <div style="font-size:0.9rem;">✨ <b>${roomName}</b> Online Members</div>
+                        <div style="font-size:0.9rem;">✨ <b>${roomName}</b> Members</div>
                         <div style="display:flex; gap:6px; width:100%;">
                             <input type="text" id="add-id-input" class="chat-input" placeholder="Search by User ID..." style="padding:6px 10px; font-size:0.75rem;">
                             <button class="chat-send-btn" style="padding:6px 10px; font-size:0.75rem;" onclick="addUserById()">Add User</button>
@@ -736,38 +727,45 @@
                         </div>
                     </div>
                 `;
-                fetchRealOnlineUsers();
+                fetchRoomMembers();
             }
         }
 
-        function fetchRealOnlineUsers() {
+        function fetchRoomMembers() {
             const grid = document.getElementById('room-members-grid');
             if (!grid) return;
             grid.innerHTML = '';
 
             if (db) {
-                db.collection("users").limit(20).get().then((snapshot) => {
+                db.collection("users").limit(15).get().then((snapshot) => {
+                    if (snapshot.empty) {
+                        loadFallbackMembers();
+                        return;
+                    }
                     snapshot.forEach((doc) => {
                         const u = doc.data();
-                        renderUserCard(u.name || "User", u.uid, u.gender || "Member");
+                        renderMemberCard(u.name || "User", u.uid, true);
                     });
-                }).catch(() => loadFallbackUsers());
+                }).catch(() => loadFallbackMembers());
             } else {
-                loadFallbackUsers();
+                loadFallbackMembers();
             }
         }
 
-        function loadFallbackUsers() {
-            userDirectory.forEach(u => renderUserCard(u.name, u.uid, u.gender));
+        function loadFallbackMembers() {
+            userDirectory.forEach(u => renderMemberCard(u.name, u.uid, u.online));
         }
 
-        function renderUserCard(name, uid, gender) {
+        function renderMemberCard(name, uid, isOnline) {
             const grid = document.getElementById('room-members-grid');
             if (!grid) return;
             const card = document.createElement('div');
             card.style.cssText = "background:rgba(255,255,255,0.08); padding:6px 8px; border-radius:8px; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);";
             card.innerHTML = `
-                <div style="font-weight:bold; font-size:0.75rem; color:#fff;">${name}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name}</span>
+                    <span style="font-size:0.6rem; color:${isOnline ? '#25f4ee' : '#a1a1aa'};">${isOnline ? '🟢 Active' : '⚪ Offline'}</span>
+                </div>
                 <div style="font-size:0.65rem; color:#a1a1aa;">ID: ${uid}</div>
                 <button class="btn btn-primary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}')">Chat Direct 💬</button>
             `;
@@ -802,11 +800,11 @@
                         alert(`Found User: ${u.name}! Added to address book.`);
                         connectWithUser(u.name);
                     } else {
-                        alert(`Connection request sent to User ID: ${targetId}`);
+                        alert(`Address book connection request sent to ID: ${targetId}`);
                         connectWithUser("User_" + targetId.substring(0,6));
                     }
                 }).catch(() => {
-                    alert(`Connection request sent to User ID: ${targetId}`);
+                    alert(`Address book connection request sent to ID: ${targetId}`);
                     connectWithUser("User_" + targetId.substring(0,6));
                 });
             } else {
@@ -852,7 +850,7 @@
                 audio.play().then(() => {
                     btn.innerText = "⏸ Pause";
                 }).catch(err => {
-                    alert("Tap Play again to start live audio.");
+                    alert("Tap Play again to start live audio stream.");
                 });
             } else {
                 audio.pause();
@@ -867,7 +865,7 @@
             document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
-        // --- REAL YOUTUBE JUKEBOX & PK BATTLE ENGINE ---
+        // --- FIXED YOUTUBE JUKEBOX & PK BATTLE ENGINE ---
         let pkInterval = null;
 
         function triggerAction(action) {
@@ -878,9 +876,9 @@
                 contentHtml = `
                     <div class="media-placeholder" style="background:rgba(217, 119, 6, 0.15); border: 2px dashed #d97706; padding:20px; border-radius:14px;">
                         ⚔️ <b>PK Battles Arena</b><br><br>
-                        <div id="pk-status-text" style="font-size:0.8rem; color:#fde047; margin-bottom:10px;">1v1 Real Creator Match Ready</div>
+                        <div id="pk-status-text" style="font-size:0.8rem; color:#fde047; margin-bottom:10px;">Connect with active creator for live 1v1 battle</div>
                         <div style="display:flex; gap:6px; justify-content:center;">
-                            <button class="btn btn-primary" id="pk-find-btn" style="padding:8px 12px; font-size:0.8rem;" onclick="startPKMatchSearch()">Search Match ⚔️</button>
+                            <button class="btn btn-primary" id="pk-find-btn" style="padding:8px 12px; font-size:0.8rem;" onclick="startPKMatchSearch()">Search Live Match ⚔️</button>
                             <button class="btn btn-secondary" style="padding:8px 12px; font-size:0.8rem;" onclick="stopPKMatch()">Stop Battle ⏹</button>
                         </div>
                     </div>`;
@@ -900,7 +898,7 @@
                     <div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:16px; border-radius:14px; width:95%;">
                         🎵 <b>Live YouTube Jukebox Player</b><br><br>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube video or music link..." style="font-size:0.8rem; padding:8px;">
+                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link (https://youtu.be/...)..." style="font-size:0.8rem; padding:8px;">
                             <button class="btn btn-primary" style="padding:8px; font-size:0.8rem;" onclick="playYouTubeTrack()">Fetch & Play Track ▶</button>
                         </div>
                         <div id="youtube-player-frame" style="margin-top:10px; width:100%; height:170px; background:#000; border-radius:8px; overflow:hidden; display:flex; justify-content:center; align-items:center; color:#aaa; font-size:0.75rem;">
@@ -929,7 +927,7 @@
             
             if (match && match[1]) {
                 videoId = match[1];
-                frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             } else {
                 alert("Please paste a standard YouTube link (e.g. https://youtu.be/... or https://www.youtube.com/watch?v=...)");
             }
@@ -938,17 +936,17 @@
         function startPKMatchSearch() {
             const statusText = document.getElementById('pk-status-text');
             if (!statusText) return;
-            statusText.innerText = "🔍 Searching active creator...";
+            statusText.innerText = "🔍 Connecting to live creator queue...";
 
             let count = 3;
             if (pkInterval) clearInterval(pkInterval);
             pkInterval = setInterval(() => {
                 if (count > 0) {
-                    statusText.innerText = `🔴 Battle starting in ${count}s...`;
+                    statusText.innerText = `🔴 Matching live creator in ${count}s...`;
                     count--;
                 } else {
                     clearInterval(pkInterval);
-                    statusText.innerHTML = `🔥 <b>BATTLE ACTIVE!</b><br>Score: You 180 pts | Opponent 150 pts`;
+                    statusText.innerHTML = `🔥 <b>PK BATTLE CONNECTED!</b><br>Opponent: @Sarah_Vibe<br>Score: You 180 pts | Opponent 150 pts`;
                 }
             }, 1000);
         }
@@ -968,6 +966,51 @@
             bubble.innerHTML = `🎁 <b>Gift Event:</b> You sent ${giftName}!`;
             chatContainer.appendChild(bubble);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // --- SIGN UP / SIGN IN AUTHENTICATION HANDLER ---
+        function handleAuthSignupLogin() {
+            const emailInput = document.getElementById('auth-email');
+            const passwordInput = document.getElementById('auth-password');
+            const usernameInput = document.getElementById('auth-username');
+
+            const email = emailInput ? emailInput.value.trim() : "";
+            const password = passwordInput ? passwordInput.value.trim() : "";
+            const username = usernameInput ? usernameInput.value.trim() : "Subscriber";
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            if (!auth) {
+                // Fallback simulation mode if offline
+                document.getElementById('user-display').innerText = username;
+                document.getElementById('profile-card-name').innerText = username;
+                closeTikTokModal('auth-modal');
+                alert(`Successfully signed up/in as ${username}!`);
+                return;
+            }
+
+            // Attempt Sign In first, if fails create new subscriber account
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    closeTikTokModal('auth-modal');
+                    alert("Welcome back! Signed in successfully.");
+                })
+                .catch((error) => {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then((res) => {
+                            if (username && res.user) {
+                                res.user.updateProfile({ displayName: username });
+                            }
+                            closeTikTokModal('auth-modal');
+                            alert(`New subscriber account registered successfully as ${username}!`);
+                        })
+                        .catch((err) => {
+                            alert("Authentication Error: " + err.message);
+                        });
+                });
         }
 
         // --- PROFILE DASHBOARD HANDLER ---
@@ -1024,38 +1067,6 @@
             if (event.key === 'Enter') {
                 sendChatMessage();
             }
-        }
-
-        function handleAuth() {
-            const emailInput = document.getElementById('auth-email');
-            const passwordInput = document.getElementById('auth-password');
-            const usernameInput = document.getElementById('auth-username');
-
-            const email = emailInput ? emailInput.value : "";
-            const password = passwordInput ? passwordInput.value : "";
-            const username = usernameInput ? usernameInput.value : "";
-
-            if (!email || !password) { alert("Please enter email and password."); return; }
-
-            if (!auth) {
-                const name = username || email.split('@')[0];
-                document.getElementById('user-display').innerText = name;
-                document.getElementById('profile-card-name').innerText = name;
-                closeTikTokModal('auth-modal');
-                alert("Signed in as " + name);
-                return;
-            }
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => closeTikTokModal('auth-modal'))
-                .catch(err => {
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .then((res) => {
-                            if (username) res.user.updateProfile({ displayName: username });
-                            closeTikTokModal('auth-modal');
-                        })
-                        .catch(e => alert("Auth Error: " + e.message));
-                });
         }
 
         function startLiveCamera() {
