@@ -15,7 +15,7 @@
             --bg-dark: #050505;
             --accent-pink: #fe2c55;
             --accent-cyan: #25f4ee;
-            --card-bg: rgba(24, 24, 27, 0.85);
+            --card-bg: rgba(24, 24, 27, 0.90);
             --text-light: #ffffff;
             --text-muted: #a1a1aa;
         }
@@ -160,10 +160,59 @@
 
         .menu-item-btn:hover { background: rgba(255, 255, 255, 0.18); }
 
+        /* LIVE ONLINE USERS HUD PANEL (Top Left Corner Indicator) */
+        .online-hud-panel {
+            position: absolute;
+            top: 50px;
+            left: 12px;
+            background: rgba(15, 15, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 10px;
+            border-radius: 10px;
+            max-width: 180px;
+            max-height: 110px;
+            overflow-y: auto;
+            z-index: 45;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hud-title {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hud-user-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #fff;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-green { background: #22c55e; box-shadow: 0 0 6px #22c55e; } /* Active */
+        .status-yellow { background: #eab308; box-shadow: 0 0 6px #eab308; } /* Idle / Away */
+        .status-grey { background: #71717a; } /* Offline */
+
         /* Radio Controller Widget */
         .radio-widget {
             position: absolute;
-            top: 48px;
+            top: 165px;
             left: 12px;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
@@ -509,6 +558,14 @@
             </div>
         </div>
 
+        <!-- REAL-TIME ONLINE USERS HUD PANEL (Top Left Corner Indicator) -->
+        <div class="online-hud-panel" id="online-hud-box">
+            <div class="hud-title"><span>🟢 Active Users</span><span id="hud-count">0 online</span></div>
+            <div id="hud-users-list" style="display:flex; flex-direction:column; gap:3px;">
+                <div style="font-size:0.6rem; color:#a1a1aa;">Connecting...</div>
+            </div>
+        </div>
+
         <!-- Floating Dropdown Menu -->
         <div class="feature-menu-panel" id="feature-dropdown-menu">
             <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
@@ -750,6 +807,7 @@
 
                             updatePresence(activeUid, activeName);
                             subscribeToActiveRoom(activeRoom);
+                            startGlobalHudSync();
                         });
                     })
                     .catch((err) => console.warn("Persistence set error:", err));
@@ -765,10 +823,53 @@
                     name: name,
                     lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                     online: true
-                }, { merge: true });
+                }, { merge: true }).catch(err => console.warn("Presence write blocked:", err));
             };
             sendHeartbeat();
-            setInterval(sendHeartbeat, 12000);
+            setInterval(sendHeartbeat, 10000);
+        }
+
+        // --- GLOBAL ONLINE USERS HUD PANEL ENGINE ---
+        function startGlobalHudSync() {
+            if (!db) return;
+            db.collection("users").limit(15).onSnapshot((snapshot) => {
+                const listEl = document.getElementById('hud-users-list');
+                const countEl = document.getElementById('hud-count');
+                if (!listEl) return;
+
+                listEl.innerHTML = '';
+                let onlineCount = 0;
+                const nowSec = Date.now() / 1000;
+
+                snapshot.forEach((doc) => {
+                    const u = doc.data();
+                    const lastSec = u.lastActive ? u.lastActive.seconds : 0;
+                    const diff = nowSec - lastSec;
+
+                    // Color Coding: Green (<30s active), Yellow (<90s idle), Grey (offline)
+                    let dotClass = 'status-grey';
+                    let statusLabel = 'Offline';
+                    if (diff < 35) {
+                        dotClass = 'status-green';
+                        statusLabel = 'Active';
+                        onlineCount++;
+                    } else if (diff < 120) {
+                        dotClass = 'status-yellow';
+                        statusLabel = 'Idle';
+                        onlineCount++;
+                    }
+
+                    const row = document.createElement('div');
+                    row.className = 'hud-user-row';
+                    row.innerHTML = `
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;" onclick="connectWithUser('${u.name || 'User'}', '${u.uid}')">${u.name || 'User'}</span>
+                        <span class="status-dot ${dotClass}" title="${statusLabel}"></span>
+                    `;
+                    listEl.appendChild(row);
+                });
+
+                countEl.innerText = `${onlineCount} active`;
+            }, (err) => console.warn("HUD panel listener standby:", err));
         }
 
         function toggleFeatureMenu() {
@@ -957,11 +1058,11 @@
                         chatContainer.appendChild(bubble);
                     });
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-                });
+                }, (err) => console.warn("Direct chat listener sync error:", err));
             }
         }
 
-        // --- CHAT MESSAGE DISPATCHER WITH TOUCH FIX ---
+        // --- CHAT MESSAGE DISPATCHER ---
         function sendChatMessage() {
             const box = document.getElementById('chat-box');
             if (!box) return;
@@ -1006,7 +1107,7 @@
             if (event.key === 'Enter') sendChatMessage();
         }
 
-        // --- GO LIVE & INTEGRATED PK BATTLE LOGIC ---
+        // --- GO LIVE & PK BATTLE SPLIT SCREEN CAMERA ENGINE ---
         function startLiveCamera() {
             closeTikTokModal('plus-modal');
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -1027,7 +1128,7 @@
                     `;
                     document.getElementById('local-live-video').srcObject = stream;
                 })
-                .catch((err) => alert("Camera error: " + err.message));
+                .catch((err) => alert("Camera permission error: " + err.message));
         }
 
         let isPkActive = false;
@@ -1039,10 +1140,9 @@
 
             if (isPkActive) {
                 if (opponentPane) opponentPane.style.display = 'flex';
-                // Clone local stream or attach dummy simulation source for opponent testing view
                 const localVideo = document.getElementById('local-live-video');
                 if (localVideo && localVideo.srcObject) {
-                    opponentVideo.srcObject = localVideo.srcObject;
+                    opponentVideo.srcObject = localVideo.srcObject; // Mirrors feed for instant challenge testing
                 }
                 pkBtn.innerText = '⏹ End PK Battle';
                 pkBtn.style.background = '#ef4444';
