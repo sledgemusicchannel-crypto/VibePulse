@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VibePulse — Real-Time Social & Stream Network</title>
 
+    <!-- Lemon Squeezy SDK -->
+    <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+
     <!-- Firebase Web SDK (v10 Compat Layer) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -758,6 +761,7 @@
         let usersUnsubscribe = null;
         let directUnsubscribe = null;
         let allRegisteredUsers = [];
+        let pendingDiamondAmount = 0; // Tracks diamond amount for checkout purchase
 
         // Persistent Local Identity
         function getDeviceUser() {
@@ -785,7 +789,7 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
 
-                // CRITICAL FIX: Force local storage persistence so app doesn't log out on swipe/close
+                // Force local storage persistence so app doesn't log out on swipe/close
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
                     .then(() => {
                         auth.onAuthStateChanged((user) => {
@@ -812,11 +816,54 @@
                             updatePresence(activeUid, activeName);
                             subscribeToActiveRoom(activeRoom);
                             startGlobalHudSync();
+                            
+                            // Real-time synchronization of wallet balance from Firestore
+                            if (db) {
+                                db.collection("users").doc(activeUid).onSnapshot((doc) => {
+                                    if (doc.exists) {
+                                        const balance = doc.data().diamonds || 0;
+                                        const walletCountEl = document.getElementById('wallet-coins-count');
+                                        if (walletCountEl) walletCountEl.innerText = `💎 ${balance} Diamonds`;
+                                    }
+                                });
+                            }
                         });
                     })
                     .catch((err) => console.warn("Persistence set error:", err));
             }
         } catch (e) { console.warn("Firebase standby mode:", e); }
+
+        // --- Lemon Squeezy SDK Setup for Client-Side Redirect & Balance Crediting ---
+        window.createLemonSqueezy = () => {
+            LemonSqueezy.Setup({
+                eventHandler: (event) => {
+                    if (event.event === 'Checkout.Success') {
+                        console.log("Payment successful event received:", event);
+                        creditDiamondsToUser();
+                        closeTikTokModal('shop-modal');
+                    }
+                }
+            });
+        };
+
+        // Credit Diamond Balance to Firestore upon successful purchase
+        function creditDiamondsToUser() {
+            const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+            if (!activeUid || pendingDiamondAmount <= 0) return;
+
+            if (db) {
+                db.collection("users").doc(activeUid).set({
+                    diamonds: firebase.firestore.FieldValue.increment(pendingDiamondAmount)
+                }, { merge: true })
+                .then(() => {
+                    alert(`🎉 Success! ${pendingDiamondAmount} Diamonds credited to your wallet.`);
+                    pendingDiamondAmount = 0;
+                })
+                .catch((error) => {
+                    console.error("Error updating diamond balance:", error);
+                });
+            }
+        }
 
         function updatePresence(uid, name) {
             if (!db) return;
@@ -850,7 +897,6 @@
                     const lastSec = u.lastActive ? u.lastActive.seconds : 0;
                     const diff = nowSec - lastSec;
 
-                    // Color Coding: Green (<30s active), Yellow (<90s idle), Grey (offline)
                     let dotClass = 'status-grey';
                     let statusLabel = 'Offline';
                     if (diff < 35) {
@@ -1146,7 +1192,7 @@
                 if (opponentPane) opponentPane.style.display = 'flex';
                 const localVideo = document.getElementById('local-live-video');
                 if (localVideo && localVideo.srcObject) {
-                    opponentVideo.srcObject = localVideo.srcObject; // Mirrors feed for instant challenge testing
+                    opponentVideo.srcObject = localVideo.srcObject;
                 }
                 pkBtn.innerText = '⏹ End PK Battle';
                 pkBtn.style.background = '#ef4444';
@@ -1206,7 +1252,7 @@
                         🎁 <b>Virtual Gift Store</b><br><br>
                         <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-bottom:10px;">
                             <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose (10 Diamonds)')">🌹 Rose (10)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💎 Ring (50)')">💍 Ring (50)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💍 Ring (50)')">💍 Ring (50)</button>
                             <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket (200)')">🚀 Rocket (200)</button>
                             <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown (500)')">👑 Crown (500)</button>
                         </div>
@@ -1345,14 +1391,28 @@
             }
         }
 
+        // --- LEMON SQUEEZY CHECKOUT TRIGGER WITH USER ID TRACKING ---
         function buyCoinsCheckout(sku, coinAmount, priceUsd) {
             const cardPaymentLinks = {
                 'vibepulse_coins_100': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc',
                 'vibepulse_coins_500': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012',
                 'vibepulse_coins_2000': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f'
             };
-            const checkoutUrl = cardPaymentLinks[sku];
-            if (checkoutUrl) window.open(checkoutUrl, '_blank');
+            
+            const baseUrl = cardPaymentLinks[sku];
+            if (!baseUrl) return;
+
+            pendingDiamondAmount = coinAmount;
+            const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+
+            // Pass user_id via custom data parameter for tracking
+            const checkoutUrlWithUser = `${baseUrl}?checkout[custom][user_id]=${activeUid}`;
+
+            if (window.LemonSqueezy) {
+                LemonSqueezy.Url.Open(checkoutUrlWithUser);
+            } else {
+                window.open(checkoutUrlWithUser, '_blank');
+            }
         }
     </script>
 </body>
