@@ -391,18 +391,59 @@
             align-items: center;
             gap: 6px;
             width: 100%;
+            position: relative;
         }
 
         .chat-input {
             flex: 1;
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 8px 12px;
+            padding: 8px 36px 8px 12px; /* Extra right padding for emoji button */
             border-radius: 20px;
             color: white;
             font-size: 0.78rem;
             outline: none;
         }
+
+        /* Emoji Sign Button inside chat input */
+        .emoji-picker-toggle {
+            position: absolute;
+            right: 68px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        /* Emoji Drawer Popup Panel */
+        .emoji-drawer {
+            display: none;
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            background: rgba(24, 24, 27, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 8px;
+            width: 240px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            z-index: 60;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        }
+        .emoji-drawer.active { display: grid !important; }
+        .emoji-item {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-align: center;
+            padding: 4px;
+            border-radius: 6px;
+        }
+        .emoji-item:hover { background: rgba(255,255,255,0.15); }
 
         .chat-send-btn {
             background: var(--accent-pink);
@@ -413,6 +454,50 @@
             font-weight: bold;
             font-size: 0.78rem;
             cursor: pointer;
+        }
+
+        /* Voice Translator Widget Bar */
+        .translator-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(24, 24, 27, 0.85);
+            padding: 4px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            font-size: 0.7rem;
+        }
+        .translator-select {
+            background: #09090b;
+            color: #fff;
+            border: 1px solid #3f3f46;
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            outline: none;
+        }
+        .mic-btn {
+            background: #25f4ee;
+            color: #000;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mic-btn.recording {
+            background: #ef4444;
+            color: #fff;
+            animation: pulse-mic 1s infinite;
+        }
+        @keyframes pulse-mic {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         /* Bottom Nav */
@@ -602,13 +687,49 @@
 
         <!-- Bottom Overlay -->
         <div class="bottom-overlay">
-            <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
+                
+                <!-- Voice Translator Widget for PK & Live Chat -->
+                <div class="translator-bar">
+                    <span>🌐</span>
+                    <select id="target-lang-select" class="translator-select">
+                        <option value="en">English 🇬🇧</option>
+                        <option value="vi">Vietnamese 🇻🇳</option>
+                        <option value="es">Spanish 🇪🇸</option>
+                        <option value="fr">French 🇫🇷</option>
+                        <option value="zh">Chinese 🇨🇳</option>
+                    </select>
+                    <button class="mic-btn" id="mic-translate-btn" onclick="toggleVoiceSpeechTranslation()">🎤 Speak</button>
+                </div>
+            </div>
+
             <div class="chat-feed" id="chat-messages-container">
                 <div class="chat-bubble">🟢 <b>System:</b> Connected to VibePulse live network.</div>
             </div>
             
             <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
                 <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
+                
+                <!-- Emoji Sign Button on the right side of input -->
+                <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
+
+                <!-- Emoji Drawer Popup -->
+                <div class="emoji-drawer" id="emoji-popup-drawer">
+                    <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('😂')">😂</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('😍')">😍</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('🔥')">🔥</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('👍')">👍</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('❤️')">❤️</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('🚀')">🚀</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('💎')">💎</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('🎉')">🎉</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('😎')">😎</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('✨')">✨</button>
+                    <button type="button" class="emoji-item" onclick="insertEmoji('👏')">👏</button>
+                </div>
+
                 <button type="submit" class="chat-send-btn" id="send-btn" onclick="sendChatMessage()" ontouchstart="sendChatMessage()">Send</button>
             </form>
         </div>
@@ -994,6 +1115,77 @@
             openTikTokModal('auth-modal');
         }
 
+        // --- EMOJI PICKER DRAWER LOGIC ---
+        function toggleEmojiDrawer() {
+            const drawer = document.getElementById('emoji-popup-drawer');
+            drawer.classList.toggle('active');
+        }
+
+        function insertEmoji(emoji) {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.value += emoji;
+            chatBox.focus();
+            document.getElementById('emoji-popup-drawer').classList.remove('active');
+        }
+
+        // --- VOICE CAPTURING & LIVE TRANSLATION LOGIC ---
+        let recognition = null;
+        let isRecordingVoice = false;
+
+        function toggleVoiceSpeechTranslation() {
+            const micBtn = document.getElementById('mic-translate-btn');
+            const targetLang = document.getElementById('target-lang-select').value;
+
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Speech recognition is not supported in your browser. Try Chrome or Safari.");
+                return;
+            }
+
+            if (isRecordingVoice) {
+                if (recognition) recognition.stop();
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = targetLang === 'vi' ? 'vi-VN' : targetLang === 'es' ? 'es-ES' : targetLang === 'fr' ? 'fr-FR' : targetLang === 'zh' ? 'zh-CN' : 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isRecordingVoice = true;
+                micBtn.classList.add('recording');
+                micBtn.innerText = '🔴 Listening...';
+            };
+
+            recognition.onresult = (event) => {
+                const speechText = event.results[0][0].transcript;
+                // Automatically prefix translated voice text into chat input box
+                const chatBox = document.getElementById('chat-box');
+                chatBox.value = `🌐 [Voice Translate (${targetLang.toUpperCase()}): ${speechText}`;
+                sendChatMessage();
+            };
+
+            recognition.onerror = () => {
+                stopMicState();
+            };
+
+            recognition.onend = () => {
+                stopMicState();
+            };
+
+            recognition.start();
+        }
+
+        function stopMicState() {
+            isRecordingVoice = false;
+            const micBtn = document.getElementById('mic-translate-btn');
+            if (micBtn) {
+                micBtn.classList.remove('recording');
+                micBtn.innerText = '🎤 Speak';
+            }
+        }
+
         function handleBackNavigation() {
             const preview = document.getElementById('preview-area');
             preview.innerHTML = `
@@ -1177,6 +1369,7 @@
 
             box.value = '';
             box.blur();
+            document.getElementById('emoji-popup-drawer').classList.remove('active');
 
             const myHandle = document.getElementById('user-display').innerText || "Guest";
 
