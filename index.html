@@ -724,6 +724,18 @@
                 <div style="font-size: 0.75rem; color: #a1a1aa;">Your Wallet Balance</div>
                 <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-coins-count">💎 0 Diamonds</div>
             </div>
+            
+            <!-- Creator Earnings & Withdrawal Dashboard Section -->
+            <div style="background: #09090b; padding: 10px; border-radius: 8px; border: 1px solid #27272a; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Creator Earnings (80% Split)</span>
+                    <span style="font-size: 0.8rem; font-weight: bold; color: #fff;" id="wallet-earned-count">💎 0 Earned</span>
+                </div>
+                <div style="font-size: 0.68rem; color: #a1a1aa;">Convert earned stream diamonds to cash payouts via Vietcombank.</div>
+                <input type="text" id="vietcombank-account" class="input-field" placeholder="Vietcombank Account Number & Name" style="padding:6px 8px; font-size:0.75rem;">
+                <button class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem;" onclick="requestFundWithdrawal()">📥 Request Withdrawal</button>
+            </div>
+
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
                     <div><strong>💎 100 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$1.00 USD</div></div>
@@ -817,13 +829,16 @@
                             subscribeToActiveRoom(activeRoom);
                             startGlobalHudSync();
                             
-                            // Real-time synchronization of wallet balance from Firestore
+                            // Real-time synchronization of wallet balance & earnings from Firestore
                             if (db) {
                                 db.collection("users").doc(activeUid).onSnapshot((doc) => {
                                     if (doc.exists) {
                                         const balance = doc.data().diamonds || 0;
+                                        const earned = doc.data().earnedDiamonds || 0;
                                         const walletCountEl = document.getElementById('wallet-coins-count');
+                                        const walletEarnedEl = document.getElementById('wallet-earned-count');
                                         if (walletCountEl) walletCountEl.innerText = `💎 ${balance} Diamonds`;
+                                        if (walletEarnedEl) walletEarnedEl.innerText = `💎 ${earned} Earned`;
                                     }
                                 });
                             }
@@ -847,7 +862,7 @@
                             window.history.replaceState({}, document.title, window.location.pathname);
                         });
                     }
-                }, 1500); // Small delay to allow Firebase Auth to initialize
+                }, 1500);
             }
         });
 
@@ -1265,14 +1280,15 @@
             let contentHtml = '';
             
             if (action === 'gifts') {
+                const targetUid = activeDirectTarget ? activeDirectTarget.uid : null;
                 contentHtml = `
                     <div class="media-placeholder" style="background:rgba(5, 150, 105, 0.15); border: 2px dashed #059669; padding:16px; border-radius:14px;">
-                        🎁 <b>Virtual Gift Store</b><br><br>
+                        🎁 <b>Virtual Gift Store (80% Creator / 20% Platform)</b><br><br>
                         <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-bottom:10px;">
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose (10 Diamonds)')">🌹 Rose (10)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💍 Ring (50)')">💍 Ring (50)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket (200)')">🚀 Rocket (200)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown (500)')">👑 Crown (500)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose', 10, '${targetUid}')">🌹 Rose (10 💎)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💍 Ring', 50, '${targetUid}')">💍 Ring (50 💎)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket', 200, '${targetUid}')">🚀 Rocket (200 💎)</button>
+                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown', 500, '${targetUid}')">👑 Crown (500 💎)</button>
                         </div>
                     </div>`;
             } else if (action === 'jukebox') {
@@ -1310,16 +1326,104 @@
             }
         }
 
-        function sendGiftItem(giftName) {
-            const handle = document.getElementById('user-display').innerText;
-            if (db) {
-                db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-                    sender: "🎁 GIFT EVENT",
-                    text: `${handle} sent ${giftName}!`,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        // --- STREAM GIFT WITH 20% COMMISSION SPLIT ---
+        function sendGiftItem(giftName, diamondCost, streamerUid) {
+            const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+            const handle = document.getElementById('user-display').innerText || "Guest";
+
+            if (!db || !activeUid) return;
+
+            const userRef = db.collection("users").doc(activeUid);
+
+            userRef.get().then((doc) => {
+                if (!doc.exists) return;
+                const currentDiamonds = doc.data().diamonds || 0;
+
+                if (currentDiamonds < diamondCost) {
+                    alert(`⚠️ Insufficient Diamonds! You need ${diamondCost} Diamonds for a ${giftName}.`);
+                    openTikTokModal('shop-modal');
+                    return;
+                }
+
+                const streamerShare = Math.floor(diamondCost * 0.80);
+                const platformShare = diamondCost - streamerShare;
+
+                const batch = db.batch();
+
+                // Deduct from sender
+                batch.update(userRef, {
+                    diamonds: firebase.firestore.FieldValue.increment(-diamondCost)
                 });
+
+                // Credit 80% to streamer if valid ID exists, otherwise credit platform master
+                if (streamerUid && streamerUid !== "null" && streamerUid !== activeUid) {
+                    const streamerRef = db.collection("users").doc(streamerUid);
+                    batch.set(streamerRef, {
+                        earnedDiamonds: firebase.firestore.FieldValue.increment(streamerShare)
+                    }, { merge: true });
+                }
+
+                // Log platform 20% commission
+                const platformLedgerRef = db.collection("platform_stats").doc("revenue");
+                batch.set(platformLedgerRef, {
+                    totalPlatformCommission: firebase.firestore.FieldValue.increment(platformShare)
+                }, { merge: true });
+
+                batch.commit().then(() => {
+                    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+                        sender: "🎁 GIFT EVENT",
+                        text: `${handle} sent ${giftName} (💎${diamondCost})! Creator got ${streamerShare} 💎, Platform got ${platformShare} 💎.`,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert(`🎉 Sent ${giftName}! ${streamerShare} 💎 sent to creator, ${platformShare} 💎 retained as 20% platform fee.`);
+                }).catch(err => console.error("Gift processing error:", err));
+            });
+        }
+
+        // --- CREATOR FUND WITHDRAWAL FEATURE ---
+        function requestFundWithdrawal() {
+            const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+            const bankDetails = document.getElementById('vietcombank-account').value.trim();
+
+            if (!bankDetails) {
+                alert("Please enter your Vietcombank account details.");
+                return;
             }
-            alert(`Sent ${giftName}! Broadcasted to active stream.`);
+
+            if (!db) return;
+
+            const userRef = db.collection("users").doc(activeUid);
+            userRef.get().then((doc) => {
+                if (!doc.exists) return;
+                const earned = doc.data().earnedDiamonds || 0;
+
+                if (earned < 100) {
+                    alert("⚠️ Minimum withdrawal is 100 Earned Diamonds ($1.00 USD equivalent).");
+                    return;
+                }
+
+                // Deduct earned balance and log withdrawal request
+                db.runTransaction((transaction) => {
+                    return transaction.get(userRef).then((res) => {
+                        const currentEarned = res.data().earnedDiamonds || 0;
+                        if (currentEarned < earned) throw "Insufficient balance!";
+
+                        transaction.update(userRef, { earnedDiamonds: 0 });
+                        
+                        const payoutRef = db.collection("payout_requests").doc();
+                        transaction.set(payoutRef, {
+                            uid: activeUid,
+                            amountDiamonds: earned,
+                            bankInfo: bankDetails,
+                            status: "Pending Vietcombank Transfer",
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                }).then(() => {
+                    alert(`📥 Success! Withdrawal request for ${earned} Earned Diamonds submitted for Vietcombank transfer.`);
+                    document.getElementById('vietcombank-account').value = '';
+                }).catch((err) => alert("Withdrawal error: " + err));
+            });
         }
 
         // --- AUTH ACTIONS ---
@@ -1423,7 +1527,6 @@
             pendingDiamondAmount = coinAmount;
             const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
 
-            // Pass user_id via custom data parameter for tracking
             const checkoutUrlWithUser = `${baseUrl}?checkout[custom][user_id]=${activeUid}`;
 
             if (window.LemonSqueezy) {
