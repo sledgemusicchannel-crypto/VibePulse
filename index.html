@@ -782,6 +782,7 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
 
+                // CRITICAL FIX: Force local storage persistence so app doesn't log out on swipe/close
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
                     .then(() => {
                         auth.onAuthStateChanged((user) => {
