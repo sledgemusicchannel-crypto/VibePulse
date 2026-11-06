@@ -725,15 +725,37 @@
                 <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-coins-count">💎 0 Diamonds</div>
             </div>
             
-            <!-- Creator Earnings & Withdrawal Dashboard Section -->
+            <!-- Creator Earnings & Structured Withdrawal Dashboard Section -->
             <div style="background: #09090b; padding: 10px; border-radius: 8px; border: 1px solid #27272a; display: flex; flex-direction: column; gap: 6px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Creator Earnings (80% Split)</span>
                     <span style="font-size: 0.8rem; font-weight: bold; color: #fff;" id="wallet-earned-count">💎 0 Earned</span>
                 </div>
-                <div style="font-size: 0.68rem; color: #a1a1aa;">Convert earned stream diamonds to cash payouts via any bank account.</div>
-                <input type="text" id="vietcombank-account" class="input-field" placeholder="Bank Name, Account Number & Full Name" style="padding:6px 8px; font-size:0.75rem;">
-                <button class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem;" onclick="requestFundWithdrawal()">📥 Request Withdrawal</button>
+                <div style="font-size: 0.68rem; color: #a1a1aa;">Convert earned stream diamonds to cash payouts.</div>
+                
+                <!-- Bank Name Dropdown Selector -->
+                <select id="withdrawal-bank-name" class="input-field" style="padding:8px; font-size:0.75rem;">
+                    <option value="" disabled selected>Select Bank...</option>
+                    <option value="Vietcombank">Vietcombank</option>
+                    <option value="Techcombank">Techcombank</option>
+                    <option value="MB Bank">MB Bank</option>
+                    <option value="ACB">ACB</option>
+                    <option value="BIDV">BIDV</option>
+                    <option value="VietinBank">VietinBank</option>
+                    <option value="VPBank">VPBank</option>
+                    <option value="TPBank">TPBank</option>
+                    <option value="Sacombank">Sacombank</option>
+                    <option value="MoMo E-Wallet">MoMo E-Wallet</option>
+                    <option value="Other Bank">Other Bank</option>
+                </select>
+
+                <!-- Account Number Input -->
+                <input type="text" id="withdrawal-account-number" class="input-field" placeholder="Account Number" style="padding:6px 8px; font-size:0.75rem;">
+
+                <!-- Full Name Input -->
+                <input type="text" id="withdrawal-full-name" class="input-field" placeholder="Full Name (As on Bank Account)" style="padding:6px 8px; font-size:0.75rem;">
+
+                <button class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem;" onclick="requestFundWithdrawalStructured()">📥 Request Withdrawal</button>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -1380,19 +1402,31 @@
             });
         }
 
-        // --- CREATOR FUND WITHDRAWAL FEATURE ---
-        function requestFundWithdrawal() {
+        // --- STRUCTURED CREATOR FUND WITHDRAWAL ---
+        function requestFundWithdrawalStructured() {
             const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-            const bankDetails = document.getElementById('vietcombank-account').value.trim();
+            const bankName = document.getElementById('withdrawal-bank-name').value;
+            const accountNumber = document.getElementById('withdrawal-account-number').value.trim();
+            const fullName = document.getElementById('withdrawal-full-name').value.trim();
 
-            if (!bankDetails) {
-                alert("Please enter your bank account details.");
+            if (!bankName) {
+                alert("Please select your bank from the dropdown.");
+                return;
+            }
+            if (!accountNumber) {
+                alert("Please enter your account number.");
+                return;
+            }
+            if (!fullName) {
+                alert("Please enter the full name on the account.");
                 return;
             }
 
             if (!db) return;
 
+            const combinedBankInfo = `${bankName} - A/C: ${accountNumber} - Name: ${fullName}`;
             const userRef = db.collection("users").doc(activeUid);
+
             userRef.get().then((doc) => {
                 if (!doc.exists) return;
                 const earned = doc.data().earnedDiamonds || 0;
@@ -1402,7 +1436,6 @@
                     return;
                 }
 
-                // Deduct earned balance and log withdrawal request
                 db.runTransaction((transaction) => {
                     return transaction.get(userRef).then((res) => {
                         const currentEarned = res.data().earnedDiamonds || 0;
@@ -1414,14 +1447,16 @@
                         transaction.set(payoutRef, {
                             uid: activeUid,
                             amountDiamonds: earned,
-                            bankInfo: bankDetails,
+                            bankInfo: combinedBankInfo,
                             status: "Pending Bank Transfer",
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     });
                 }).then(() => {
-                    alert(`📥 Success! Withdrawal request for ${earned} Earned Diamonds submitted for bank transfer.`);
-                    document.getElementById('vietcombank-account').value = '';
+                    alert(`📥 Success! Withdrawal request for ${earned} Earned Diamonds submitted.`);
+                    document.getElementById('withdrawal-account-number').value = '';
+                    document.getElementById('withdrawal-full-name').value = '';
+                    document.getElementById('withdrawal-bank-name').selectedIndex = 0;
                 }).catch((err) => alert("Withdrawal error: " + err));
             });
         }
