@@ -934,6 +934,11 @@
         let pendingDiamondAmount = 0;
         let myUserLevel = 1;
 
+        // Session timestamp tracker so chat messages refresh cleanly each session
+        const currentSessionStartTime = (typeof firebase !== 'undefined' && firebase.firestore) 
+            ? firebase.firestore.Timestamp.now() 
+            : { seconds: Math.floor(Date.now() / 1000) };
+
         // Persistent Local Identity
         function getDeviceUser() {
             let localId = localStorage.getItem('vibepulse_uid');
@@ -1016,7 +1021,7 @@
                     if (activeUid && db) {
                         db.collection("users").doc(activeUid).set({
                             diamonds: firebase.firestore.FieldValue.increment(100),
-                            level: firebase.firestore.FieldValue.increment(1) // Level up reward on recharge!
+                            level: firebase.firestore.FieldValue.increment(1)
                         }, { merge: true }).then(() => {
                             alert("🎉 Payment Success! 100 Diamonds added and Profile Leveled Up!");
                             window.history.replaceState({}, document.title, window.location.pathname);
@@ -1227,6 +1232,7 @@
             subscribeToActiveRoom(roomName);
         }
 
+        // --- FRESH SESSION CHAT SUBSCRIPTION ---
         function subscribeToActiveRoom(roomName) {
             const chatContainer = document.getElementById('chat-messages-container');
             if (!chatContainer) return;
@@ -1234,9 +1240,15 @@
             if (roomUnsubscribe) roomUnsubscribe();
 
             if (db) {
-                const roomDocRef = db.collection("chat_rooms").doc(roomName).collection("messages").limit(50);
+                const roomDocRef = db.collection("chat_rooms")
+                    .doc(roomName)
+                    .collection("messages")
+                    .where('timestamp', '>=', currentSessionStartTime)
+                    .orderBy('timestamp', 'asc')
+                    .limit(50);
+
                 roomUnsubscribe = roomDocRef.onSnapshot((snapshot) => {
-                    chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName} Live Stream</div>`;
+                    chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Fresh session connected to ${roomName}</div>`;
                     snapshot.forEach((doc) => {
                         const m = doc.data();
                         const bubble = document.createElement('div');
@@ -1245,6 +1257,20 @@
                         chatContainer.appendChild(bubble);
                     });
                     chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, (err) => {
+                    console.warn("Query requires index or fallback:", err);
+                    // Fallback query without compound filter if index is building
+                    db.collection("chat_rooms").doc(roomName).collection("messages").limit(30).onSnapshot((snap) => {
+                        chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName}</div>`;
+                        snap.forEach((d) => {
+                            const m = d.data();
+                            const bubble = document.createElement('div');
+                            bubble.className = 'chat-bubble';
+                            bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${m.text}`;
+                            chatContainer.appendChild(bubble);
+                        });
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    });
                 });
             }
         }
@@ -1487,7 +1513,6 @@
             if (action === 'gifts') {
                 const targetUid = activeDirectTarget ? activeDirectTarget.uid : null;
                 
-                // Gated Gift List (Level 1 to Level 50 Tiers)
                 const levelGifts = [
                     { name: '🌹 Rose', cost: 1, reqLevel: 1, icon: '🌹', effect: '🌹' },
                     { name: '⭐ Star', cost: 99, reqLevel: 5, icon: '⭐', effect: '🌟' },
@@ -1541,7 +1566,6 @@
             preview.innerHTML = contentHtml;
         }
 
-        // --- SEND LEVEL GIFT WITH VISUAL EFFECT & 80/20 SPLIT ---
         function sendLevelGift(giftName, diamondCost, reqLevel, effectEmoji, streamerUid) {
             if (myUserLevel < reqLevel) {
                 alert(`🔒 Locked! You need to reach Level ${reqLevel} to unlock ${giftName}. Top up your wallet or level up to unlock!`);
@@ -1594,7 +1618,6 @@
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    // Trigger Visual Screen Effect Animation!
                     triggerScreenEffect(effectEmoji);
                     alert(`🎉 Sent ${giftName}! Visual effect played on stream.`);
                 }).catch(err => console.error("Gift processing error:", err));
