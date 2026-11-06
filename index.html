@@ -833,6 +833,24 @@
             }
         } catch (e) { console.warn("Firebase standby mode:", e); }
 
+        // --- AUTOMATED RETURN SUCCESS CHECKER ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('checkout') === 'success') {
+                setTimeout(() => {
+                    const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+                    if (activeUid && db) {
+                        db.collection("users").doc(activeUid).set({
+                            diamonds: firebase.firestore.FieldValue.increment(100) // Crediting 100 on test success return
+                        }, { merge: true }).then(() => {
+                            alert("🎉 Payment Success! 100 Diamonds added to your wallet.");
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        });
+                    }
+                }, 1500); // Small delay to allow Firebase Auth to initialize
+            }
+        });
+
         // --- Lemon Squeezy SDK Setup for Client-Side Redirect & Balance Crediting ---
         window.createLemonSqueezy = () => {
             LemonSqueezy.Setup({
