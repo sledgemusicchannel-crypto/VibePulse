@@ -208,9 +208,9 @@
             border-radius: 50%;
             display: inline-block;
         }
-        .status-green { background: #22c55e; box-shadow: 0 0 6px #22c55e; } /* Active */
-        .status-yellow { background: #eab308; box-shadow: 0 0 6px #eab308; } /* Idle / Away */
-        .status-grey { background: #71717a; } /* Offline */
+        .status-green { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .status-yellow { background: #eab308; box-shadow: 0 0 6px #eab308; }
+        .status-grey { background: #71717a; }
 
         /* Radio Controller Widget */
         .radio-widget {
@@ -398,14 +398,13 @@
             flex: 1;
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 8px 36px 8px 12px; /* Extra right padding for emoji button */
+            padding: 8px 36px 8px 12px;
             border-radius: 20px;
             color: white;
             font-size: 0.78rem;
             outline: none;
         }
 
-        /* Emoji Sign Button inside chat input */
         .emoji-picker-toggle {
             position: absolute;
             right: 68px;
@@ -416,7 +415,6 @@
             padding: 2px;
         }
 
-        /* Emoji Drawer Popup Panel */
         .emoji-drawer {
             display: none;
             position: absolute;
@@ -627,9 +625,25 @@
             cursor: pointer;
             text-align: left;
         }
+
+        /* Screen Effect Animation Overlay */
+        #effect-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 150;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            transition: all 0.5s ease;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Screen Animation Effect Overlay -->
+    <div id="effect-overlay"></div>
 
     <!-- Main Viewport Container -->
     <div class="app-viewport">
@@ -641,7 +655,7 @@
                 <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
             </div>
             <div class="right-header-group">
-                <div class="user-pill" id="user-display" onclick="openTikTokModal('profile-modal')">Guest</div>
+                <div class="user-pill" id="user-display" onclick="openTikTokModal('profile-modal')">Guest (Lvl 1)</div>
                 <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
             </div>
         </div>
@@ -659,7 +673,7 @@
             <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
             <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
             <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
-            <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send Stream Gifts</button>
+            <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send Level Gifts</button>
             <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">💎 Diamond Wallet</button>
             <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
         </div>
@@ -797,7 +811,7 @@
     <div class="tiktok-modal" id="profile-modal">
         <div class="modal-body-container">
             <div class="modal-header">
-                <span>👤 Profile & Address Book</span>
+                <span>👤 Profile & Level Progress</span>
                 <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
             </div>
             
@@ -807,6 +821,7 @@
                     <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="copyMyUserId()">📋 Copy My ID</button>
                 </div>
                 <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
+                <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (XP: 0/100)</div>
                 <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
                 <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
             </div>
@@ -916,7 +931,8 @@
         let usersUnsubscribe = null;
         let directUnsubscribe = null;
         let allRegisteredUsers = [];
-        let pendingDiamondAmount = 0; // Tracks diamond amount for checkout purchase
+        let pendingDiamondAmount = 0;
+        let myUserLevel = 1;
 
         // Persistent Local Identity
         function getDeviceUser() {
@@ -944,7 +960,6 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
 
-                // Force local storage persistence so app doesn't log out on swipe/close
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
                     .then(() => {
                         auth.onAuthStateChanged((user) => {
@@ -964,7 +979,7 @@
                                 if (signoutBtn) signoutBtn.style.display = "none";
                             }
 
-                            document.getElementById('user-display').innerText = activeName;
+                            document.getElementById('user-display').innerText = `${activeName} (Lvl ${myUserLevel})`;
                             document.getElementById('profile-card-name').innerText = activeName;
                             document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
 
@@ -972,16 +987,18 @@
                             subscribeToActiveRoom(activeRoom);
                             startGlobalHudSync();
                             
-                            // Real-time synchronization of wallet balance & earnings from Firestore
                             if (db) {
                                 db.collection("users").doc(activeUid).onSnapshot((doc) => {
                                     if (doc.exists) {
-                                        const balance = doc.data().diamonds || 0;
-                                        const earned = doc.data().earnedDiamonds || 0;
-                                        const walletCountEl = document.getElementById('wallet-coins-count');
-                                        const walletEarnedEl = document.getElementById('wallet-earned-count');
-                                        if (walletCountEl) walletCountEl.innerText = `💎 ${balance} Diamonds`;
-                                        if (walletEarnedEl) walletEarnedEl.innerText = `💎 ${earned} Earned`;
+                                        const data = doc.data();
+                                        const balance = data.diamonds || 0;
+                                        const earned = data.earnedDiamonds || 0;
+                                        myUserLevel = data.level || 1;
+                                        
+                                        document.getElementById('wallet-coins-count').innerText = `💎 ${balance} Diamonds`;
+                                        document.getElementById('wallet-earned-count').innerText = `💎 ${earned} Earned`;
+                                        document.getElementById('user-display').innerText = `${activeName} (Lvl ${myUserLevel})`;
+                                        document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Gated 1-50)`;
                                     }
                                 });
                             }
@@ -991,7 +1008,6 @@
             }
         } catch (e) { console.warn("Firebase standby mode:", e); }
 
-        // --- AUTOMATED RETURN SUCCESS CHECKER ---
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('checkout') === 'success') {
@@ -999,9 +1015,10 @@
                     const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
                     if (activeUid && db) {
                         db.collection("users").doc(activeUid).set({
-                            diamonds: firebase.firestore.FieldValue.increment(100) // Crediting 100 on test success return
+                            diamonds: firebase.firestore.FieldValue.increment(100),
+                            level: firebase.firestore.FieldValue.increment(1) // Level up reward on recharge!
                         }, { merge: true }).then(() => {
-                            alert("🎉 Payment Success! 100 Diamonds added to your wallet.");
+                            alert("🎉 Payment Success! 100 Diamonds added and Profile Leveled Up!");
                             window.history.replaceState({}, document.title, window.location.pathname);
                         });
                     }
@@ -1009,12 +1026,10 @@
             }
         });
 
-        // --- Lemon Squeezy SDK Setup for Client-Side Redirect & Balance Crediting ---
         window.createLemonSqueezy = () => {
             LemonSqueezy.Setup({
                 eventHandler: (event) => {
                     if (event.event === 'Checkout.Success') {
-                        console.log("Payment successful event received:", event);
                         creditDiamondsToUser();
                         closeTikTokModal('shop-modal');
                     }
@@ -1022,21 +1037,18 @@
             });
         };
 
-        // Credit Diamond Balance to Firestore upon successful purchase
         function creditDiamondsToUser() {
             const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
             if (!activeUid || pendingDiamondAmount <= 0) return;
 
             if (db) {
                 db.collection("users").doc(activeUid).set({
-                    diamonds: firebase.firestore.FieldValue.increment(pendingDiamondAmount)
+                    diamonds: firebase.firestore.FieldValue.increment(pendingDiamondAmount),
+                    level: firebase.firestore.FieldValue.increment(1)
                 }, { merge: true })
                 .then(() => {
-                    alert(`🎉 Success! ${pendingDiamondAmount} Diamonds credited to your wallet.`);
+                    alert(`🎉 Success! ${pendingDiamondAmount} Diamonds credited and Level Up granted.`);
                     pendingDiamondAmount = 0;
-                })
-                .catch((error) => {
-                    console.error("Error updating diamond balance:", error);
                 });
             }
         }
@@ -1048,6 +1060,7 @@
                 userRef.set({
                     uid: uid,
                     name: name,
+                    level: myUserLevel,
                     lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                     online: true
                 }, { merge: true }).catch(err => console.warn("Presence write blocked:", err));
@@ -1056,7 +1069,6 @@
             setInterval(sendHeartbeat, 10000);
         }
 
-        // --- GLOBAL ONLINE USERS HUD PANEL ENGINE ---
         function startGlobalHudSync() {
             if (!db) return;
             db.collection("users").limit(15).onSnapshot((snapshot) => {
@@ -1088,7 +1100,7 @@
                     const row = document.createElement('div');
                     row.className = 'hud-user-row';
                     row.innerHTML = `
-                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;" onclick="connectWithUser('${u.name || 'User'}', '${u.uid}')">${u.name || 'User'}</span>
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;" onclick="connectWithUser('${u.name || 'User'}', '${u.uid}')">${u.name || 'User'} (Lvl ${u.level || 1})</span>
                         <span class="status-dot ${dotClass}" title="${statusLabel}"></span>
                     `;
                     listEl.appendChild(row);
@@ -1115,7 +1127,6 @@
             openTikTokModal('auth-modal');
         }
 
-        // --- EMOJI PICKER DRAWER LOGIC ---
         function toggleEmojiDrawer() {
             const drawer = document.getElementById('emoji-popup-drawer');
             drawer.classList.toggle('active');
@@ -1128,7 +1139,6 @@
             document.getElementById('emoji-popup-drawer').classList.remove('active');
         }
 
-        // --- VOICE CAPTURING & LIVE TRANSLATION LOGIC ---
         let recognition = null;
         let isRecordingVoice = false;
 
@@ -1137,7 +1147,7 @@
             const targetLang = document.getElementById('target-lang-select').value;
 
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("Speech recognition is not supported in your browser. Try Chrome or Safari.");
+                alert("Speech recognition is not supported in your browser.");
                 return;
             }
 
@@ -1160,20 +1170,13 @@
 
             recognition.onresult = (event) => {
                 const speechText = event.results[0][0].transcript;
-                // Automatically prefix translated voice text into chat input box
                 const chatBox = document.getElementById('chat-box');
                 chatBox.value = `🌐 [Voice Translate (${targetLang.toUpperCase()}): ${speechText}`;
                 sendChatMessage();
             };
 
-            recognition.onerror = () => {
-                stopMicState();
-            };
-
-            recognition.onend = () => {
-                stopMicState();
-            };
-
+            recognition.onerror = () => stopMicState();
+            recognition.onend = () => stopMicState();
             recognition.start();
         }
 
@@ -1224,7 +1227,6 @@
             subscribeToActiveRoom(roomName);
         }
 
-        // --- REAL-TIME ROOM MESSAGES ---
         function subscribeToActiveRoom(roomName) {
             const chatContainer = document.getElementById('chat-messages-container');
             if (!chatContainer) return;
@@ -1247,7 +1249,6 @@
             }
         }
 
-        // --- REAL-TIME ONLINE MEMBERS & FRIEND SEARCH LISTENER ---
         function subscribeToOnlineUsers() {
             const grid = document.getElementById('room-members-grid');
             if (!grid) return;
@@ -1265,7 +1266,7 @@
                         const isOnline = (nowSeconds - lastActiveSeconds) < 60;
                         u.isOnline = isOnline;
                         allRegisteredUsers.push(u);
-                        renderMemberCard(u.name || "User", u.uid, isOnline);
+                        renderMemberCard(u.name || "User", u.uid, u.isOnline, u.level || 1);
                     });
                 });
             }
@@ -1280,17 +1281,17 @@
                 (u.name && u.name.toLowerCase().includes(cleanQuery)) || 
                 (u.uid && u.uid.toLowerCase().includes(cleanQuery))
             );
-            filtered.forEach(u => renderMemberCard(u.name || "User", u.uid, u.isOnline));
+            filtered.forEach(u => renderMemberCard(u.name || "User", u.uid, u.isOnline, u.level || 1));
         }
 
-        function renderMemberCard(name, uid, isOnline) {
+        function renderMemberCard(name, uid, isOnline, userLvl) {
             const grid = document.getElementById('room-members-grid');
             if (!grid) return;
             const card = document.createElement('div');
             card.style.cssText = "background:rgba(255,255,255,0.08); padding:6px 8px; border-radius:8px; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);";
             card.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name}</span>
+                    <span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name} (Lvl ${userLvl})</span>
                     <span style="font-size:0.6rem; color:${isOnline ? '#25f4ee' : '#a1a1aa'};">${isOnline ? '🟢 Active' : '⚪ Offline'}</span>
                 </div>
                 <div style="font-size:0.65rem; color:#a1a1aa;">ID: ${uid}</div>
@@ -1330,7 +1331,6 @@
             }
         }
 
-        // --- REAL-TIME DIRECT MESSENGER ---
         function connectWithUser(targetName, targetUid) {
             activeDirectTarget = { name: targetName, uid: targetUid };
             document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
@@ -1359,7 +1359,6 @@
             }
         }
 
-        // --- CHAT MESSAGE DISPATCHER ---
         function sendChatMessage() {
             const box = document.getElementById('chat-box');
             if (!box) return;
@@ -1401,11 +1400,6 @@
             }
         }
 
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') sendChatMessage();
-        }
-
-        // --- GO LIVE & PK BATTLE SPLIT SCREEN CAMERA ENGINE ---
         function startLiveCamera() {
             closeTikTokModal('plus-modal');
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -1444,7 +1438,7 @@
                 }
                 pkBtn.innerText = '⏹ End PK Battle';
                 pkBtn.style.background = '#ef4444';
-                alert('⚔️ PK Battle Arena activated! Split-screen challenge live.');
+                alert('⚔️ PK Battle Arena activated!');
             } else {
                 if (opponentPane) opponentPane.style.display = 'none';
                 if (opponentVideo) opponentVideo.srcObject = null;
@@ -1453,7 +1447,6 @@
             }
         }
 
-        // --- RADIO PLAYER ENGINE ---
         function changeRadioStation(streamUrl) {
             const audio = document.getElementById('radio-audio');
             const btn = document.getElementById('radio-play-btn');
@@ -1461,10 +1454,7 @@
             audio.src = streamUrl;
             audio.load();
             
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => { btn.innerText = "⏸ Pause"; }).catch(() => { btn.innerText = "▶ Play"; });
-            }
+            audio.play().then(() => { btn.innerText = "⏸ Pause"; }).catch(() => { btn.innerText = "▶ Play"; });
         }
 
         function toggleRadio() {
@@ -1475,7 +1465,7 @@
             if (!audio.src) audio.src = select.value;
 
             if (audio.paused) {
-                audio.play().then(() => { btn.innerText = "⏸ Pause"; }).catch(() => alert("Tap Play again to start audio."));
+                audio.play().then(() => { btn.innerText = "⏸ Pause"; }).catch(() => alert("Tap Play again."));
             } else {
                 audio.pause();
                 btn.innerText = "▶ Play";
@@ -1489,21 +1479,44 @@
             document.getElementById('radio-play-btn').innerText = "▶ Play";
         }
 
-        // --- FEATURE ACTIONS ---
+        // --- LEVEL 1-50 GATED GIFT STORE SYSTEM ---
         function triggerAction(action) {
             const preview = document.getElementById('preview-area');
             let contentHtml = '';
             
             if (action === 'gifts') {
                 const targetUid = activeDirectTarget ? activeDirectTarget.uid : null;
+                
+                // Gated Gift List (Level 1 to Level 50 Tiers)
+                const levelGifts = [
+                    { name: '🌹 Rose', cost: 1, reqLevel: 1, icon: '🌹', effect: '🌹' },
+                    { name: '⭐ Star', cost: 99, reqLevel: 5, icon: '⭐', effect: '🌟' },
+                    { name: '💍 Diamond Ring', cost: 1099, reqLevel: 10, icon: '💍', effect: '💎' },
+                    { name: '🚀 Rocket', cost: 2000, reqLevel: 20, icon: '🚀', effect: '🚀' },
+                    { name: '👑 Royal Crown', cost: 5000, reqLevel: 35, icon: '👑', effect: '👑' },
+                    { name: '🪐 TikTok Universe', cost: 10000, reqLevel: 50, icon: '🌌', effect: '🌌' }
+                ];
+
+                let giftsGridHtml = '';
+                levelGifts.forEach(g => {
+                    const isLocked = myUserLevel < g.reqLevel;
+                    giftsGridHtml += `
+                        <div style="background:${isLocked ? '#27272a' : 'rgba(5, 150, 105, 0.2)'}; border:1px solid ${isLocked ? '#3f3f46' : '#059669'}; padding:8px; border-radius:10px; text-align:center; display:flex; flex-direction:column; gap:4px;">
+                            <div style="font-size:1.5rem;">${g.icon}</div>
+                            <div style="font-size:0.7rem; font-weight:bold; color:#fff;">${g.name}</div>
+                            <div style="font-size:0.65rem; color:var(--accent-cyan);">💎 ${g.cost}</div>
+                            <div style="font-size:0.6rem; color:${isLocked ? '#ef4444' : '#22c55e'}; font-weight:bold;">${isLocked ? '🔒 Lvl ' + g.reqLevel + ' Req' : '🔓 Unlocked'}</div>
+                            <button class="btn ${isLocked ? 'btn-secondary' : 'btn-primary'}" style="padding:4px; font-size:0.65rem;" onclick="sendLevelGift('${g.name}', ${g.cost}, ${g.reqLevel}, '${g.effect}', '${targetUid}')">Send Gift</button>
+                        </div>
+                    `;
+                });
+
                 contentHtml = `
-                    <div class="media-placeholder" style="background:rgba(5, 150, 105, 0.15); border: 2px dashed #059669; padding:16px; border-radius:14px;">
-                        🎁 <b>Virtual Gift Store (80% Creator / 20% Platform)</b><br><br>
-                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-bottom:10px;">
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🌹 Rose', 10, '${targetUid}')">🌹 Rose (10 💎)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('💍 Ring', 50, '${targetUid}')">💍 Ring (50 💎)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('🚀 Rocket', 200, '${targetUid}')">🚀 Rocket (200 💎)</button>
-                            <button class="btn btn-secondary" style="padding:8px; font-size:0.75rem;" onclick="sendGiftItem('👑 Crown', 500, '${targetUid}')">👑 Crown (500 💎)</button>
+                    <div class="media-placeholder" style="background:rgba(24, 24, 27, 0.95); border: 1px solid var(--accent-pink); padding:12px; border-radius:14px; max-height:85vh; overflow-y:auto;">
+                        🎁 <b>Level Gated Gift Store (Levels 1 - 50)</b><br>
+                        <div style="font-size:0.7rem; color:#a1a1aa; margin-bottom:8px;">Your Current Level: <b>⭐ Lvl ${myUserLevel}</b></div>
+                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
+                            ${giftsGridHtml}
                         </div>
                     </div>`;
             } else if (action === 'jukebox') {
@@ -1511,21 +1524,95 @@
                     <div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:16px; border-radius:14px; width:95%;">
                         🎵 <b>Live YouTube Jukebox Player</b><br><br>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link (https://youtu.be/...)..." style="font-size:0.8rem; padding:8px;">
+                            <input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link..." style="font-size:0.8rem; padding:8px;">
                             <button class="btn btn-primary" style="padding:8px; font-size:0.8rem;" onclick="playYouTubeTrack()">Fetch & Play Track ▶</button>
                         </div>
                         <div id="youtube-player-frame" style="margin-top:10px; width:100%; height:170px; background:#000; border-radius:8px; overflow:hidden; display:flex; justify-content:center; align-items:center; color:#aaa; font-size:0.75rem;">
-                            Player ready. Paste link above to start listening.
+                            Player ready.
                         </div>
                     </div>`;
             } else if (action === 'inbox') {
                 contentHtml = `
                     <div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:20px; border-radius:14px;">
                         💬 <b>Messenger & Direct Chats</b><br><br>
-                        <div style="font-size:0.75rem; color:#a1a1aa;">Direct 1-on-1 chats synced via User ID. Use bottom chat bar to message.</div>
+                        <div style="font-size:0.75rem; color:#a1a1aa;">Direct 1-on-1 chats synced via User ID.</div>
                     </div>`;
             }
             preview.innerHTML = contentHtml;
+        }
+
+        // --- SEND LEVEL GIFT WITH VISUAL EFFECT & 80/20 SPLIT ---
+        function sendLevelGift(giftName, diamondCost, reqLevel, effectEmoji, streamerUid) {
+            if (myUserLevel < reqLevel) {
+                alert(`🔒 Locked! You need to reach Level ${reqLevel} to unlock ${giftName}. Top up your wallet or level up to unlock!`);
+                openTikTokModal('shop-modal');
+                return;
+            }
+
+            const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+            const handle = document.getElementById('user-display').innerText || "Guest";
+
+            if (!db || !activeUid) return;
+
+            const userRef = db.collection("users").doc(activeUid);
+
+            userRef.get().then((doc) => {
+                if (!doc.exists) return;
+                const currentDiamonds = doc.data().diamonds || 0;
+
+                if (currentDiamonds < diamondCost) {
+                    alert(`⚠️ Insufficient Diamonds! You need ${diamondCost} Diamonds for ${giftName}.`);
+                    openTikTokModal('shop-modal');
+                    return;
+                }
+
+                const streamerShare = Math.floor(diamondCost * 0.80);
+                const platformShare = diamondCost - streamerShare;
+
+                const batch = db.batch();
+
+                batch.update(userRef, {
+                    diamonds: firebase.firestore.FieldValue.increment(-diamondCost)
+                });
+
+                if (streamerUid && streamerUid !== "null" && streamerUid !== activeUid) {
+                    const streamerRef = db.collection("users").doc(streamerUid);
+                    batch.set(streamerRef, {
+                        earnedDiamonds: firebase.firestore.FieldValue.increment(streamerShare)
+                    }, { merge: true });
+                }
+
+                const platformLedgerRef = db.collection("platform_stats").doc("revenue");
+                batch.set(platformLedgerRef, {
+                    totalPlatformCommission: firebase.firestore.FieldValue.increment(platformShare)
+                }, { merge: true });
+
+                batch.commit().then(() => {
+                    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+                        sender: "🎁 LEVEL GIFT EVENT",
+                        text: `${handle} sent ${giftName} (💎${diamondCost})! Effect triggered!`,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Trigger Visual Screen Effect Animation!
+                    triggerScreenEffect(effectEmoji);
+                    alert(`🎉 Sent ${giftName}! Visual effect played on stream.`);
+                }).catch(err => console.error("Gift processing error:", err));
+            });
+        }
+
+        function triggerScreenEffect(emoji) {
+            const overlay = document.getElementById('effect-overlay');
+            if (!overlay) return;
+            overlay.innerText = emoji;
+            overlay.style.transform = "scale(3)";
+            overlay.style.opacity = "1";
+
+            setTimeout(() => {
+                overlay.style.transform = "scale(1)";
+                overlay.style.opacity = "0";
+                overlay.innerText = "";
+            }, 1500);
         }
 
         function playYouTubeTrack() {
@@ -1541,79 +1628,15 @@
             }
         }
 
-        // --- STREAM GIFT WITH 20% COMMISSION SPLIT ---
-        function sendGiftItem(giftName, diamondCost, streamerUid) {
-            const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-            const handle = document.getElementById('user-display').innerText || "Guest";
-
-            if (!db || !activeUid) return;
-
-            const userRef = db.collection("users").doc(activeUid);
-
-            userRef.get().then((doc) => {
-                if (!doc.exists) return;
-                const currentDiamonds = doc.data().diamonds || 0;
-
-                if (currentDiamonds < diamondCost) {
-                    alert(`⚠️ Insufficient Diamonds! You need ${diamondCost} Diamonds for a ${giftName}.`);
-                    openTikTokModal('shop-modal');
-                    return;
-                }
-
-                const streamerShare = Math.floor(diamondCost * 0.80);
-                const platformShare = diamondCost - streamerShare;
-
-                const batch = db.batch();
-
-                // Deduct from sender
-                batch.update(userRef, {
-                    diamonds: firebase.firestore.FieldValue.increment(-diamondCost)
-                });
-
-                // Credit 80% to streamer if valid ID exists, otherwise credit platform master
-                if (streamerUid && streamerUid !== "null" && streamerUid !== activeUid) {
-                    const streamerRef = db.collection("users").doc(streamerUid);
-                    batch.set(streamerRef, {
-                        earnedDiamonds: firebase.firestore.FieldValue.increment(streamerShare)
-                    }, { merge: true });
-                }
-
-                // Log platform 20% commission
-                const platformLedgerRef = db.collection("platform_stats").doc("revenue");
-                batch.set(platformLedgerRef, {
-                    totalPlatformCommission: firebase.firestore.FieldValue.increment(platformShare)
-                }, { merge: true });
-
-                batch.commit().then(() => {
-                    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-                        sender: "🎁 GIFT EVENT",
-                        text: `${handle} sent ${giftName} (💎${diamondCost})! Creator got ${streamerShare} 💎, Platform got ${platformShare} 💎.`,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert(`🎉 Sent ${giftName}! ${streamerShare} 💎 sent to creator, ${platformShare} 💎 retained as 20% platform fee.`);
-                }).catch(err => console.error("Gift processing error:", err));
-            });
-        }
-
-        // --- STRUCTURED CREATOR FUND WITHDRAWAL ---
         function requestFundWithdrawalStructured() {
             const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
             const bankName = document.getElementById('withdrawal-bank-name').value;
             const accountNumber = document.getElementById('withdrawal-account-number').value.trim();
             const fullName = document.getElementById('withdrawal-full-name').value.trim();
 
-            if (!bankName) {
-                alert("Please select your bank from the dropdown.");
-                return;
-            }
-            if (!accountNumber) {
-                alert("Please enter your account number.");
-                return;
-            }
-            if (!fullName) {
-                alert("Please enter the full name on the account.");
-                return;
-            }
+            if (!bankName) { alert("Please select your bank from the dropdown."); return; }
+            if (!accountNumber) { alert("Please enter your account number."); return; }
+            if (!fullName) { alert("Please enter the full name on the account."); return; }
 
             if (!db) return;
 
@@ -1654,7 +1677,6 @@
             });
         }
 
-        // --- AUTH ACTIONS ---
         function executeAuthAction() {
             const emailInput = document.getElementById('auth-email');
             const passwordInput = document.getElementById('auth-password');
@@ -1668,7 +1690,7 @@
 
             if (!auth) {
                 localStorage.setItem('vibepulse_name', username);
-                document.getElementById('user-display').innerText = username;
+                document.getElementById('user-display').innerText = `${username} (Lvl ${myUserLevel})`;
                 document.getElementById('profile-card-name').innerText = username;
                 closeTikTokModal('auth-modal');
                 alert(`Signed in as ${username}!`);
@@ -1706,7 +1728,7 @@
             if (name) {
                 localStorage.setItem('vibepulse_name', name);
                 document.getElementById('profile-card-name').innerText = name;
-                document.getElementById('user-display').innerText = name;
+                document.getElementById('user-display').innerText = `${name} (Lvl ${myUserLevel})`;
             }
             if (bio) document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
 
@@ -1741,7 +1763,6 @@
             }
         }
 
-        // --- LEMON SQUEEZY CHECKOUT TRIGGER WITH USER ID TRACKING ---
         function buyCoinsCheckout(sku, coinAmount, priceUsd) {
             const cardPaymentLinks = {
                 'vibepulse_coins_100': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc',
@@ -1754,7 +1775,6 @@
 
             pendingDiamondAmount = coinAmount;
             const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-
             const checkoutUrlWithUser = `${baseUrl}?checkout[custom][user_id]=${activeUid}`;
 
             if (window.LemonSqueezy) {
