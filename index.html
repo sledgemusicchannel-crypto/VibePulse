@@ -731,8 +731,8 @@
                     <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Creator Earnings (80% Split)</span>
                     <span style="font-size: 0.8rem; font-weight: bold; color: #fff;" id="wallet-earned-count">💎 0 Earned</span>
                 </div>
-                <div style="font-size: 0.68rem; color: #a1a1aa;">Convert earned stream diamonds to cash payouts via Vietcombank.</div>
-                <input type="text" id="vietcombank-account" class="input-field" placeholder="Vietcombank Account Number & Name" style="padding:6px 8px; font-size:0.75rem;">
+                <div style="font-size: 0.68rem; color: #a1a1aa;">Convert earned stream diamonds to cash payouts via any bank account.</div>
+                <input type="text" id="vietcombank-account" class="input-field" placeholder="Bank Name, Account Number & Full Name" style="padding:6px 8px; font-size:0.75rem;">
                 <button class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem;" onclick="requestFundWithdrawal()">📥 Request Withdrawal</button>
             </div>
 
@@ -1386,7 +1386,7 @@
             const bankDetails = document.getElementById('vietcombank-account').value.trim();
 
             if (!bankDetails) {
-                alert("Please enter your Vietcombank account details.");
+                alert("Please enter your bank account details.");
                 return;
             }
 
@@ -1415,12 +1415,12 @@
                             uid: activeUid,
                             amountDiamonds: earned,
                             bankInfo: bankDetails,
-                            status: "Pending Vietcombank Transfer",
+                            status: "Pending Bank Transfer",
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     });
                 }).then(() => {
-                    alert(`📥 Success! Withdrawal request for ${earned} Earned Diamonds submitted for Vietcombank transfer.`);
+                    alert(`📥 Success! Withdrawal request for ${earned} Earned Diamonds submitted for bank transfer.`);
                     document.getElementById('vietcombank-account').value = '';
                 }).catch((err) => alert("Withdrawal error: " + err));
             });
