@@ -470,6 +470,22 @@ body {
 }
 .emoji-item:hover { background: rgba(255,255,255,0.15); }
 
+/* TikTok Live Laughing Button */
+.laugh-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 7px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+}
+.laugh-btn:active { transform: scale(1.2); }
+
 .chat-send-btn {
   background: var(--accent-pink);
   color: white;
@@ -685,12 +701,41 @@ body {
   font-size: 4rem;
   transition: all 0.5s ease;
 }
+
+/* Floating Laughing Emoji Animation Container */
+#laugh-container {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  width: 100px;
+  height: 250px;
+  pointer-events: none;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.floating-laugh {
+  position: absolute;
+  bottom: 0;
+  right: 10px;
+  font-size: 2rem;
+  animation: floatUpLaugh 1.8s ease-out forwards;
+}
+
+@keyframes floatUpLaugh {
+  0% { transform: translateY(0) scale(0.6) rotate(0deg); opacity: 1; }
+  50% { transform: translateY(-120px) scale(1.2) rotate(15deg); opacity: 0.9; }
+  100% { transform: translateY(-240px) scale(1.5) rotate(-15deg); opacity: 0; }
+}
 </style>
 </head>
 <body>
 
 <!-- Screen Animation Effect Overlay -->
 <div id="effect-overlay"></div>
+
+<!-- Floating Laughing Emoji Container -->
+<div id="laugh-container"></div>
 
 <!-- Main Viewport Container -->
 <div class="app-viewport">
@@ -702,7 +747,7 @@ body {
       <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
     </div>
 
-    <!-- Voice Translator Widget (Repositioned next to Live logo) -->
+    <!-- Voice Translator Widget -->
     <div class="translator-top-bar">
       <select id="target-lang-select" class="translator-select">
         <option value="en">English 🇬🇧</option>
@@ -731,7 +776,7 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
-    <!-- Moved Local Radio Section into Dropdown Menu -->
+    <!-- Local Radio Section into Dropdown Menu -->
     <div class="menu-radio-section">
       <div class="menu-radio-title">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
@@ -771,6 +816,9 @@ body {
       <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
       <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
       
+      <!-- TikTok Laugh Button -->
+      <button type="button" class="laugh-btn" onclick="triggerLaughEffect()" title="Send Laugh Effect 😂">😂</button>
+
       <div class="emoji-drawer" id="emoji-popup-drawer">
         <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('😂')">😂</button>
@@ -816,7 +864,7 @@ body {
   </div>
 </div>
 
-<!-- 0. CHATROOM SELECTION MODAL -->
+<!-- CHATROOM SELECTION MODAL -->
 <div class="tiktok-modal" id="chatrooms-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -835,7 +883,7 @@ body {
   </div>
 </div>
 
-<!-- 1. DUAL ACTION '+' MODAL -->
+<!-- DUAL ACTION '+' MODAL -->
 <div class="tiktok-modal" id="plus-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -848,7 +896,7 @@ body {
   </div>
 </div>
 
-<!-- 2. UNIFIED AUTH MODAL -->
+<!-- UNIFIED AUTH MODAL -->
 <div class="tiktok-modal" id="auth-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -862,7 +910,7 @@ body {
   </div>
 </div>
 
-<!-- 3. PROFILE DASHBOARD & ADDRESS BOOK MODAL -->
+<!-- PROFILE DASHBOARD & ADDRESS BOOK MODAL -->
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -876,7 +924,7 @@ body {
         <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="copyMyUserId()">📋 Copy My ID</button>
       </div>
       <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
-      <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (XP: 0/100)</div>
+      <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (Unlocks Gifts 1-100)</div>
       <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
       <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
     </div>
@@ -904,7 +952,7 @@ body {
   </div>
 </div>
 
-<!-- 4. TIKTOK-STYLE COIN RECHARGE & WALLET STORE -->
+<!-- TIKTOK-STYLE COIN RECHARGE & WALLET STORE -->
 <div class="tiktok-modal" id="shop-modal">
   <div class="modal-body-container" style="background:#121214;">
     <div class="modal-header">
@@ -992,7 +1040,7 @@ const coinPackages = [
   { sku: 'vibepulse_coins_17500', coins: 17500, bonus: 272, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
 ];
 
-// Generate 100 distinct gift levels
+// Generate 100 distinct gift levels with level unlock cost
 const levelGifts100 = [];
 const emojisList = ['🌹', '⭐', '💍', '🚀', '👑', '🪐', '💎', '🔥', '💖', '🎉', '⚡', '🎁', '🍀', '🏆', '🍔', '🍕', '🚗', '🎸', '⚽', '🌟'];
 for (let i = 1; i <= 100; i++) {
@@ -1072,7 +1120,7 @@ try {
 
                 document.getElementById('wallet-coins-count').innerText = `🪙 ${balance} Coins`;
                 document.getElementById('wallet-earned-count').innerText = `🪙 ${earned} Earned`;
-                document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Gated 1-100)`;
+                document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Unlocks Gifts 1-100)`;
               }
             });
           }
@@ -1092,9 +1140,9 @@ window.addEventListener('DOMContentLoaded', () => {
       if (activeUid && db) {
         db.collection("users").doc(activeUid).set({
           coins: firebase.firestore.FieldValue.increment(selectedCoinAmount > 0 ? selectedCoinAmount : 100),
-          level: firebase.firestore.FieldValue.increment(1)
+          level: firebase.firestore.FieldValue.increment(5) // Boost level upon purchase
         }, { merge: true }).then(() => {
-          alert("🎉 Payment Success! Coins added and Profile Leveled Up!");
+          alert("🎉 Payment Success! Coins added & Level Unlocked!");
           window.history.replaceState({}, document.title, window.location.pathname);
         });
       }
@@ -1242,7 +1290,36 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-// SPEECH TRANSLATION MICROPHONE FUNCTION
+// TIKTOK-STYLE LAUGHING EFFECT
+function triggerLaughEffect() {
+  const container = document.getElementById('laugh-container');
+  if (!container) return;
+
+  const handle = localStorage.getItem('vibepulse_name') || "Guest";
+  
+  // Broadcast laugh message to chat room
+  if (db) {
+    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+      sender: handle,
+      text: "😂😂😂 (Laughing reaction)",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(err => console.warn("Laugh broadcast error:", err));
+  }
+
+  // Create floating animated emojis
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'floating-laugh';
+      el.innerText = '😂';
+      el.style.right = (Math.random() * 40 - 20) + 'px';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 1800);
+    }, i * 150);
+  }
+}
+
+// ROBUST SPEECH TRANSLATION MICROPHONE FUNCTION
 let recognitionInstance = null;
 let isRecordingVoice = false;
 
@@ -1253,7 +1330,12 @@ function toggleVoiceSpeechTranslation() {
 
   const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognitionAPI) {
-    alert("Speech recognition is not supported in this browser. Please use Google Chrome or Safari.");
+    const spoken = prompt("Speech recognition not supported in this browser mode. Type speech text to translate:");
+    if (spoken) {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.value = `🌐 [${targetLang.toUpperCase()}] ${spoken}`;
+      sendChatMessage();
+    }
     return;
   }
 
@@ -1311,7 +1393,12 @@ function toggleVoiceSpeechTranslation() {
     recognitionInstance.start();
   } catch (err) {
     console.error("Speech initialization error:", err);
-    alert("Microphone access could not be started. Please verify browser permissions.");
+    const spoken = prompt("Microphone error. Type speech text to translate:");
+    if (spoken) {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.value = `🌐 [${targetLang.toUpperCase()}] ${spoken}`;
+      sendChatMessage();
+    }
     stopMicState();
   }
 }
@@ -1620,7 +1707,7 @@ function triggerAction(action) {
     contentHtml = `
       <div class="media-placeholder" style="background:rgba(24, 24, 27, 0.95); border: 1px solid var(--accent-pink); padding:14px; border-radius:14px; width:94%; max-width:400px; display:flex; flex-direction:column; gap:10px;">
         🎁 <b>100-Level Gift Store</b>
-        <div style="font-size:0.7rem; color:#a1a1aa;">Select from 100 gift tiers via dropdown to avoid cluttering your screen:</div>
+        <div style="font-size:0.7rem; color:#a1a1aa;">Gifts are level-gated. Reach Level N to unlock & send Level N gifts!</div>
         
         <select id="gift-tier-dropdown" class="input-field" style="padding:8px; font-size:0.75rem;">
           ${dropdownOptionsHtml}
@@ -1644,8 +1731,9 @@ function sendSelectedDropdownGift(streamerUid) {
   const gift = levelGifts100.find(g => g.level === levelNum);
   if (!gift) return;
 
+  // Level Gating Check
   if (myUserLevel < gift.level) {
-    alert(`🔒 Locked! You need Level ${gift.level} to send this gift.`);
+    alert(`🔒 Level Locked! You are Level ${myUserLevel}, but this gift requires Level ${gift.level}. Recharge coins or level up to unlock!`);
     openTikTokModal('shop-modal');
     return;
   }
