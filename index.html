@@ -18,6 +18,7 @@
   --bg-dark: #050505;
   --accent-pink: #fe2c55;
   --accent-cyan: #25f4ee;
+  --accent-green: #22c55e;
   --card-bg: rgba(24, 24, 27, 0.90);
   --text-light: #ffffff;
   --text-muted: #a1a1aa;
@@ -560,6 +561,127 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.1rem; }
 
+/* WHATSAPP & ZALO STYLE VOICE/VIDEO CALL OVERLAY */
+.call-fullscreen-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(180deg, #09090b 0%, #18181b 100%);
+  z-index: 3000;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 16px;
+  overflow: hidden;
+}
+
+.call-fullscreen-overlay.active { display: flex !important; }
+
+.call-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  z-index: 10;
+}
+
+.call-user-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 8px 24px rgba(254, 44, 85, 0.4);
+}
+
+.call-user-name { font-size: 1.3rem; font-weight: 700; color: #fff; }
+.call-status-label { font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; }
+
+/* Video Media Views for Video Calls */
+.call-video-grid {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: none;
+  z-index: 5;
+}
+
+.call-remote-video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.call-local-video-thumb {
+  position: absolute;
+  top: 70px; right: 16px;
+  width: 110px; height: 160px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  object-fit: cover;
+  background: #222;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  z-index: 20;
+}
+
+.call-action-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  z-index: 30;
+  width: 100%;
+}
+
+.call-btn {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.4rem;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.call-btn:active { transform: scale(0.9); }
+.call-btn-accept { background: var(--accent-green); }
+.call-btn-decline { background: #ef4444; }
+.call-btn-action { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+.call-btn-action.muted { background: #ef4444; }
+
+/* Direct Call Header Quick Action Bar */
+.direct-call-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.direct-call-btn {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
 /* Modals */
 .tiktok-modal {
   display: none;
@@ -679,12 +801,6 @@ body {
   gap: 2px;
 }
 
-.coin-card-bonus {
-  font-size: 0.62rem;
-  color: var(--accent-cyan);
-  font-weight: bold;
-}
-
 .coin-card-price {
   font-size: 0.7rem;
   color: #a1a1aa;
@@ -740,6 +856,25 @@ body {
 
 <!-- Persistent Floating Laugh Reaction Button for Live & PK Screens -->
 <button class="floating-screen-laugh-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
+
+<!-- WHATSAPP & ZALO STYLE VOICE/VIDEO CALL FULLSCREEN OVERLAY -->
+<div class="call-fullscreen-overlay" id="whatsapp-call-overlay">
+  <div class="call-video-grid" id="call-video-container">
+    <video id="remote-call-video" class="call-remote-video" autoplay playsinline></video>
+    <video id="local-call-video" class="call-local-video-thumb" autoplay playsinline muted></video>
+  </div>
+
+  <div class="call-header-info">
+    <div class="call-user-avatar" id="call-avatar-display">👤</div>
+    <div class="call-user-name" id="call-name-display">Alex_Vibe</div>
+    <div class="call-status-label" id="call-status-display">Ringing...</div>
+  </div>
+
+  <!-- Call Action Control Buttons -->
+  <div class="call-action-controls" id="call-actions-container">
+    <!-- Rendered dynamically depending on Incoming / Calling / Active state -->
+  </div>
+</div>
 
 <!-- Main Viewport Container -->
 <div class="app-viewport">
@@ -810,6 +945,10 @@ body {
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
+      <div class="direct-call-bar" id="direct-call-header-bar" style="display:none;">
+        <button class="direct-call-btn" onclick="initiateDirectCall('voice')" title="Voice Call 📞">📞</button>
+        <button class="direct-call-btn" onclick="initiateDirectCall('video')" title="Video Call 📹">📹</button>
+      </div>
     </div>
 
     <div class="chat-feed" id="chat-messages-container">
@@ -1050,6 +1189,7 @@ let activeDirectTarget = null;
 let roomUnsubscribe = null;
 let usersUnsubscribe = null;
 let directUnsubscribe = null;
+let callsUnsubscribe = null;
 let allRegisteredUsers = [];
 let selectedCoinSku = null;
 let selectedCoinAmount = 0;
@@ -1057,6 +1197,24 @@ let selectedCoinPrice = 0;
 let myUserLevel = 1;
 let activeSpeechRecognition = null;
 let isRecordingActive = false;
+
+/* WebRTC Call System Variables */
+let peerConnection = null;
+let localMediaStream = null;
+let currentCallDocId = null;
+let activeCallType = 'voice'; // 'voice' or 'video'
+let callTimerInterval = null;
+let callDurationSeconds = 0;
+let ringtoneInterval = null;
+let isMicMuted = false;
+let isVideoDisabled = false;
+
+const rtcIceServers = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ]
+};
 
 // Updated Lemon Squeezy product buy links mapped to exact coin tiers with valid VND price thresholds
 const coinPackages = [
@@ -1139,6 +1297,7 @@ try {
           updatePresence(activeUid, activeName);
           subscribeToActiveRoom(activeRoom);
           startGlobalHudSync();
+          listenForIncomingCalls(activeUid);
 
           if (db) {
             db.collection("users").doc(activeUid).onSnapshot((doc) => {
@@ -1188,6 +1347,281 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 1500);
   }
 });
+
+/* WHATSAPP & ZALO WEBRTC VOICE & VIDEO CALL SIGNALING ENGINE */
+
+function listenForIncomingCalls(myUid) {
+  if (!db) return;
+  if (callsUnsubscribe) callsUnsubscribe();
+
+  callsUnsubscribe = db.collection("call_signals")
+    .where("targetUid", "==", myUid)
+    .where("status", "==", "ringing")
+    .onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const callData = change.doc.data();
+          currentCallDocId = change.doc.id;
+          activeCallType = callData.type || 'voice';
+
+          showIncomingCallScreen(callData.callerName, activeCallType);
+        }
+      });
+    });
+}
+
+function playWhatsAppRingtone() {
+  stopWhatsAppRingtone();
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    ringtoneInterval = setInterval(() => {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(880, now + 0.1);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }, 1200);
+  } catch(e) { console.warn("Ringtone audio error:", e); }
+}
+
+function stopWhatsAppRingtone() {
+  if (ringtoneInterval) {
+    clearInterval(ringtoneInterval);
+    ringtoneInterval = null;
+  }
+}
+
+function showIncomingCallScreen(callerName, callType) {
+  playWhatsAppRingtone();
+  const overlay = document.getElementById('whatsapp-call-overlay');
+  const avatar = document.getElementById('call-avatar-display');
+  const nameEl = document.getElementById('call-name-display');
+  const statusEl = document.getElementById('call-status-display');
+  const actionsEl = document.getElementById('call-actions-container');
+  const videoGrid = document.getElementById('call-video-container');
+
+  videoGrid.style.display = 'none';
+  avatar.innerText = callerName.charAt(0).toUpperCase();
+  nameEl.innerText = callerName;
+  statusEl.innerText = `Incoming ${callType.toUpperCase()} Call (WhatsApp / Zalo)...`;
+
+  actionsEl.innerHTML = `
+    <button class="call-btn call-btn-decline" onclick="declineIncomingCall()" title="Decline Call">❌</button>
+    <button class="call-btn call-btn-accept" onclick="acceptIncomingCall()" title="Accept Call">📞</button>
+  `;
+
+  overlay.classList.add('active');
+}
+
+function initiateDirectCall(callType) {
+  if (!activeDirectTarget) {
+    alert("Please open a Direct Chat thread with a user first.");
+    return;
+  }
+  activeCallType = callType;
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const myName = localStorage.getItem('vibepulse_name') || "Guest";
+
+  currentCallDocId = myUid + "_" + activeDirectTarget.uid + "_" + Date.now();
+
+  const overlay = document.getElementById('whatsapp-call-overlay');
+  const avatar = document.getElementById('call-avatar-display');
+  const nameEl = document.getElementById('call-name-display');
+  const statusEl = document.getElementById('call-status-display');
+  const actionsEl = document.getElementById('call-actions-container');
+
+  avatar.innerText = activeDirectTarget.name.charAt(0).toUpperCase();
+  nameEl.innerText = activeDirectTarget.name;
+  statusEl.innerText = `Calling (${callType.toUpperCase()})...`;
+
+  actionsEl.innerHTML = `
+    <button class="call-btn call-btn-decline" onclick="endCurrentCall()" title="End Call">❌</button>
+  `;
+
+  overlay.classList.add('active');
+  playWhatsAppRingtone();
+
+  if (db) {
+    db.collection("call_signals").doc(currentCallDocId).set({
+      callerUid: myUid,
+      callerName: myName,
+      targetUid: activeDirectTarget.uid,
+      targetName: activeDirectTarget.name,
+      type: callType,
+      status: "ringing",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    db.collection("call_signals").doc(currentCallDocId).onSnapshot(async (doc) => {
+      if (!doc.exists) return;
+      const data = doc.data();
+
+      if (data.status === "accepted" && !peerConnection) {
+        stopWhatsAppRingtone();
+        statusEl.innerText = "Connecting media...";
+        await setupWebRTCMediaConnection(true);
+      } else if (data.status === "declined" || data.status === "ended") {
+        cleanupCallSession();
+        alert("Call ended or declined.");
+      } else if (data.answer && peerConnection && !peerConnection.currentRemoteDescription) {
+        const rtcAnswer = new RTCSessionDescription(data.answer);
+        await peerConnection.setRemoteDescription(rtcAnswer);
+      }
+    });
+  }
+}
+
+async function acceptIncomingCall() {
+  stopWhatsAppRingtone();
+  if (!db || !currentCallDocId) return;
+
+  const statusEl = document.getElementById('call-status-display');
+  statusEl.innerText = "Connecting media...";
+
+  db.collection("call_signals").doc(currentCallDocId).update({
+    status: "accepted"
+  });
+
+  await setupWebRTCMediaConnection(false);
+
+  db.collection("call_signals").doc(currentCallDocId).onSnapshot(async (doc) => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    if (data.status === "ended") {
+      cleanupCallSession();
+    } else if (data.offer && peerConnection && !peerConnection.currentRemoteDescription) {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      db.collection("call_signals").doc(currentCallDocId).update({ answer: { type: answer.type, sdp: answer.sdp } });
+    }
+  });
+}
+
+function declineIncomingCall() {
+  stopWhatsAppRingtone();
+  if (db && currentCallDocId) {
+    db.collection("call_signals").doc(currentCallDocId).update({ status: "declined" });
+  }
+  cleanupCallSession();
+}
+
+async function setupWebRTCMediaConnection(isCaller) {
+  try {
+    const isVideo = (activeCallType === 'video');
+    localMediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: isVideo
+    });
+
+    const localVid = document.getElementById('local-call-video');
+    const remoteVid = document.getElementById('remote-call-video');
+    const videoGrid = document.getElementById('call-video-container');
+
+    if (isVideo) {
+      videoGrid.style.display = 'block';
+      localVid.srcObject = localMediaStream;
+    } else {
+      videoGrid.style.display = 'none';
+    }
+
+    peerConnection = new RTCPeerConnection(rtcIceServers);
+
+    localMediaStream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, localMediaStream);
+    });
+
+    peerConnection.ontrack = (event) => {
+      if (remoteVid && event.streams[0]) {
+        remoteVid.srcObject = event.streams[0];
+      }
+    };
+
+    if (isCaller) {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      db.collection("call_signals").doc(currentCallDocId).update({
+        offer: { type: offer.type, sdp: offer.sdp }
+      });
+    }
+
+    startCallTimer();
+    renderActiveCallControls();
+  } catch(err) {
+    alert("Microphone/Camera permission error: " + err.message);
+    endCurrentCall();
+  }
+}
+
+function renderActiveCallControls() {
+  const actionsEl = document.getElementById('call-actions-container');
+  actionsEl.innerHTML = `
+    <button class="call-btn call-btn-action" id="mute-mic-btn" onclick="toggleMuteMic()" title="Mute Mic">🎤</button>
+    <button class="call-btn call-btn-action" id="toggle-video-btn" onclick="toggleCallVideo()" title="Toggle Video">📹</button>
+    <button class="call-btn call-btn-decline" onclick="endCurrentCall()" title="End Call">❌</button>
+  `;
+}
+
+function toggleMuteMic() {
+  if (localMediaStream) {
+    isMicMuted = !isMicMuted;
+    localMediaStream.getAudioTracks().forEach(track => track.enabled = !isMicMuted);
+    const btn = document.getElementById('mute-mic-btn');
+    if (btn) btn.classList.toggle('muted', isMicMuted);
+  }
+}
+
+function toggleCallVideo() {
+  if (localMediaStream && localMediaStream.getVideoTracks().length > 0) {
+    isVideoDisabled = !isVideoDisabled;
+    localMediaStream.getVideoTracks().forEach(track => track.enabled = !isVideoDisabled);
+    const btn = document.getElementById('toggle-video-btn');
+    if (btn) btn.classList.toggle('muted', isVideoDisabled);
+  }
+}
+
+function startCallTimer() {
+  callDurationSeconds = 0;
+  const statusEl = document.getElementById('call-status-display');
+  if (callTimerInterval) clearInterval(callTimerInterval);
+
+  callTimerInterval = setInterval(() => {
+    callDurationSeconds++;
+    const mins = String(Math.floor(callDurationSeconds / 60)).padStart(2, '0');
+    const secs = String(callDurationSeconds % 60).padStart(2, '0');
+    if (statusEl) statusEl.innerText = `${mins}:${secs}`;
+  }, 1000);
+}
+
+function endCurrentCall() {
+  if (db && currentCallDocId) {
+    db.collection("call_signals").doc(currentCallDocId).update({ status: "ended" }).catch(()=>{});
+  }
+  cleanupCallSession();
+}
+
+function cleanupCallSession() {
+  stopWhatsAppRingtone();
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+  if (peerConnection) { peerConnection.close(); peerConnection = null; }
+  if (localMediaStream) {
+    localMediaStream.getTracks().forEach(t => t.stop());
+    localMediaStream = null;
+  }
+  currentCallDocId = null;
+  isMicMuted = false;
+  isVideoDisabled = false;
+
+  const overlay = document.getElementById('whatsapp-call-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
 
 function renderCoinStoreGrid() {
   const grid = document.getElementById('coin-packages-grid');
@@ -1533,6 +1967,7 @@ function submitVoiceTranslation() {
 
 function handleBackNavigation() {
   const preview = document.getElementById('preview-area');
+  document.getElementById('direct-call-header-bar').style.display = 'none';
   preview.innerHTML = `<div class="media-placeholder" id="content-display-text">🎥 Tap '<b>⚡ Menu</b>' above to pick a Chatroom or start connecting!</div>`;
   switchRoom('Global Lounge');
 }
@@ -1546,6 +1981,7 @@ function switchRoom(roomName) {
   activeRoom = roomName;
   activeDirectTarget = null;
   document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
+  document.getElementById('direct-call-header-bar').style.display = 'none';
 
   const preview = document.getElementById('preview-area');
   if (!document.getElementById('live-video') && !document.getElementById('pk-split-view')) {
@@ -1639,7 +2075,7 @@ function renderMemberCard(name, uid, isOnline, userLvl) {
   if (!grid) return;
   const card = document.createElement('div');
   card.style.cssText = "background:rgba(255,255,255,0.08); padding:6px 8px; border-radius:8px; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);";
-  card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name} (Lvl ${userLvl})</span><span style="font-size:0.6rem; color:#25f4ee;">🟢 Active</span></div><div style="font-size:0.65rem; color:#a1a1aa;">ID: ${uid}</div><button class="btn btn-primary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}')">Chat Direct 💬</button>`;
+  card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name} (Lvl ${userLvl})</span><span style="font-size:0.6rem; color:#25f4ee;">🟢 Active</span></div><div style="font-size:0.65rem; color:#a1a1aa;">ID: ${uid}</div><div style="display:flex; gap:4px; margin-top:2px;"><button class="btn btn-primary" style="flex:1; padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}')">Direct 💬</button><button class="btn btn-secondary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}'); initiateDirectCall('voice');" title="Voice Call">📞</button><button class="btn btn-secondary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}'); initiateDirectCall('video');" title="Video Call">📹</button></div>`;
   grid.appendChild(card);
 }
 
@@ -1677,6 +2113,7 @@ function processAddUser(searchVal) {
 function connectWithUser(targetName, targetUid) {
   activeDirectTarget = { name: targetName, uid: targetUid };
   document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
+  document.getElementById('direct-call-header-bar').style.display = 'flex';
 
   const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
   const sortedIds = [myUid, targetUid].sort();
@@ -1838,7 +2275,7 @@ function triggerAction(action) {
   } else if (action === 'jukebox') {
     contentHtml = `<div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:16px; border-radius:14px; width:95%;">🎵 <b>Live YouTube Jukebox Player</b><br><br><div style="display:flex; flex-direction:column; gap:8px;"><input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link..." style="font-size:0.8rem; padding:8px;"><button class="btn btn-primary" style="padding:8px; font-size:0.8rem;" onclick="playYouTubeTrack()">Fetch & Play Track ▶</button></div><div id="youtube-player-frame" style="margin-top:10px; width:100%; height:170px; background:#000; border-radius:8px; overflow:hidden; display:flex; justify-content:center; align-items:center; color:#aaa; font-size:0.75rem;">Player ready.</div></div>`;
   } else if (action === 'inbox') {
-    contentHtml = `<div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:20px; border-radius:14px;">💬 <b>Messenger & Direct Chats</b><br><br><div style="font-size:0.75rem; color:#a1a1aa;">Direct 1-on-1 chats synced via User ID.</div></div>`;
+    contentHtml = `<div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:20px; border-radius:14px;">💬 <b>Messenger & Direct Chats</b><br><br><div style="font-size:0.75rem; color:#a1a1aa;">Direct 1-on-1 chats & WhatsApp/Zalo-style voice/video calls synced via User ID.</div></div>`;
   }
   preview.innerHTML = contentHtml;
 }
