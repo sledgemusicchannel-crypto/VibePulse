@@ -480,7 +480,7 @@ body {
 }
 .emoji-item:hover { background: rgba(255,255,255,0.2); }
 
-/* TikTok Live Laugh Button in Chat Bar */
+/* Separate TikTok Live Laugh Button */
 .laugh-btn {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -829,15 +829,16 @@ body {
 
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
       <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
+      
+      <!-- Normal Chat Emoji Picker Toggle Button -->
       <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
       
-      <!-- TikTok Laugh Button in Chat Bar -->
+      <!-- Separate TikTok Live Laugh Button -->
       <button type="button" class="laugh-btn" onclick="triggerLaughEffect()" title="Send Laugh Effect 😂">😂</button>
 
-      <!-- Expanded Chat Emojis Drawer (14 Emojis) -->
+      <!-- Expanded Chat Emojis Drawer (14 Emojis Grid) -->
       <div class="emoji-drawer" id="emoji-popup-drawer">
         <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('😂')">😂</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('😍')">😍</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('🔥')">🔥</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('👍')">👍</button>
@@ -850,6 +851,7 @@ body {
         <button type="button" class="emoji-item" onclick="insertEmoji('👏')">👏</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('🥳')">🥳</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('💯')">💯</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('⭐')">⭐</button>
       </div>
 
       <button type="submit" class="chat-send-btn" id="send-btn">Send</button>
@@ -1326,35 +1328,38 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* WEB AUDIO API LAUGHING SOUND EFFECT & FLOATING PARTICLES */
-function playWebAudioLaugh() {
+/* WEB AUDIO API RHYTHMIC "HA HA HA HA HA" ECHO LAUGH EFFECT */
+function playEchoLaughSound() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const now = audioCtx.currentTime;
     
-    // Create dual tone sequence for cheerful "Ha-Ha-Ha" laugh effect
-    [0, 0.15, 0.30].forEach((delay, idx) => {
+    // 5 echo pulses simulating "Ha-ha-ha-ha-ha"
+    const laughs = [0, 0.12, 0.24, 0.36, 0.48];
+    laughs.forEach((delay, idx) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(320 + (idx * 50), now + delay);
-      osc.frequency.exponentialRampToValueAtTime(180, now + delay + 0.1);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(260 + (idx % 2 * 40), now + delay);
+      osc.frequency.exponentialRampToValueAtTime(160, now + delay + 0.1);
       
-      gain.gain.setValueAtTime(0.3, now + delay);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.12);
+      // Echo decay volume scaling
+      const volume = 0.35 * (1 - (idx * 0.15));
+      gain.gain.setValueAtTime(volume, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.005, now + delay + 0.11);
       
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       
       osc.start(now + delay);
-      osc.stop(now + delay + 0.12);
+      osc.stop(now + delay + 0.11);
     });
-  } catch(e) { console.warn("Web audio synth note:", e); }
+  } catch(e) { console.warn("Web audio echo synth:", e); }
 }
 
 function triggerLaughEffect() {
-  playWebAudioLaugh();
+  playEchoLaughSound();
 
   const container = document.getElementById('laugh-container');
   const handle = localStorage.getItem('vibepulse_name') || "Guest";
@@ -1368,15 +1373,15 @@ function triggerLaughEffect() {
   }
 
   if (container) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
       setTimeout(() => {
         const el = document.createElement('div');
         el.className = 'floating-laugh';
         el.innerText = '😂';
-        el.style.right = (Math.random() * 50 - 25) + 'px';
+        el.style.right = (Math.random() * 60 - 30) + 'px';
         container.appendChild(el);
         setTimeout(() => el.remove(), 1800);
-      }, i * 120);
+      }, i * 100);
     }
   }
 }
