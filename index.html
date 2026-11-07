@@ -59,7 +59,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 50;
+  z-index: 500;
   background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%);
   gap: 6px;
 }
@@ -139,7 +139,8 @@ body {
   gap: 2px;
   white-space: nowrap;
   pointer-events: auto !important;
-  z-index: 60;
+  z-index: 600;
+  touch-action: manipulation;
 }
 
 .mic-btn.recording {
@@ -199,7 +200,7 @@ body {
   border-radius: 14px;
   padding: 10px;
   width: 240px;
-  z-index: 100;
+  z-index: 1000;
   box-shadow: 0 10px 30px rgba(0,0,0,0.85);
   flex-direction: column;
   gap: 6px;
@@ -454,7 +455,7 @@ body {
   width: 240px;
   grid-template-columns: repeat(6, 1fr);
   gap: 6px;
-  z-index: 60;
+  z-index: 600;
   box-shadow: 0 10px 25px rgba(0,0,0,0.8);
 }
 .emoji-drawer.active { display: grid !important; }
@@ -551,7 +552,7 @@ body {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.75);
-  z-index: 200;
+  z-index: 2000;
   justify-content: center;
   align-items: flex-end;
 }
@@ -626,6 +627,52 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* TikTok Coin Grid Styling */
+.coin-grid-store {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.coin-card-item {
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.coin-card-item.selected {
+  border-color: var(--accent-pink);
+  background: rgba(254, 44, 85, 0.15);
+}
+
+.coin-card-title {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.coin-card-bonus {
+  font-size: 0.62rem;
+  color: var(--accent-cyan);
+  font-weight: bold;
+}
+
+.coin-card-price {
+  font-size: 0.7rem;
+  color: #a1a1aa;
+}
+
 /* Screen Effect Animation Overlay */
 #effect-overlay {
   position: absolute;
@@ -664,7 +711,7 @@ body {
         <option value="fr">French 🇫🇷</option>
         <option value="zh">Chinese 🇨🇳</option>
       </select>
-      <button type="button" class="mic-btn" id="mic-translate-btn" onclick="toggleVoiceSpeechTranslation()">🎤 Speak</button>
+      <button type="button" class="mic-btn" id="mic-translate-btn">🎤 Speak</button>
     </div>
 
     <div class="right-header-group">
@@ -680,8 +727,8 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
     <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
     <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
-    <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send Level Gifts</button>
-    <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">💎 Diamond Wallet</button>
+    <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
     <!-- Moved Local Radio Section into Dropdown Menu -->
@@ -748,7 +795,7 @@ body {
 <!-- Bottom Navigation Bar -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="switchRoom('Global Lounge')">🏠<span>Home</span></button>
-  <button class="nav-item" onclick="openTikTokModal('shop-modal')">💎<span>Store</span></button>
+  <button class="nav-item" onclick="openTikTokModal('shop-modal')">🪙<span>Store</span></button>
   <button class="btn-plus-tiktok" onclick="openTikTokModal('plus-modal')">
     <span class="btn-plus-icon">+</span>
   </button>
@@ -857,60 +904,53 @@ body {
   </div>
 </div>
 
-<!-- 4. WALLET & SHOP MODAL -->
+<!-- 4. TIKTOK-STYLE COIN RECHARGE & WALLET STORE -->
 <div class="tiktok-modal" id="shop-modal">
-  <div class="modal-body-container">
+  <div class="modal-body-container" style="background:#121214;">
     <div class="modal-header">
-      <span>💎 Wallet & Diamond Store</span>
+      <span style="font-size:1.05rem; font-weight:bold;">Get Coins</span>
       <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
     </div>
-    <div style="background: #09090b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #27272a;">
-      <div style="font-size: 0.75rem; color: #a1a1aa;">Your Wallet Balance</div>
-      <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-coins-count">💎 0 Diamonds</div>
+
+    <!-- Balance display -->
+    <div style="background: #1c1c1e; padding: 10px 12px; border-radius: 10px; display:flex; justify-content:space-between; align-items:center; border: 1px solid #2c2c2e;">
+      <div>
+        <div style="font-size: 0.7rem; color: #a1a1aa;">Your Coin Balance</div>
+        <div style="font-size: 1.1rem; font-weight: bold; color: #facc15;" id="wallet-coins-count">🪙 0 Coins</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size: 0.7rem; color: #a1a1aa;">Creator Earnings</div>
+        <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-earned-count">🪙 0 Earned</div>
+      </div>
     </div>
 
-    <!-- Creator Earnings & Structured Withdrawal Dashboard Section -->
-    <div style="background: #09090b; padding: 10px; border-radius: 8px; border: 1px solid #27272a; display: flex; flex-direction: column; gap: 6px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Creator Earnings (80% Split)</span>
-        <span style="font-size: 0.8rem; font-weight: bold; color: #fff;" id="wallet-earned-count">💎 0 Earned</span>
-      </div>
-      <div style="font-size: 0.68rem; color: #a1a1aa;">Convert earned stream diamonds to cash payouts.</div>
+    <!-- Bonus Banner -->
+    <div style="background: linear-gradient(135deg, #4c1d95, #831843); border-radius: 10px; padding: 10px; font-size: 0.72rem; color: #fbcfe8; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);">
+      <strong style="color:#fff;">🔥 Bonus Roses & Coins on First Recharge</strong>
+      <div>Get Rose x3 in your backpack — Rose x1 ready to be sent instantly, and the rest in 24 hours! Ends in 7 days</div>
+    </div>
 
-      <select id="withdrawal-bank-name" class="input-field" style="padding:8px; font-size:0.75rem;">
-        <option value="" disabled selected>Select Bank...</option>
+    <!-- TikTok Coin Store Grid matching image exact packages -->
+    <div class="coin-grid-store" id="coin-packages-grid">
+      <!-- Populated dynamically -->
+    </div>
+
+    <button class="btn btn-primary" id="recharge-action-btn" style="background: var(--accent-pink); border-radius: 24px; padding: 12px; font-weight:bold; font-size:0.95rem; margin-top:4px;" onclick="executeCoinRecharge()">Recharge</button>
+
+    <!-- Creator Cash Withdrawal Section -->
+    <div style="background: #1c1c1e; padding: 10px; border-radius: 10px; border: 1px solid #2c2c2e; display: flex; flex-direction: column; gap: 6px; margin-top:6px;">
+      <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Convert Earnings to Bank Payout</span>
+      <select id="withdrawal-bank-name" class="input-field" style="padding:6px; font-size:0.75rem;">
+        <option value="" disabled selected>Select Bank / E-Wallet...</option>
         <option value="Vietcombank">Vietcombank</option>
         <option value="Techcombank">Techcombank</option>
         <option value="MB Bank">MB Bank</option>
         <option value="ACB">ACB</option>
-        <option value="BIDV">BIDV</option>
-        <option value="VietinBank">VietinBank</option>
-        <option value="VPBank">VPBank</option>
-        <option value="TPBank">TPBank</option>
-        <option value="Sacombank">Sacombank</option>
         <option value="MoMo E-Wallet">MoMo E-Wallet</option>
-        <option value="Other Bank">Other Bank</option>
       </select>
-
       <input type="text" id="withdrawal-account-number" class="input-field" placeholder="Account Number" style="padding:6px 8px; font-size:0.75rem;">
-      <input type="text" id="withdrawal-full-name" class="input-field" placeholder="Full Name (As on Bank Account)" style="padding:6px 8px; font-size:0.75rem;">
-
-      <button class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem;" onclick="requestFundWithdrawalStructured()">📥 Request Withdrawal</button>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
-        <div><strong>💎 100 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$1.00 USD</div></div>
-        <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="buyCoinsCheckout('vibepulse_coins_100', 100, 1.00)">Pay $1.00</button>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
-        <div><strong>💎 500 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$5.00 USD</div></div>
-        <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="buyCoinsCheckout('vibepulse_coins_500', 500, 5.00)">Pay $5.00</button>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; background: #09090b; padding: 8px 10px; border-radius: 8px;">
-        <div><strong>💎 2,000 Diamonds</strong><div style="font-size: 0.7rem; color: #a1a1aa;">$20.00 USD</div></div>
-        <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="buyCoinsCheckout('vibepulse_coins_2000', 2000, 20.00)">Pay $20.00</button>
-      </div>
+      <input type="text" id="withdrawal-full-name" class="input-field" placeholder="Full Name on Account" style="padding:6px 8px; font-size:0.75rem;">
+      <button class="btn btn-secondary" style="padding:6px; font-size:0.75rem;" onclick="requestFundWithdrawalStructured()">📥 Request Payout</button>
     </div>
   </div>
 </div>
@@ -935,8 +975,37 @@ let roomUnsubscribe = null;
 let usersUnsubscribe = null;
 let directUnsubscribe = null;
 let allRegisteredUsers = [];
-let pendingDiamondAmount = 0;
+let selectedCoinSku = null;
+let selectedCoinAmount = 0;
+let selectedCoinPrice = 0;
 let myUserLevel = 1;
+
+// TikTok Coin Packages matching uploaded reference image exact VND values
+const coinPackages = [
+  { sku: 'vibepulse_coins_5', coins: 5, bonus: 13, priceVnd: '₫2,000', usd: 0.08, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_70', coins: 70, bonus: 47, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_350', coins: 350, bonus: 47, priceVnd: '₫133,000', usd: 5.25, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_700', coins: 700, bonus: 160, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_1400', coins: 1400, bonus: 297, priceVnd: '₫532,000', usd: 21.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_3500', coins: 3500, bonus: 272, priceVnd: '₫1,330,000', usd: 52.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_7000', coins: 7000, bonus: 272, priceVnd: '₫2,660,000', usd: 105.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_17500', coins: 17500, bonus: 272, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
+];
+
+// Generate 100 distinct gift levels
+const levelGifts100 = [];
+const emojisList = ['🌹', '⭐', '💍', '🚀', '👑', '🪐', '💎', '🔥', '💖', '🎉', '⚡', '🎁', '🍀', '🏆', '🍔', '🍕', '🚗', '🎸', '⚽', '🌟'];
+for (let i = 1; i <= 100; i++) {
+  const cost = i <= 10 ? i * 15 : 150 + (i - 10) * 120;
+  const emoji = emojisList[(i - 1) % emojisList.length];
+  levelGifts100.push({
+    level: i,
+    name: `Lvl ${i} Gift`,
+    cost: cost,
+    icon: emoji,
+    effect: emoji
+  });
+}
 
 const currentSessionStartTime = (typeof firebase !== 'undefined' && firebase.firestore)
   ? firebase.firestore.Timestamp.now()
@@ -997,13 +1066,13 @@ try {
             db.collection("users").doc(activeUid).onSnapshot((doc) => {
               if (doc.exists) {
                 const data = doc.data();
-                const balance = data.diamonds || 0;
-                const earned = data.earnedDiamonds || 0;
+                const balance = data.coins || data.diamonds || 0;
+                const earned = data.earnedCoins || data.earnedDiamonds || 0;
                 myUserLevel = data.level || 1;
 
-                document.getElementById('wallet-coins-count').innerText = `💎 ${balance} Diamonds`;
-                document.getElementById('wallet-earned-count').innerText = `💎 ${earned} Earned`;
-                document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Gated 1-50)`;
+                document.getElementById('wallet-coins-count').innerText = `🪙 ${balance} Coins`;
+                document.getElementById('wallet-earned-count').innerText = `🪙 ${earned} Earned`;
+                document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Gated 1-100)`;
               }
             });
           }
@@ -1014,47 +1083,83 @@ try {
 } catch (e) { console.warn("Firebase standby mode:", e); }
 
 window.addEventListener('DOMContentLoaded', () => {
+  renderCoinStoreGrid();
+
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('checkout') === 'success') {
     setTimeout(() => {
       const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
       if (activeUid && db) {
         db.collection("users").doc(activeUid).set({
-          diamonds: firebase.firestore.FieldValue.increment(100),
+          coins: firebase.firestore.FieldValue.increment(selectedCoinAmount > 0 ? selectedCoinAmount : 100),
           level: firebase.firestore.FieldValue.increment(1)
         }, { merge: true }).then(() => {
-          alert("🎉 Payment Success! 100 Diamonds added and Profile Leveled Up!");
+          alert("🎉 Payment Success! Coins added and Profile Leveled Up!");
           window.history.replaceState({}, document.title, window.location.pathname);
         });
       }
     }, 1500);
   }
+
+  // Bind dual click & touch listeners to Mic Button
+  const micBtn = document.getElementById('mic-translate-btn');
+  if (micBtn) {
+    micBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleVoiceSpeechTranslation();
+    });
+    micBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      toggleVoiceSpeechTranslation();
+    });
+  }
 });
 
-window.createLemonSqueezy = () => {
-  LemonSqueezy.Setup({
-    eventHandler: (event) => {
-      if (event.event === 'Checkout.Success') {
-        creditDiamondsToUser();
-        closeTikTokModal('shop-modal');
-      }
+function renderCoinStoreGrid() {
+  const grid = document.getElementById('coin-packages-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  coinPackages.forEach((pkg, index) => {
+    const card = document.createElement('div');
+    card.className = `coin-card-item ${index === 0 ? 'selected' : ''}`;
+    if (index === 0) {
+      selectedCoinSku = pkg.sku;
+      selectedCoinAmount = pkg.coins + pkg.bonus;
+      selectedCoinPrice = pkg.usd;
     }
+    card.onclick = () => selectCoinPackage(pkg, card);
+    card.innerHTML = `
+      <div class="coin-card-title">🪙 ${pkg.coins} <span class="coin-card-bonus">+${pkg.bonus}</span></div>
+      <div class="coin-card-price">${pkg.priceVnd}</div>
+    `;
+    grid.appendChild(card);
   });
-};
+}
 
-function creditDiamondsToUser() {
+function selectCoinPackage(pkg, cardEl) {
+  document.querySelectorAll('.coin-card-item').forEach(el => el.classList.remove('selected'));
+  cardEl.classList.add('selected');
+  selectedCoinSku = pkg.sku;
+  selectedCoinAmount = pkg.coins + pkg.bonus;
+  selectedCoinPrice = pkg.usd;
+}
+
+function executeCoinRecharge() {
+  if (!selectedCoinSku) {
+    alert("Please select a coin package.");
+    return;
+  }
+  const pkg = coinPackages.find(p => p.sku === selectedCoinSku);
+  if (!pkg) return;
+
   const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-  if (!activeUid || pendingDiamondAmount <= 0) return;
+  const checkoutUrl = `${pkg.link}?checkout[custom][user_id]=${activeUid}`;
 
-  if (db) {
-    db.collection("users").doc(activeUid).set({
-      diamonds: firebase.firestore.FieldValue.increment(pendingDiamondAmount),
-      level: firebase.firestore.FieldValue.increment(1)
-    }, { merge: true })
-    .then(() => {
-      alert(`🎉 Success! ${pendingDiamondAmount} Diamonds credited and Level Up granted.`);
-      pendingDiamondAmount = 0;
-    });
+  if (window.LemonSqueezy) {
+    LemonSqueezy.Url.Open(checkoutUrl);
+  } else {
+    window.open(checkoutUrl, '_blank');
   }
 }
 
@@ -1074,7 +1179,6 @@ function updatePresence(uid, name) {
   setInterval(sendHeartbeat, 10000);
 }
 
-// REAL-TIME HUD SYNC - Strictly Only Active Online Users (< 60s)
 function startGlobalHudSync() {
   if (!db) return;
   db.collection("users").limit(50).onSnapshot((snapshot) => {
@@ -1138,7 +1242,7 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-// --- FIXED SPEECH TRANSLATION MICROPHONE FUNCTION (ROBUST & CLICKABLE) ---
+// SPEECH TRANSLATION MICROPHONE FUNCTION
 let recognitionInstance = null;
 let isRecordingVoice = false;
 
@@ -1149,7 +1253,7 @@ function toggleVoiceSpeechTranslation() {
 
   const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognitionAPI) {
-    alert("Speech recognition is not supported in this browser. Please use Google Chrome, Safari, or a WebKit browser.");
+    alert("Speech recognition is not supported in this browser. Please use Google Chrome or Safari.");
     return;
   }
 
@@ -1167,7 +1271,6 @@ function toggleVoiceSpeechTranslation() {
     recognitionInstance.interimResults = false;
     recognitionInstance.maxAlternatives = 1;
     
-    // Map language code properly
     const langMap = {
       'en': 'en-US',
       'vi': 'vi-VN',
@@ -1509,22 +1612,23 @@ function triggerAction(action) {
   if (action === 'gifts') {
     const targetUid = activeDirectTarget ? activeDirectTarget.uid : null;
 
-    const levelGifts = [
-      { name: '🌹 Rose', cost: 1, reqLevel: 1, icon: '🌹', effect: '🌹' },
-      { name: '⭐ Star', cost: 99, reqLevel: 5, icon: '⭐', effect: '🌟' },
-      { name: '💍 Diamond Ring', cost: 1099, reqLevel: 10, icon: '💍', effect: '💎' },
-      { name: '🚀 Rocket', cost: 2000, reqLevel: 20, icon: '🚀', effect: '🚀' },
-      { name: '👑 Royal Crown', cost: 5000, reqLevel: 35, icon: '👑', effect: '👑' },
-      { name: '🪐 TikTok Universe', cost: 10000, reqLevel: 50, icon: '🌌', effect: '🌌' }
-    ];
-
-    let giftsGridHtml = '';
-    levelGifts.forEach(g => {
-      const isLocked = myUserLevel < g.reqLevel;
-      giftsGridHtml += `<div style="background:${isLocked ? '#27272a' : 'rgba(5, 150, 105, 0.2)'}; border:1px solid ${isLocked ? '#3f3f46' : '#059669'}; padding:8px; border-radius:10px; text-align:center; display:flex; flex-direction:column; gap:4px;"><div style="font-size:1.5rem;">${g.icon}</div><div style="font-size:0.7rem; font-weight:bold; color:#fff;">${g.name}</div><div style="font-size:0.65rem; color:var(--accent-cyan);">💎 ${g.cost}</div><div style="font-size:0.6rem; color:${isLocked ? '#ef4444' : '#22c55e'}; font-weight:bold;">${isLocked ? '🔒 Lvl ' + g.reqLevel + ' Req' : '🔓 Unlocked'}</div><button class="btn ${isLocked ? 'btn-secondary' : 'btn-primary'}" style="padding:4px; font-size:0.65rem;" onclick="sendLevelGift('${g.name}', ${g.cost}, ${g.reqLevel}, '${g.effect}', '${targetUid}')">Send Gift</button></div>`;
+    let dropdownOptionsHtml = '';
+    levelGifts100.forEach(g => {
+      dropdownOptionsHtml += `<option value="${g.level}">Lvl ${g.level} (${g.icon}) — Cost: ${g.cost} Coins</option>`;
     });
 
-    contentHtml = `<div class="media-placeholder" style="background:rgba(24, 24, 27, 0.95); border: 1px solid var(--accent-pink); padding:12px; border-radius:14px; max-height:85vh; overflow-y:auto;">🎁 <b>Level Gated Gift Store (Levels 1 - 50)</b><br><div style="font-size:0.7rem; color:#a1a1aa; margin-bottom:8px;">Your Current Level: <b>⭐ Lvl ${myUserLevel}</b></div><div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">${giftsGridHtml}</div></div>`;
+    contentHtml = `
+      <div class="media-placeholder" style="background:rgba(24, 24, 27, 0.95); border: 1px solid var(--accent-pink); padding:14px; border-radius:14px; width:94%; max-width:400px; display:flex; flex-direction:column; gap:10px;">
+        🎁 <b>100-Level Gift Store</b>
+        <div style="font-size:0.7rem; color:#a1a1aa;">Select from 100 gift tiers via dropdown to avoid cluttering your screen:</div>
+        
+        <select id="gift-tier-dropdown" class="input-field" style="padding:8px; font-size:0.75rem;">
+          ${dropdownOptionsHtml}
+        </select>
+
+        <button class="btn btn-primary" style="padding:10px; font-size:0.8rem;" onclick="sendSelectedDropdownGift('${targetUid}')">Send Selected Gift 🚀</button>
+      </div>
+    `;
   } else if (action === 'jukebox') {
     contentHtml = `<div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:16px; border-radius:14px; width:95%;">🎵 <b>Live YouTube Jukebox Player</b><br><br><div style="display:flex; flex-direction:column; gap:8px;"><input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link..." style="font-size:0.8rem; padding:8px;"><button class="btn btn-primary" style="padding:8px; font-size:0.8rem;" onclick="playYouTubeTrack()">Fetch & Play Track ▶</button></div><div id="youtube-player-frame" style="margin-top:10px; width:100%; height:170px; background:#000; border-radius:8px; overflow:hidden; display:flex; justify-content:center; align-items:center; color:#aaa; font-size:0.75rem;">Player ready.</div></div>`;
   } else if (action === 'inbox') {
@@ -1533,9 +1637,15 @@ function triggerAction(action) {
   preview.innerHTML = contentHtml;
 }
 
-function sendLevelGift(giftName, diamondCost, reqLevel, effectEmoji, streamerUid) {
-  if (myUserLevel < reqLevel) {
-    alert(`🔒 Locked! You need to reach Level ${reqLevel} to unlock ${giftName}. Top up your wallet or level up to unlock!`);
+function sendSelectedDropdownGift(streamerUid) {
+  const select = document.getElementById('gift-tier-dropdown');
+  if (!select) return;
+  const levelNum = parseInt(select.value, 10);
+  const gift = levelGifts100.find(g => g.level === levelNum);
+  if (!gift) return;
+
+  if (myUserLevel < gift.level) {
+    alert(`🔒 Locked! You need Level ${gift.level} to send this gift.`);
     openTikTokModal('shop-modal');
     return;
   }
@@ -1549,26 +1659,28 @@ function sendLevelGift(giftName, diamondCost, reqLevel, effectEmoji, streamerUid
 
   userRef.get().then((doc) => {
     if (!doc.exists) return;
-    const currentDiamonds = doc.data().diamonds || 0;
+    const currentCoins = doc.data().coins || doc.data().diamonds || 0;
 
-    if (currentDiamonds < diamondCost) {
-      alert(`⚠️ Insufficient Diamonds! You need ${diamondCost} Diamonds for ${giftName}.`);
+    if (currentCoins < gift.cost) {
+      alert(`⚠️ Insufficient Coins! You need ${gift.cost} Coins for Level ${gift.level} gift.`);
       openTikTokModal('shop-modal');
       return;
     }
 
-    const streamerShare = Math.floor(diamondCost * 0.80);
-    const platformShare = diamondCost - streamerShare;
+    const streamerShare = Math.floor(gift.cost * 0.80);
+    const platformShare = gift.cost - streamerShare;
 
     const batch = db.batch();
 
     batch.update(userRef, {
-      diamonds: firebase.firestore.FieldValue.increment(-diamondCost)
+      coins: firebase.firestore.FieldValue.increment(-gift.cost),
+      diamonds: firebase.firestore.FieldValue.increment(-gift.cost)
     });
 
     if (streamerUid && streamerUid !== "null" && streamerUid !== activeUid) {
       const streamerRef = db.collection("users").doc(streamerUid);
       batch.set(streamerRef, {
+        earnedCoins: firebase.firestore.FieldValue.increment(streamerShare),
         earnedDiamonds: firebase.firestore.FieldValue.increment(streamerShare)
       }, { merge: true });
     }
@@ -1581,12 +1693,12 @@ function sendLevelGift(giftName, diamondCost, reqLevel, effectEmoji, streamerUid
     batch.commit().then(() => {
       db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
         sender: "🎁 LEVEL GIFT EVENT",
-        text: `${handle} sent ${giftName} (💎${diamondCost})! Effect triggered!`,
+        text: `${handle} sent Level ${gift.level} Gift (${gift.icon} 🪙${gift.cost})! Effect triggered!`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      triggerScreenEffect(effectEmoji);
-      alert(`🎉 Sent ${giftName}! Visual effect played on stream.`);
+      triggerScreenEffect(gift.effect);
+      alert(`🎉 Sent Level ${gift.level} Gift successfully!`);
     }).catch(err => console.error("Gift processing error:", err));
   });
 }
@@ -1624,7 +1736,7 @@ function requestFundWithdrawalStructured() {
   const accountNumber = document.getElementById('withdrawal-account-number').value.trim();
   const fullName = document.getElementById('withdrawal-full-name').value.trim();
 
-  if (!bankName) { alert("Please select your bank from the dropdown."); return; }
+  if (!bankName) { alert("Please select your bank or e-wallet."); return; }
   if (!accountNumber) { alert("Please enter your account number."); return; }
   if (!fullName) { alert("Please enter the full name on the account."); return; }
 
@@ -1635,31 +1747,31 @@ function requestFundWithdrawalStructured() {
 
   userRef.get().then((doc) => {
     if (!doc.exists) return;
-    const earned = doc.data().earnedDiamonds || 0;
+    const earned = doc.data().earnedCoins || doc.data().earnedDiamonds || 0;
 
     if (earned < 100) {
-      alert("⚠️ Minimum withdrawal is 100 Earned Diamonds ($1.00 USD equivalent).");
+      alert("⚠️ Minimum withdrawal is 100 Earned Coins.");
       return;
     }
 
     db.runTransaction((transaction) => {
       return transaction.get(userRef).then((res) => {
-        const currentEarned = res.data().earnedDiamonds || 0;
+        const currentEarned = res.data().earnedCoins || res.data().earnedDiamonds || 0;
         if (currentEarned < earned) throw "Insufficient balance!";
 
-        transaction.update(userRef, { earnedDiamonds: 0 });
+        transaction.update(userRef, { earnedCoins: 0, earnedDiamonds: 0 });
 
         const payoutRef = db.collection("payout_requests").doc();
         transaction.set(payoutRef, {
           uid: activeUid,
-          amountDiamonds: earned,
+          amountCoins: earned,
           bankInfo: combinedBankInfo,
           status: "Pending Bank Transfer",
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
       });
     }).then(() => {
-      alert(`📥 Success! Withdrawal request for ${earned} Earned Diamonds submitted.`);
+      alert(`📥 Success! Withdrawal request for ${earned} Earned Coins submitted.`);
       document.getElementById('withdrawal-account-number').value = '';
       document.getElementById('withdrawal-full-name').value = '';
       document.getElementById('withdrawal-bank-name').selectedIndex = 0;
@@ -1748,27 +1860,6 @@ function handleFileSelect(event) {
     } else {
       preview.innerHTML = `<img src="${fileUrl}" style="width:100%; height:100%; object-fit:contain; background:#000;">`;
     }
-  }
-}
-
-function buyCoinsCheckout(sku, coinAmount, priceUsd) {
-  const cardPaymentLinks = {
-    'vibepulse_coins_100': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc',
-    'vibepulse_coins_500': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012',
-    'vibepulse_coins_2000': 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f'
-  };
-
-  const baseUrl = cardPaymentLinks[sku];
-  if (!baseUrl) return;
-
-  pendingDiamondAmount = coinAmount;
-  const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-  const checkoutUrlWithUser = `${baseUrl}?checkout[custom][user_id]=${activeUid}`;
-
-  if (window.LemonSqueezy) {
-    LemonSqueezy.Url.Open(checkoutUrlWithUser);
-  } else {
-    window.open(checkoutUrlWithUser, '_blank');
   }
 }
 </script>
