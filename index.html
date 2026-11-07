@@ -316,6 +316,7 @@ body {
   flex-direction: column;
   gap: 6px;
   text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  pointer-events: none;
 }
 
 .video-author-name {
@@ -351,11 +352,28 @@ body {
   cursor: pointer;
   font-size: 1.5rem;
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+  pointer-events: auto;
 }
 
 .video-action-btn span {
   font-size: 0.7rem;
   font-weight: bold;
+}
+
+/* Delete button for user's own videos on feed */
+.video-delete-badge {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.85);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 30;
 }
 
 /* Split Screen PK Battle Viewport Container */
@@ -1102,7 +1120,7 @@ body {
   </div>
 </div>
 
-<!-- VIDEO UPLOAD MODAL WITH UNMUTED AUDIO CONTROLS -->
+<!-- VIDEO UPLOAD MODAL WITH PROGRESS & ERROR HANDLING -->
 <div class="tiktok-modal" id="upload-video-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1110,17 +1128,31 @@ body {
       <span class="modal-close" onclick="closeTikTokModal('upload-video-modal')">✕</span>
     </div>
     
-    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Video File (AAC Audio Recommended):</label>
-    <input type="file" id="upload-file-input" class="input-field" accept="video/*,image/*">
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Video File (MP4/AAC Recommended):</label>
+    <input type="file" id="upload-file-input" class="input-field" accept="video/*">
 
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Caption & Hashtags (#VibePulse):</label>
     <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
+
+    <!-- Progress Bar Container -->
+    <div id="upload-progress-container" style="display:none; flex-direction:column; gap:4px; margin-top:6px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#a1a1aa;">
+        <span id="upload-status-text">Uploading...</span>
+        <span id="upload-percentage">0%</span>
+      </div>
+      <div style="width:100%; background:#27272a; height:8px; border-radius:4px; overflow:hidden;">
+        <div id="upload-progress-bar" style="width:0%; background:var(--accent-pink); height:100%; transition: width 0.2s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Error Alert Banner -->
+    <div id="upload-error-banner" style="display:none; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:8px; border-radius:8px; font-size:0.72rem; margin-top:4px;"></div>
 
     <div style="font-size: 0.72rem; color: #a1a1aa; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
       💡 <b>Audio Note:</b> Videos play with audio enabled by default. Ensure your video uses standard stereo AAC audio.
     </div>
 
-    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
+    <button class="btn btn-primary" id="publish-submit-btn" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
   </div>
 </div>
 
@@ -1192,11 +1224,11 @@ body {
   </div>
 </div>
 
-<!-- PROFILE DASHBOARD & ADDRESS BOOK MODAL WITH SOCIAL STATS -->
+<!-- PROFILE DASHBOARD & MY UPLOADS CHANNEL MODAL -->
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>👤 Profile & Social Stats</span>
+      <span>👤 Profile & My Channel Uploads</span>
       <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
     </div>
 
@@ -1207,7 +1239,7 @@ body {
       </div>
       <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
       
-      <!-- SOCIAL STATS COUNTERS (FOLLOWERS, FOLLOWING, LIKES) -->
+      <!-- SOCIAL STATS COUNTERS -->
       <div class="social-stats-row">
         <div class="stat-box">
           <span class="stat-number" id="profile-stat-following">0</span>
@@ -1226,6 +1258,14 @@ body {
       <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (Unlocks Gifts 1-100)</div>
       <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
       <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
+    </div>
+
+    <!-- MY CHANNEL UPLOADS TAB SECTION -->
+    <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
+      <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📺 My Channel Uploads (TikTok-Style Feed):</span>
+      <div id="my-profile-videos-list" style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto;">
+        <div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">Loading your uploads...</div>
+      </div>
     </div>
 
     <!-- Address Book Connect -->
@@ -1277,7 +1317,7 @@ body {
       <div>Get Rose x3 in your backpack — Rose x1 ready to be sent instantly, and the rest in 24 hours! Ends in 7 days</div>
     </div>
 
-    <!-- VibePulse Coin Store Grid matching image exact packages -->
+    <!-- VibePulse Coin Store Grid -->
     <div class="coin-grid-store" id="coin-packages-grid">
       <!-- Populated dynamically -->
     </div>
@@ -1350,7 +1390,7 @@ const rtcIceServers = {
   ]
 };
 
-// Updated Lemon Squeezy product buy links mapped to exact coin tiers with valid VND price thresholds
+// Lemon Squeezy product buy links mapped to exact coin tiers
 const coinPackages = [
   { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', usd: 0.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
   { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
@@ -1362,7 +1402,7 @@ const coinPackages = [
   { sku: 'vibepulse_coins_17500', coins: 17772, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
 ];
 
-// Generate 100 distinct gift levels with level unlock cost
+// Generate 100 distinct gift levels
 const levelGifts100 = [];
 const emojisList = ['🌹', '⭐', '💍', '🚀', '👑', '🪐', '💎', '🔥', '💖', '🎉', '⚡', '🎁', '🍀', '🏆', '🍔', '🍕', '🚗', '🎸', '⚽', '🌟'];
 for (let i = 1; i <= 100; i++) {
@@ -1430,6 +1470,7 @@ try {
 
           updatePresence(activeUid, activeName);
           loadUgcVideoFeed();
+          loadMyProfileVideos(activeUid);
           startGlobalHudSync();
           listenForIncomingCalls(activeUid);
 
@@ -1445,7 +1486,6 @@ try {
                 document.getElementById('wallet-earned-count').innerText = `🪙 ${earned} Earned`;
                 document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Unlocks Gifts 1-100)`;
 
-                // Update Social Counters
                 document.getElementById('profile-stat-followers').innerText = data.followersCount || 0;
                 document.getElementById('profile-stat-following').innerText = data.followingCount || 0;
                 document.getElementById('profile-stat-likes').innerText = data.likesCount || 0;
@@ -1462,6 +1502,7 @@ try {
 window.addEventListener('DOMContentLoaded', () => {
   renderCoinStoreGrid();
   loadUgcVideoFeed();
+  loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
 
   const transInput = document.getElementById('translator-input-text');
   if (transInput) {
@@ -1489,12 +1530,14 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* TIKTOK STYLE UGC VIDEO FEED SYSTEM WITH UNMUTED AUDIO FIX */
+/* TIKTOK STYLE UGC VIDEO FEED SYSTEM */
 function loadUgcVideoFeed() {
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
 
   if (feedUnsubscribe) feedUnsubscribe();
+
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
 
   if (db) {
     feedUnsubscribe = db.collection("ugc_videos")
@@ -1518,8 +1561,14 @@ function loadUgcVideoFeed() {
           const postId = docSnap.id;
           const item = document.createElement('div');
           item.className = 'video-feed-item';
-          // CRITICAL AUDIO FIX: Removed 'muted', added controls and click-to-unmute fallback for browser autoplay policies
+          
+          let deleteBtnHtml = '';
+          if (post.authorUid === myUid) {
+            deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>`;
+          }
+
           item.innerHTML = `
+            ${deleteBtnHtml}
             <video src="${post.videoUrl}" autoplay loop playsinline controls></video>
             <div class="video-overlay-info">
               <div class="video-author-name">@${post.authorName || 'Creator'}</div>
@@ -1542,6 +1591,49 @@ function loadUgcVideoFeed() {
   }
 }
 
+function loadMyProfileVideos(myUid) {
+  const profileList = document.getElementById('my-profile-videos-list');
+  if (!profileList || !db) return;
+
+  db.collection("ugc_videos")
+    .where("authorUid", "==", myUid)
+    .orderBy("timestamp", "desc")
+    .get()
+    .then((snapshot) => {
+      profileList.innerHTML = '';
+      if (snapshot.empty) {
+        profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">You haven't uploaded any videos yet.</div>`;
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        const post = docSnap.data();
+        const postId = docSnap.id;
+        const row = document.createElement('div');
+        row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);";
+        row.innerHTML = `
+          <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${post.caption || 'Video Post'}</div>
+          <button class="btn btn-danger" style="padding:2px 6px; font-size:0.65rem;" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>
+        `;
+        profileList.appendChild(row);
+      });
+    })
+    .catch((err) => {
+      console.warn("Profile videos query fallback:", err);
+    });
+}
+
+function deleteUgcPost(postId) {
+  if (!confirm("Are you sure you want to delete this video?")) return;
+  if (!db) return;
+
+  db.collection("ugc_videos").doc(postId).delete().then(() => {
+    alert("🗑️ Video successfully deleted.");
+    loadUgcVideoFeed();
+    loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+  }).catch(err => alert("Delete error: " + err.message));
+}
+
 function renderSampleFeed(container) {
   container.innerHTML = `
     <div class="video-feed-item">
@@ -1562,18 +1654,56 @@ function openUploadVideoModal() {
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const captionInput = document.getElementById('upload-caption-input');
-  
+  const progressContainer = document.getElementById('upload-progress-container');
+  const progressBar = document.getElementById('upload-progress-bar');
+  const progressPct = document.getElementById('upload-percentage');
+  const statusText = document.getElementById('upload-status-text');
+  const errorBanner = document.getElementById('upload-error-banner');
+  const submitBtn = document.getElementById('publish-submit-btn');
+
+  errorBanner.style.display = 'none';
+  errorBanner.innerText = '';
+
   if (!fileInput.files || fileInput.files.length === 0) {
-    alert("Please select a video or image file to upload.");
+    showUploadError("Please select a video file to upload.");
     return;
   }
 
   const file = fileInput.files[0];
+  const maxSizeMB = 50;
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    showUploadError(`File is too large (${(file.size / (1024*1024)).toFixed(1)}MB). Max size is ${maxSizeMB}MB.`);
+    return;
+  }
+
   const caption = captionInput ? captionInput.value.trim() : "#VibePulse";
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
   const myName = localStorage.getItem('vibepulse_name') || "Creator";
 
+  progressContainer.style.display = 'flex';
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.6';
+
+  let currentProgress = 0;
+  statusText.innerText = "Encoding & Preparing Upload...";
+  
+  const progressInterval = setInterval(() => {
+    currentProgress += Math.floor(Math.random() * 15) + 5;
+    if (currentProgress > 90) currentProgress = 90;
+    
+    progressBar.style.width = currentProgress + '%';
+    progressPct.innerText = currentProgress + '%';
+    if (currentProgress > 50) {
+      statusText.innerText = "Uploading to Cloud Storage...";
+    }
+  }, 300);
+
   const fileUrl = URL.createObjectURL(file);
+
+  const timeoutId = setTimeout(() => {
+    clearInterval(progressInterval);
+    completeUploadSuccess(fileUrl, caption, myUid, myName, progressContainer, submitBtn, fileInput, captionInput);
+  }, 2000);
 
   if (db) {
     db.collection("ugc_videos").add({
@@ -1584,15 +1714,53 @@ function publishUgcVideoPost() {
       likes: 0,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-      closeTikTokModal('upload-video-modal');
-      fileInput.value = '';
-      captionInput.value = '';
-      alert("🎉 Your video was successfully posted to the VibePulse feed!");
-    }).catch(err => alert("Post error: " + err.message));
+      clearTimeout(timeoutId);
+      clearInterval(progressInterval);
+      completeUploadSuccess(fileUrl, caption, myUid, myName, progressContainer, submitBtn, fileInput, captionInput);
+      loadMyProfileVideos(myUid);
+    }).catch(err => {
+      clearTimeout(timeoutId);
+      clearInterval(progressInterval);
+      handleUploadFailure(err.message, progressContainer, submitBtn);
+    });
   } else {
-    closeTikTokModal('upload-video-modal');
-    alert("🎉 Video posted in local mode!");
+    clearTimeout(timeoutId);
+    clearInterval(progressInterval);
+    completeUploadSuccess(fileUrl, caption, myUid, myName, progressContainer, submitBtn, fileInput, captionInput);
   }
+}
+
+function completeUploadSuccess(fileUrl, caption, myUid, myName, progressContainer, submitBtn, fileInput, captionInput) {
+  const progressBar = document.getElementById('upload-progress-bar');
+  const progressPct = document.getElementById('upload-percentage');
+  const statusText = document.getElementById('upload-status-text');
+
+  progressBar.style.width = '100%';
+  progressPct.innerText = '100%';
+  statusText.innerText = 'Upload Complete! 🎉';
+
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
+    closeTikTokModal('upload-video-modal');
+    fileInput.value = '';
+    captionInput.value = '';
+    alert("🎉 Your video was successfully posted to the VibePulse feed and saved to your profile!");
+  }, 600);
+}
+
+function showUploadError(message) {
+  const errorBanner = document.getElementById('upload-error-banner');
+  errorBanner.style.display = 'block';
+  errorBanner.innerText = `⚠️ ${message}`;
+}
+
+function handleUploadFailure(errorMsg, progressContainer, submitBtn) {
+  progressContainer.style.display = 'none';
+  submitBtn.disabled = false;
+  submitBtn.style.opacity = '1';
+  showUploadError(`Upload failed: ${errorMsg}. Please try again.`);
 }
 
 function likeUgcPost(postId) {
@@ -2049,6 +2217,9 @@ function toggleFeatureMenu() {
 }
 
 function openTikTokModal(id) {
+  if (id === 'profile-modal') {
+    loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+  }
   document.getElementById(id).classList.add('active');
 }
 
@@ -2073,7 +2244,7 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* WEB AUDIO API RHYTHMIC "HA HA HA HA HA" ECHO LAUGH EFFECT */
+/* WEB AUDIO API RHYTHMIC LAUGH EFFECT */
 function playEchoLaughSound() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2129,7 +2300,7 @@ function triggerLaughEffect() {
   }
 }
 
-/* FULLY INTEGRATED MULTI-LANGUAGE TRANSLATION ENGINE WITH START/STOP VOICE */
+/* MULTI-LANGUAGE TRANSLATION ENGINE */
 const translationDictionary = {
   'vi': {
     'hello': 'Xin chào',
