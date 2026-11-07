@@ -354,7 +354,7 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-/* Floating Live/PK Screen Quick Laugh Button Overlay (Repositioned to bottom: 180px) */
+/* Floating Live/PK Screen Quick Laugh Button Overlay (Safe position at bottom: 180px) */
 .floating-screen-laugh-btn {
   position: absolute;
   bottom: 180px;
@@ -434,17 +434,17 @@ body {
   flex: 1;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 8px 75px 8px 12px;
+  padding: 8px 45px 8px 12px; /* space only for the emoji button inside input */
   border-radius: 20px;
   color: white;
   font-size: 0.78rem;
   outline: none;
 }
 
-/* Separated Chat Emoji Picker Toggle Button */
+/* Chat Emoji Picker Toggle Button inside Input Bar */
 .emoji-picker-toggle {
   position: absolute;
-  right: 44px;
+  right: 68px;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
@@ -486,26 +486,6 @@ body {
   border-radius: 6px;
 }
 .emoji-item:hover { background: rgba(255,255,255,0.2); }
-
-/* Separated TikTok Live Laugh Button */
-.laugh-btn {
-  position: absolute;
-  right: 10px;
-  background: rgba(254, 44, 85, 0.25);
-  border: 1px solid var(--accent-pink);
-  color: white;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease;
-  z-index: 55;
-}
-.laugh-btn:active { transform: scale(1.2); }
 
 .chat-send-btn {
   background: var(--accent-pink);
@@ -758,7 +738,7 @@ body {
 <!-- Floating Laughing Emoji Container -->
 <div id="laugh-container"></div>
 
-<!-- Persistent Floating Laugh Reaction Button for Live & PK Screens (Moved higher to bottom: 180px) -->
+<!-- Persistent Floating Laugh Reaction Button for Live & PK Screens -->
 <button class="floating-screen-laugh-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
 
 <!-- Main Viewport Container -->
@@ -839,11 +819,8 @@ body {
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
       <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
       
-      <!-- Separated Chat Emoji Picker Toggle Button -->
+      <!-- Chat Emoji Picker Toggle Button (Expands 14 Emojis) -->
       <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
-      
-      <!-- Separated TikTok Live Laugh Button -->
-      <button type="button" class="laugh-btn" onclick="triggerLaughEffect()" title="Send Echo Laugh Effect 😂">😂</button>
 
       <!-- Expanded Chat Emojis Drawer (14 Emojis Grid) -->
       <div class="emoji-drawer" id="emoji-popup-drawer">
