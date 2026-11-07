@@ -786,7 +786,7 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* TikTok Coin Grid Styling */
+/* Coin Grid Styling */
 .coin-grid-store {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -864,9 +864,31 @@ body {
   50% { transform: translateY(-120px) scale(1.2) rotate(15deg); opacity: 0.9; }
   100% { transform: translateY(-240px) scale(1.5) rotate(-15deg); opacity: 0; }
 }
+
+/* Copy Tab / Full Code Floating Copy Bar */
+.code-copy-toolbar {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  background: rgba(18, 18, 20, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
 </style>
 </head>
 <body>
+
+<!-- Copy Tab / Floating Code Copy Utility -->
+<div class="code-copy-toolbar">
+  <span style="font-size:0.75rem; font-weight:bold; color:var(--accent-cyan);">VibePulse App Build</span>
+  <button class="btn btn-primary" style="padding:4px 10px; font-size:0.7rem;" onclick="copyFullSourceCode()">📋 Copy Full Code</button>
+</div>
 
 <!-- Screen Animation Effect Overlay -->
 <div id="effect-overlay"></div>
@@ -1156,7 +1178,7 @@ body {
   </div>
 </div>
 
-<!-- TIKTOK-STYLE COIN RECHARGE & WALLET STORE -->
+<!-- VIBEPULSE COIN RECHARGE & WALLET STORE -->
 <div class="tiktok-modal" id="shop-modal">
   <div class="modal-body-container" style="background:#121214;">
     <div class="modal-header">
@@ -1182,7 +1204,7 @@ body {
       <div>Get Rose x3 in your backpack — Rose x1 ready to be sent instantly, and the rest in 24 hours! Ends in 7 days</div>
     </div>
 
-    <!-- TikTok Coin Store Grid matching image exact packages -->
+    <!-- VibePulse Coin Store Grid matching image exact packages -->
     <div class="coin-grid-store" id="coin-packages-grid">
       <!-- Populated dynamically -->
     </div>
@@ -1391,6 +1413,16 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 1500);
   }
 });
+
+/* COPY FULL SOURCE CODE UTILITY */
+function copyFullSourceCode() {
+  const fullHtml = document.documentElement.outerHTML;
+  navigator.clipboard.writeText(fullHtml).then(() => {
+    alert("📋 Full source code copied to clipboard! You can now paste and save it as index.html.");
+  }).catch(err => {
+    alert("Copy failed: " + err);
+  });
+}
 
 /* SOCIAL FOLLOW & LIKE FUNCTIONS */
 function toggleFollowUser(targetUid, targetName) {
