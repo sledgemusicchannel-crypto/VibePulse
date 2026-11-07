@@ -279,10 +279,83 @@ body {
   background: #000;
 }
 
-#live-video {
+/* TikTok Vertical Video Feed Styling */
+.video-feed-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+.video-feed-container::-webkit-scrollbar { display: none; }
+
+.video-feed-item {
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  position: relative;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-feed-item video, .video-feed-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.video-overlay-info {
+  position: absolute;
+  bottom: 70px;
+  left: 12px;
+  right: 70px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.video-author-name {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.video-caption {
+  font-size: 0.82rem;
+  color: #f4f4f5;
+}
+
+.video-side-actions {
+  position: absolute;
+  bottom: 80px;
+  right: 12px;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.video-action-btn {
+  background: none;
+  border: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+
+.video-action-btn span {
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 /* Split Screen PK Battle Viewport Container */
@@ -954,17 +1027,18 @@ body {
 
   <audio id="radio-audio" crossorigin="anonymous" preload="none"></audio>
 
-  <!-- Main Video / Member Grid Container -->
+  <!-- Main Video / UGC Feed Container -->
   <div class="media-container" id="preview-area">
-    <div class="media-placeholder" id="content-display-text">
-      🎥 Tap '<b>⚡ Menu</b>' above to pick a Chatroom or start connecting!
+    <!-- Loaded with TikTok UGC Video Feed by default -->
+    <div class="video-feed-container" id="ugc-video-feed">
+      <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:0.85rem;">Loading Community Videos...</div>
     </div>
   </div>
 
   <!-- Bottom Overlay -->
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div class="active-room-tag" id="current-room-label">Room: Global Lounge</div>
+      <div class="active-room-tag" id="current-room-label">Feed: Community Videos</div>
       <div class="direct-call-bar" id="direct-call-header-bar" style="display:none;">
         <button class="direct-call-btn" onclick="initiateDirectCall('voice')" title="Voice Call 📞">📞</button>
         <button class="direct-call-btn" onclick="initiateDirectCall('video')" title="Video Call 📹">📹</button>
@@ -972,11 +1046,11 @@ body {
     </div>
 
     <div class="chat-feed" id="chat-messages-container">
-      <div class="chat-bubble">🟢 <b>System:</b> Connected to VibePulse live network.</div>
+      <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, tap '+' to post your own video!</div>
     </div>
 
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
-      <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
+      <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
       
       <!-- Chat Emoji Picker Toggle Button (Expands 14 Emojis) -->
       <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
@@ -1007,7 +1081,7 @@ body {
 
 <!-- Bottom Navigation Bar -->
 <nav class="bottom-nav">
-  <button class="nav-item active" onclick="switchRoom('Global Lounge')">🏠<span>Home</span></button>
+  <button class="nav-item active" onclick="switchTab('feed')">🏠<span>Home</span></button>
   <button class="nav-item" onclick="openTikTokModal('shop-modal')">🪙<span>Store</span></button>
   <button class="btn-plus-tiktok" onclick="openTikTokModal('plus-modal')">
     <span class="btn-plus-icon">+</span>
@@ -1015,6 +1089,36 @@ body {
   <button class="nav-item" onclick="triggerAction('inbox')">💬<span>Inbox</span></button>
   <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
+
+<!-- DUAL ACTION '+' MODAL - POST VIDEO OR GO LIVE -->
+<div class="tiktok-modal" id="plus-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🎥 Create & Post Content</span>
+      <span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span>
+    </div>
+    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post</button>
+    <button class="btn btn-secondary" onclick="startLiveCamera()">🔴 Go Live & PK Battle</button>
+  </div>
+</div>
+
+<!-- VIDEO UPLOAD MODAL -->
+<div class="tiktok-modal" id="upload-video-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>📤 Share Video to VibePulse Feed</span>
+      <span class="modal-close" onclick="closeTikTokModal('upload-video-modal')">✕</span>
+    </div>
+    
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Video File:</label>
+    <input type="file" id="upload-file-input" class="input-field" accept="video/*,image/*">
+
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Caption & Hashtags (#VibePulse):</label>
+    <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
+
+    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
+  </div>
+</div>
 
 <!-- FULLY INTEGRATED MULTI-LANGUAGE VOICE TRANSLATOR MODAL WITH START/STOP -->
 <div class="tiktok-modal" id="voice-translator-modal">
@@ -1067,19 +1171,6 @@ body {
       <button class="room-tab-btn" onclick="selectRoomFromModal('LGBTQ+ Lounge')">🏳️‍🌈 LGBTQ+ Lounge</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('Lo-Fi Chill Hop')">🎧 Lo-Fi Chill Hop</button>
     </div>
-  </div>
-</div>
-
-<!-- DUAL ACTION '+' MODAL -->
-<div class="tiktok-modal" id="plus-modal">
-  <div class="modal-body-container">
-    <div class="modal-header">
-      <span>Create & Broadcast</span>
-      <span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span>
-    </div>
-    <button class="btn btn-primary" onclick="startLiveCamera()">🎥 Go Live & PK Battle</button>
-    <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">📁 Select Local Media File</button>
-    <input type="file" id="file-input" style="display: none;" accept="video/*,image/*" onchange="handleFileSelect(event)">
   </div>
 </div>
 
@@ -1227,6 +1318,7 @@ let roomUnsubscribe = null;
 let usersUnsubscribe = null;
 let directUnsubscribe = null;
 let callsUnsubscribe = null;
+let feedUnsubscribe = null;
 let myFollowingList = [];
 let allRegisteredUsers = [];
 let selectedCoinSku = null;
@@ -1333,7 +1425,7 @@ try {
           document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
 
           updatePresence(activeUid, activeName);
-          subscribeToActiveRoom(activeRoom);
+          loadUgcVideoFeed();
           startGlobalHudSync();
           listenForIncomingCalls(activeUid);
 
@@ -1365,6 +1457,7 @@ try {
 
 window.addEventListener('DOMContentLoaded', () => {
   renderCoinStoreGrid();
+  loadUgcVideoFeed();
 
   const transInput = document.getElementById('translator-input-text');
   if (transInput) {
@@ -1391,6 +1484,133 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 1500);
   }
 });
+
+/* TIKTOK STYLE UGC VIDEO FEED SYSTEM */
+function loadUgcVideoFeed() {
+  const feedContainer = document.getElementById('ugc-video-feed');
+  if (!feedContainer) return;
+
+  if (feedUnsubscribe) feedUnsubscribe();
+
+  if (db) {
+    feedUnsubscribe = db.collection("ugc_videos")
+      .orderBy("timestamp", "desc")
+      .limit(30)
+      .onSnapshot((snapshot) => {
+        feedContainer.innerHTML = '';
+        if (snapshot.empty) {
+          feedContainer.innerHTML = `
+            <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding:20px; color:#a1a1aa; gap:10px;">
+              <div style="font-size:2.5rem;">🎬</div>
+              <div style="font-size:0.9rem; font-weight:bold; color:#fff;">No videos in the community feed yet!</div>
+              <div style="font-size:0.75rem;">Tap the '+' button at the bottom to upload your first video post.</div>
+            </div>
+          `;
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data();
+          const postId = docSnap.id;
+          const item = document.createElement('div');
+          item.className = 'video-feed-item';
+          item.innerHTML = `
+            <video src="${post.videoUrl}" autoplay loop muted playsinline></video>
+            <div class="video-overlay-info">
+              <div class="video-author-name">@${post.authorName || 'Creator'}</div>
+              <div class="video-caption">${post.caption || '#VibePulse'}</div>
+            </div>
+            <div class="video-side-actions">
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
+            </div>
+          `;
+          feedContainer.appendChild(item);
+        });
+      }, (err) => {
+        console.warn("Feed fallback:", err);
+        renderSampleFeed(feedContainer);
+      });
+  } else {
+    renderSampleFeed(feedContainer);
+  }
+}
+
+function renderSampleFeed(container) {
+  container.innerHTML = `
+    <div class="video-feed-item">
+      <div style="background:linear-gradient(135deg, #18181b, #09090b); width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:10px; text-align:center; padding:20px;">
+        <div style="font-size:3rem;">⚡</div>
+        <div style="font-size:1.1rem; font-weight:bold; color:#fff;">Welcome to VibePulse Feed</div>
+        <div style="font-size:0.8rem; color:#a1a1aa; max-width:300px;">Connect Firebase or upload your video via the '+' button to start broadcasting!</div>
+      </div>
+    </div>
+  `;
+}
+
+function openUploadVideoModal() {
+  closeTikTokModal('plus-modal');
+  openTikTokModal('upload-video-modal');
+}
+
+function publishUgcVideoPost() {
+  const fileInput = document.getElementById('upload-file-input');
+  const captionInput = document.getElementById('upload-caption-input');
+  
+  if (!fileInput.files || fileInput.files.length === 0) {
+    alert("Please select a video or image file to upload.");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const caption = captionInput ? captionInput.value.trim() : "#VibePulse";
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const myName = localStorage.getItem('vibepulse_name') || "Creator";
+
+  const fileUrl = URL.createObjectURL(file);
+
+  if (db) {
+    db.collection("ugc_videos").add({
+      authorUid: myUid,
+      authorName: myName,
+      videoUrl: fileUrl,
+      caption: caption,
+      likes: 0,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      closeTikTokModal('upload-video-modal');
+      fileInput.value = '';
+      captionInput.value = '';
+      alert("🎉 Your video was successfully posted to the VibePulse feed!");
+    }).catch(err => alert("Post error: " + err.message));
+  } else {
+    closeTikTokModal('upload-video-modal');
+    alert("🎉 Video posted in local mode!");
+  }
+}
+
+function likeUgcPost(postId) {
+  if (!db) {
+    triggerScreenEffect("❤️");
+    return;
+  }
+  db.collection("ugc_videos").doc(postId).update({
+    likes: firebase.firestore.FieldValue.increment(1)
+  }).then(() => {
+    triggerScreenEffect("❤️");
+  }).catch(err => console.error("Like post error:", err));
+}
+
+function switchTab(tabName) {
+  const preview = document.getElementById('preview-area');
+  document.getElementById('direct-call-header-bar').style.display = 'none';
+  if (tabName === 'feed') {
+    document.getElementById('current-room-label').innerText = `Feed: Community Videos`;
+    preview.innerHTML = `<div class="video-feed-container" id="ugc-video-feed"></div>`;
+    loadUgcVideoFeed();
+  }
+}
 
 /* SOCIAL FOLLOW & LIKE FUNCTIONS */
 function toggleFollowUser(targetUid, targetName) {
@@ -2056,8 +2276,7 @@ function submitVoiceTranslation() {
 function handleBackNavigation() {
   const preview = document.getElementById('preview-area');
   document.getElementById('direct-call-header-bar').style.display = 'none';
-  preview.innerHTML = `<div class="media-placeholder" id="content-display-text">🎥 Tap '<b>⚡ Menu</b>' above to pick a Chatroom or start connecting!</div>`;
-  switchRoom('Global Lounge');
+  switchTab('feed');
 }
 
 function selectRoomFromModal(roomName) {
@@ -2595,20 +2814,6 @@ function copyMyUserId() {
   const uidText = currentUser ? currentUser.uid : myDevice.uid;
   navigator.clipboard.writeText(uidText);
   alert("Copied User ID: " + uidText);
-}
-
-function handleFileSelect(event) {
-  const file = event.target.files[0];
-  if (file) {
-    closeTikTokModal('plus-modal');
-    const fileUrl = URL.createObjectURL(file);
-    const preview = document.getElementById('preview-area');
-    if (file.type.startsWith('video/')) {
-      preview.innerHTML = `<video src="${fileUrl}" id="live-video" controls autoplay></video>`;
-    } else {
-      preview.innerHTML = `<img src="${fileUrl}" style="width:100%; height:100%; object-fit:contain; background:#000;">`;
-    }
-  }
 }
 </script>
 </body>
