@@ -138,6 +138,8 @@ body {
   align-items: center;
   gap: 2px;
   white-space: nowrap;
+  pointer-events: auto !important;
+  z-index: 60;
 }
 
 .mic-btn.recording {
@@ -1136,65 +1138,77 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-// --- FIXED SPEECH TRANSLATION MICROPHONE FUNCTION ---
-let recognition = null;
+// --- FIXED SPEECH TRANSLATION MICROPHONE FUNCTION (ROBUST & CLICKABLE) ---
+let recognitionInstance = null;
 let isRecordingVoice = false;
 
 function toggleVoiceSpeechTranslation() {
   const micBtn = document.getElementById('mic-translate-btn');
-  const targetLang = document.getElementById('target-lang-select').value;
+  const targetLangSelect = document.getElementById('target-lang-select');
+  const targetLang = targetLangSelect ? targetLangSelect.value : 'en';
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Speech recognition is not supported in this browser. Please try Chrome or WebKit-enabled browser.");
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognitionAPI) {
+    alert("Speech recognition is not supported in this browser. Please use Google Chrome, Safari, or a WebKit browser.");
     return;
   }
 
   if (isRecordingVoice) {
-    if (recognition) {
-      try { recognition.stop(); } catch(e) {}
+    if (recognitionInstance) {
+      try { recognitionInstance.stop(); } catch(e) {}
     }
     stopMicState();
     return;
   }
 
   try {
-    recognition = new SpeechRecognition();
-    recognition.lang = targetLang === 'vi' ? 'vi-VN' : targetLang === 'es' ? 'es-ES' : targetLang === 'fr' ? 'fr-FR' : targetLang === 'zh' ? 'zh-CN' : 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognitionInstance = new SpeechRecognitionAPI();
+    recognitionInstance.continuous = false;
+    recognitionInstance.interimResults = false;
+    recognitionInstance.maxAlternatives = 1;
+    
+    // Map language code properly
+    const langMap = {
+      'en': 'en-US',
+      'vi': 'vi-VN',
+      'es': 'es-ES',
+      'fr': 'fr-FR',
+      'zh': 'zh-CN'
+    };
+    recognitionInstance.lang = langMap[targetLang] || 'en-US';
 
-    recognition.onstart = () => {
+    recognitionInstance.onstart = () => {
       isRecordingVoice = true;
       if (micBtn) {
         micBtn.classList.add('recording');
-        micBtn.innerText = '🔴 Listening...';
+        micBtn.innerHTML = '🔴 Listening...';
       }
     };
 
-    recognition.onresult = (event) => {
+    recognitionInstance.onresult = (event) => {
       const speechText = event.results[0][0].transcript;
       const chatBox = document.getElementById('chat-box');
       if (chatBox) {
         chatBox.value = `🌐 [${targetLang.toUpperCase()}]: ${speechText}`;
+        chatBox.focus();
       }
       sendChatMessage();
       stopMicState();
     };
 
-    recognition.onerror = (event) => {
-      console.warn("Speech recognition error:", event.error);
+    recognitionInstance.onerror = (event) => {
+      console.warn("Speech recognition warning/error:", event.error);
       stopMicState();
     };
 
-    recognition.onend = () => {
+    recognitionInstance.onend = () => {
       stopMicState();
     };
 
-    recognition.start();
+    recognitionInstance.start();
   } catch (err) {
-    console.error("Speech start error:", err);
-    alert("Microphone permission required or recording interrupted.");
+    console.error("Speech initialization error:", err);
+    alert("Microphone access could not be started. Please verify browser permissions.");
     stopMicState();
   }
 }
@@ -1204,7 +1218,7 @@ function stopMicState() {
   const micBtn = document.getElementById('mic-translate-btn');
   if (micBtn) {
     micBtn.classList.remove('recording');
-    micBtn.innerText = '🎤 Speak';
+    micBtn.innerHTML = '🎤 Speak';
   }
 }
 
