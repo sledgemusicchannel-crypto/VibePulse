@@ -1058,9 +1058,9 @@ let myUserLevel = 1;
 let activeSpeechRecognition = null;
 let isRecordingActive = false;
 
-// Updated Lemon Squeezy product buy links mapped to exact coin tiers
+// Updated Lemon Squeezy product buy links mapped to exact coin tiers with valid VND price thresholds
 const coinPackages = [
-  { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫2,000', usd: 0.08, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', usd: 0.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
   { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
   { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', usd: 5.25, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
   { sku: 'vibepulse_coins_700', coins: 860, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
@@ -1195,7 +1195,7 @@ function renderCoinStoreGrid() {
   grid.innerHTML = '';
 
   const rawDisplayList = [
-    { sku: 'vibepulse_coins_5', label: '5 +13', priceVnd: '₫2,000', amount: 18 },
+    { sku: 'vibepulse_coins_5', label: '5 +13', priceVnd: '₫13,000', amount: 18 },
     { sku: 'vibepulse_coins_70', label: '70 +47', priceVnd: '₫26,600', amount: 117 },
     { sku: 'vibepulse_coins_350', label: '350 +47', priceVnd: '₫133,000', amount: 397 },
     { sku: 'vibepulse_coins_700', label: '700 +160', priceVnd: '₫266,000', amount: 860 },
