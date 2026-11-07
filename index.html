@@ -606,7 +606,6 @@ body {
 .call-user-name { font-size: 1.3rem; font-weight: 700; color: #fff; }
 .call-status-label { font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; }
 
-/* Video Media Views for Video Calls */
 .call-video-grid {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -681,6 +680,27 @@ body {
   cursor: pointer;
   padding: 2px 6px;
 }
+
+/* SOCIAL STATS BADGES (FOLLOWERS, FOLLOWING, LIKES) */
+.social-stats-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 4px;
+  margin: 4px 0;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.stat-number { font-size: 0.95rem; font-weight: 800; color: #fff; }
+.stat-label { font-size: 0.65rem; color: var(--text-muted); }
 
 /* Modals */
 .tiktok-modal {
@@ -872,7 +892,7 @@ body {
 
   <!-- Call Action Control Buttons -->
   <div class="call-action-controls" id="call-actions-container">
-    <!-- Rendered dynamically depending on Incoming / Calling / Active state -->
+    <!-- Rendered dynamically -->
   </div>
 </div>
 
@@ -1077,11 +1097,11 @@ body {
   </div>
 </div>
 
-<!-- PROFILE DASHBOARD & ADDRESS BOOK MODAL -->
+<!-- PROFILE DASHBOARD & ADDRESS BOOK MODAL WITH SOCIAL STATS -->
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>👤 Profile & Level Progress</span>
+      <span>👤 Profile & Social Stats</span>
       <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
     </div>
 
@@ -1091,6 +1111,23 @@ body {
         <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="copyMyUserId()">📋 Copy My ID</button>
       </div>
       <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
+      
+      <!-- SOCIAL STATS COUNTERS (FOLLOWERS, FOLLOWING, LIKES) -->
+      <div class="social-stats-row">
+        <div class="stat-box">
+          <span class="stat-number" id="profile-stat-following">0</span>
+          <span class="stat-label">Following</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="profile-stat-followers">0</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="profile-stat-likes">0</span>
+          <span class="stat-label">Likes</span>
+        </div>
+      </div>
+
       <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (Unlocks Gifts 1-100)</div>
       <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
       <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
@@ -1190,6 +1227,7 @@ let roomUnsubscribe = null;
 let usersUnsubscribe = null;
 let directUnsubscribe = null;
 let callsUnsubscribe = null;
+let myFollowingList = [];
 let allRegisteredUsers = [];
 let selectedCoinSku = null;
 let selectedCoinAmount = 0;
@@ -1202,7 +1240,7 @@ let isRecordingActive = false;
 let peerConnection = null;
 let localMediaStream = null;
 let currentCallDocId = null;
-let activeCallType = 'voice'; // 'voice' or 'video'
+let activeCallType = 'voice';
 let callTimerInterval = null;
 let callDurationSeconds = 0;
 let ringtoneInterval = null;
@@ -1310,6 +1348,12 @@ try {
                 document.getElementById('wallet-coins-count').innerText = `🪙 ${balance} Coins`;
                 document.getElementById('wallet-earned-count').innerText = `🪙 ${earned} Earned`;
                 document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Unlocks Gifts 1-100)`;
+
+                // Update Social Counters
+                document.getElementById('profile-stat-followers').innerText = data.followersCount || 0;
+                document.getElementById('profile-stat-following').innerText = data.followingCount || 0;
+                document.getElementById('profile-stat-likes').innerText = data.likesCount || 0;
+                myFollowingList = data.followingList || [];
               }
             });
           }
@@ -1347,6 +1391,51 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 1500);
   }
 });
+
+/* SOCIAL FOLLOW & LIKE FUNCTIONS */
+function toggleFollowUser(targetUid, targetName) {
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  if (!db || !myUid || targetUid === myUid) return;
+
+  const isFollowing = myFollowingList.includes(targetUid);
+  const myRef = db.collection("users").doc(myUid);
+  const targetRef = db.collection("users").doc(targetUid);
+
+  const batch = db.batch();
+
+  if (isFollowing) {
+    batch.update(myRef, {
+      followingCount: firebase.firestore.FieldValue.increment(-1),
+      followingList: firebase.firestore.FieldValue.arrayRemove(targetUid)
+    });
+    batch.set(targetRef, {
+      followersCount: firebase.firestore.FieldValue.increment(-1)
+    }, { merge: true });
+  } else {
+    batch.set(myRef, {
+      followingCount: firebase.firestore.FieldValue.increment(1),
+      followingList: firebase.firestore.FieldValue.arrayUnion(targetUid)
+    }, { merge: true });
+    batch.set(targetRef, {
+      followersCount: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
+  }
+
+  batch.commit().then(() => {
+    alert(isFollowing ? `Unfollowed ${targetName}` : `🎉 You are now following ${targetName}!`);
+  }).catch(err => console.error("Follow update error:", err));
+}
+
+function sendProfileLike(targetUid, targetName) {
+  if (!db || !targetUid) return;
+  const targetRef = db.collection("users").doc(targetUid);
+
+  targetRef.set({
+    likesCount: firebase.firestore.FieldValue.increment(1)
+  }, { merge: true }).then(() => {
+    triggerScreenEffect("❤️");
+  }).catch(err => console.error("Like error:", err));
+}
 
 /* WHATSAPP & ZALO WEBRTC VOICE & VIDEO CALL SIGNALING ENGINE */
 
@@ -1765,7 +1854,6 @@ function playEchoLaughSound() {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const now = audioCtx.currentTime;
     
-    // 5 echo pulses simulating "Ha-ha-ha-ha-ha"
     const laughs = [0, 0.12, 0.24, 0.36, 0.48];
     laughs.forEach((delay, idx) => {
       const osc = audioCtx.createOscillator();
@@ -2051,7 +2139,7 @@ function subscribeToOnlineUsers() {
         if (isOnline) {
           u.isOnline = true;
           allRegisteredUsers.push(u);
-          renderMemberCard(u.name || "User", u.uid, u.isOnline, u.level || 1);
+          renderMemberCard(u.name || "User", u.uid, u.isOnline, u.level || 1, u.followersCount || 0, u.likesCount || 0);
         }
       });
     });
@@ -2067,15 +2155,32 @@ function filterUserSearch(query) {
     (u.name && u.name.toLowerCase().includes(cleanQuery)) ||
     (u.uid && u.uid.toLowerCase().includes(cleanQuery))
   );
-  filtered.forEach(u => renderMemberCard(u.name || "User", u.uid, u.isOnline, u.level || 1));
+  filtered.forEach(u => renderMemberCard(u.name || "User", u.uid, u.isOnline, u.level || 1, u.followersCount || 0, u.likesCount || 0));
 }
 
-function renderMemberCard(name, uid, isOnline, userLvl) {
+function renderMemberCard(name, uid, isOnline, userLvl, followersCount, likesCount) {
   const grid = document.getElementById('room-members-grid');
   if (!grid) return;
+  const isFollowing = myFollowingList.includes(uid);
   const card = document.createElement('div');
   card.style.cssText = "background:rgba(255,255,255,0.08); padding:6px 8px; border-radius:8px; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);";
-  card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name} (Lvl ${userLvl})</span><span style="font-size:0.6rem; color:#25f4ee;">🟢 Active</span></div><div style="font-size:0.65rem; color:#a1a1aa;">ID: ${uid}</div><div style="display:flex; gap:4px; margin-top:2px;"><button class="btn btn-primary" style="flex:1; padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}')">Direct 💬</button><button class="btn btn-secondary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}'); initiateDirectCall('voice');" title="Voice Call">📞</button><button class="btn btn-secondary" style="padding:3px 6px; font-size:0.65rem;" onclick="connectWithUser('${name}', '${uid}'); initiateDirectCall('video');" title="Video Call">📹</button></div>`;
+  card.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-weight:bold; font-size:0.75rem; color:#fff;">${name} (Lvl ${userLvl})</span>
+      <span style="font-size:0.6rem; color:#25f4ee;">🟢 Active</span>
+    </div>
+    <div style="font-size:0.62rem; color:#a1a1aa; display:flex; gap:6px;">
+      <span>👥 ${followersCount} Followers</span>
+      <span>❤️ ${likesCount} Likes</span>
+    </div>
+    <div style="display:flex; gap:4px; margin-top:2px;">
+      <button class="btn ${isFollowing ? 'btn-secondary' : 'btn-primary'}" style="flex:1; padding:3px 4px; font-size:0.62rem;" onclick="toggleFollowUser('${uid}', '${name}')">${isFollowing ? 'Following' : '+ Follow'}</button>
+      <button class="btn btn-secondary" style="padding:3px 6px; font-size:0.62rem;" onclick="sendProfileLike('${uid}', '${name}')">❤️</button>
+      <button class="btn btn-primary" style="padding:3px 6px; font-size:0.62rem;" onclick="connectWithUser('${name}', '${uid}')">💬</button>
+      <button class="btn btn-secondary" style="padding:3px 5px; font-size:0.62rem;" onclick="connectWithUser('${name}', '${uid}'); initiateDirectCall('voice');">📞</button>
+      <button class="btn btn-secondary" style="padding:3px 5px; font-size:0.62rem;" onclick="connectWithUser('${name}', '${uid}'); initiateDirectCall('video');">📹</button>
+    </div>
+  `;
   grid.appendChild(card);
 }
 
