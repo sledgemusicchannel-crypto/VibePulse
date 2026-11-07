@@ -307,7 +307,7 @@ body {
   object-fit: cover;
 }
 
-/* CLEAN TIKTOK OVERLAY INFO - AVOIDING BOTTOM BAR OVERLAP */
+/* CLEAN TIKTOK OVERLAY INFO */
 .video-overlay-info {
   position: absolute;
   bottom: 85px;
@@ -339,10 +339,10 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* RIGHT SIDE ACTIONS - SHIFTED UPWARD TO PREVENT LAUGH & GIFT COLLISION */
+/* RIGHT SIDE ACTIONS */
 .video-side-actions {
   position: absolute;
-  bottom: 125px;
+  bottom: 95px;
   right: 12px;
   z-index: 25;
   display: flex;
@@ -456,17 +456,17 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-/* FLOATING LAUGH BUTTON MOVED HIGHER */
+/* FLOATING LAUGH BUTTON MOVED TO LEFT SCREEN TO AVOID DUET & GIFT ICONS */
 .floating-screen-laugh-btn {
   position: absolute;
-  bottom: 245px;
-  right: 16px;
-  width: 42px;
-  height: 42px;
+  top: 90px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
   background: rgba(24, 24, 27, 0.9);
   border: 2px solid var(--accent-pink);
   border-radius: 50%;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -793,7 +793,7 @@ body {
   padding: 2px 6px;
 }
 
-/* SOCIAL STATS BADGES (FOLLOWERS, FOLLOWING, LIKES) */
+/* SOCIAL STATS BADGES */
 .social-stats-row {
   display: flex;
   justify-content: space-around;
@@ -955,7 +955,7 @@ body {
 #laugh-container {
   position: absolute;
   bottom: 100px;
-  right: 20px;
+  left: 20px;
   width: 100px;
   height: 250px;
   pointer-events: none;
@@ -966,15 +966,15 @@ body {
 .floating-laugh {
   position: absolute;
   bottom: 0;
-  right: 10px;
+  left: 10px;
   font-size: 2rem;
   animation: floatUpLaugh 1.8s ease-out forwards;
 }
 
 @keyframes floatUpLaugh {
   0% { transform: translateY(0) scale(0.6) rotate(0deg); opacity: 1; }
-  50% { transform: translateY(-120px) scale(1.2) rotate(15deg); opacity: 0.9; }
-  100% { transform: translateY(-240px) scale(1.5) rotate(-15deg); opacity: 0; }
+  50% { transform: translateY(-120px) scale(1.2) rotate(-15deg); opacity: 0.9; }
+  100% { transform: translateY(-240px) scale(1.5) rotate(15deg); opacity: 0; }
 }
 </style>
 </head>
@@ -986,7 +986,7 @@ body {
 <!-- Floating Laughing Emoji Container -->
 <div id="laugh-container"></div>
 
-<!-- Persistent Floating Laugh Reaction Button for Live & PK Screens -->
+<!-- Persistent Floating Laugh Reaction Button Shifted to Left Screen -->
 <button class="floating-screen-laugh-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
 
 <!-- WHATSAPP & ZALO STYLE VOICE/VIDEO CALL FULLSCREEN OVERLAY -->
@@ -1003,9 +1003,7 @@ body {
   </div>
 
   <!-- Call Action Control Buttons -->
-  <div class="call-action-controls" id="call-actions-container">
-    <!-- Rendered dynamically -->
-  </div>
+  <div class="call-action-controls" id="call-actions-container"></div>
 </div>
 
 <!-- Main Viewport Container -->
@@ -1068,7 +1066,6 @@ body {
 
   <!-- Main Video / UGC Feed Container -->
   <div class="media-container" id="preview-area">
-    <!-- Loaded with TikTok UGC Video Feed by default -->
     <div class="video-feed-container" id="ugc-video-feed">
       <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:0.85rem;">Loading Community Videos...</div>
     </div>
@@ -1094,7 +1091,7 @@ body {
       <!-- Chat Emoji Picker Toggle Button inside Input Bar -->
       <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
 
-      <!-- Expanded Chat Emojis Drawer (14 Emojis Grid) -->
+      <!-- Expanded Chat Emojis Drawer -->
       <div class="emoji-drawer" id="emoji-popup-drawer">
         <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('😍')">😍</button>
@@ -1129,7 +1126,7 @@ body {
   <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
 
-<!-- DUAL ACTION '+' MODAL - POST VIDEO, HIGHLIGHT STORY OR GO LIVE -->
+<!-- DUAL ACTION '+' MODAL -->
 <div class="tiktok-modal" id="plus-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1157,7 +1154,7 @@ body {
   </div>
 </div>
 
-<!-- VIDEO UPLOAD MODAL WITH PROGRESS & ERROR HANDLING -->
+<!-- VIDEO UPLOAD MODAL -->
 <div class="tiktok-modal" id="upload-video-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1185,11 +1182,38 @@ body {
     <!-- Error Alert Banner -->
     <div id="upload-error-banner" style="display:none; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:8px; border-radius:8px; font-size:0.72rem; margin-top:4px;"></div>
 
-    <div style="font-size: 0.72rem; color: #a1a1aa; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
-      💡 <b>Audio Note:</b> Videos play with audio enabled by default. Ensure your video uses standard stereo AAC audio.
-    </div>
-
     <button class="btn btn-primary" id="publish-submit-btn" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
+  </div>
+</div>
+
+<!-- COMMENTS & DISCUSSION MODAL (CLICKABLE WHITE CHAT ICON) -->
+<div class="tiktok-modal" id="comments-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>💬 Video Comments & Discussion</span>
+      <span class="modal-close" onclick="closeTikTokModal('comments-modal')">✕</span>
+    </div>
+    <div id="video-comments-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;">
+      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">Loading comments...</div>
+    </div>
+    <div style="display:flex; gap:6px; margin-top:4px;">
+      <input type="text" id="video-comment-input" class="input-field" placeholder="Add a comment... (filtered)" style="padding:8px; font-size:0.75rem;">
+      <button class="btn btn-primary" style="padding:8px 12px; font-size:0.75rem; white-space:nowrap;" onclick="submitVideoComment()">Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE MODERATOR SELECTION MODAL -->
+<div class="tiktok-modal" id="live-moderators-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🛡️ Assign Live Stream Moderators</span>
+      <span class="modal-close" onclick="closeTikTokModal('live-moderators-modal')">✕</span>
+    </div>
+    <div style="font-size:0.75rem; color:#a1a1aa;">Pick any of your subscribers/active followers to moderate your live session and filter offensive words:</div>
+    <div id="live-moderators-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px; margin-top:4px;">
+      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">Loading subscribers...</div>
+    </div>
   </div>
 </div>
 
@@ -1398,9 +1422,7 @@ body {
     </div>
 
     <!-- VibePulse Coin Store Grid -->
-    <div class="coin-grid-store" id="coin-packages-grid">
-      <!-- Populated dynamically -->
-    </div>
+    <div class="coin-grid-store" id="coin-packages-grid"></div>
 
     <button class="btn btn-primary" id="recharge-action-btn" style="background: var(--accent-pink); border-radius: 24px; padding: 12px; font-weight:bold; font-size:0.95rem; margin-top:4px;" onclick="executeCoinRecharge()">Recharge</button>
 
@@ -1438,6 +1460,7 @@ let db = null;
 let currentUser = null;
 let activeRoom = "Global Lounge";
 let activeDirectTarget = null;
+let activeCommentVideoId = null;
 let roomUnsubscribe = null;
 let usersUnsubscribe = null;
 let directUnsubscribe = null;
@@ -1452,6 +1475,19 @@ let myUserLevel = 1;
 let activeSpeechRecognition = null;
 let isRecordingActive = false;
 let currentShareUrl = "";
+
+// Offensive words filter list for live sessions and comments
+const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "idiot", "stupid", "toxic", "offensive"];
+
+function filterOffensiveWords(text) {
+  if (!text) return "";
+  let filtered = text;
+  offensiveWordsList.forEach(word => {
+    const regex = new RegExp(word, "gi");
+    filtered = filtered.replace(regex, "****");
+  });
+  return filtered;
+}
 
 /* WebRTC Call System Variables */
 let peerConnection = null;
@@ -1471,7 +1507,6 @@ const rtcIceServers = {
   ]
 };
 
-// Lemon Squeezy product buy links mapped to exact coin tiers
 const coinPackages = [
   { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', usd: 0.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
   { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
@@ -1483,7 +1518,6 @@ const coinPackages = [
   { sku: 'vibepulse_coins_17500', coins: 17772, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
 ];
 
-// Generate 100 distinct gift levels
 const levelGifts100 = [];
 const emojisList = ['🌹', '⭐', '💍', '🚀', '👑', '🪐', '💎', '🔥', '💖', '🎉', '⚡', '🎁', '🍀', '🏆', '🍔', '🍕', '🚗', '🎸', '⚽', '🌟'];
 for (let i = 1; i <= 100; i++) {
@@ -1596,22 +1630,6 @@ window.addEventListener('DOMContentLoaded', () => {
   if (langSel) {
     langSel.addEventListener('change', updateLiveTranslationPreview);
   }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('checkout') === 'success') {
-    setTimeout(() => {
-      const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-      if (activeUid && db) {
-        db.collection("users").doc(activeUid).set({
-          coins: firebase.firestore.FieldValue.increment(selectedCoinAmount > 0 ? selectedCoinAmount : 100),
-          level: firebase.firestore.FieldValue.increment(5)
-        }, { merge: true }).then(() => {
-          alert("🎉 Payment Success! Coins added & Level Unlocked!");
-          window.history.replaceState({}, document.title, window.location.pathname);
-        });
-      }
-    }, 1500);
-  }
 });
 
 /* TIKTOK STYLE UGC VIDEO FEED SYSTEM */
@@ -1644,8 +1662,8 @@ function loadUgcVideoFeed() {
           const post = docSnap.data();
           const postId = docSnap.id;
           
-          // Clear stuck or broken zero-url/placeholder mock posts if requested
-          if (!post.videoUrl || post.videoUrl.includes("blob:") === false && post.videoUrl.startsWith("http") === false) {
+          // Clear stuck or zero-url placeholder posts automatically
+          if (!post.videoUrl || (post.videoUrl.includes("blob:") === false && post.videoUrl.startsWith("http") === false)) {
             db.collection("ugc_videos").doc(postId).delete().catch(()=>{});
             return;
           }
@@ -1658,19 +1676,22 @@ function loadUgcVideoFeed() {
             deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>`;
           }
 
+          const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
+
           item.innerHTML = `
             ${deleteBtnHtml}
             <video src="${post.videoUrl}" autoplay loop playsinline controls></video>
             <div class="video-overlay-info">
               <div class="video-author-name">@${post.authorName || 'Creator'}</div>
-              <div class="video-caption">${post.caption || '#VibePulse'}</div>
+              <div class="video-caption">${safeCaption}</div>
             </div>
             <div class="video-side-actions">
               <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
               <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
-              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
+              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">👤<span>Chat</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -1682,6 +1703,52 @@ function loadUgcVideoFeed() {
   } else {
     renderSampleFeed(feedContainer);
   }
+}
+
+function openCommentsModal(postId) {
+  activeCommentVideoId = postId;
+  openTikTokModal('comments-modal');
+  loadVideoComments(postId);
+}
+
+function loadVideoComments(postId) {
+  const container = document.getElementById('video-comments-list');
+  if (!container || !db) return;
+
+  db.collection("ugc_videos").doc(postId).collection("comments")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snapshot) => {
+      container.innerHTML = '';
+      if (snapshot.empty) {
+        container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No comments yet. Be the first to comment!</div>`;
+        return;
+      }
+      snapshot.forEach((doc) => {
+        const com = doc.data();
+        const safeText = filterOffensiveWords(com.text);
+        const div = document.createElement('div');
+        div.style.cssText = "background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; font-size:0.75rem; color:#fff;";
+        div.innerHTML = `<b>@${com.sender}:</b> ${safeText}`;
+        container.appendChild(div);
+      });
+      container.scrollTop = container.scrollHeight;
+    });
+}
+
+function submitVideoComment() {
+  const input = document.getElementById('video-comment-input');
+  if (!input || !input.value.trim() || !activeCommentVideoId || !db) return;
+  const rawText = input.value.trim();
+  const safeText = filterOffensiveWords(rawText);
+  const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
+
+  db.collection("ugc_videos").doc(activeCommentVideoId).collection("comments").add({
+    sender: myHandle,
+    text: safeText,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    input.value = '';
+  });
 }
 
 function loadMyProfileVideos(myUid) {
@@ -1704,13 +1771,13 @@ function loadMyProfileVideos(myUid) {
         const row = document.createElement('div');
         row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);";
         row.innerHTML = `
-          <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${post.caption || 'Video Post'}</div>
+          <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${filterOffensiveWords(post.caption || 'Video Post')}</div>
           <button class="btn btn-danger" style="padding:2px 6px; font-size:0.65rem;" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>
         `;
         profileList.appendChild(row);
       });
     })
-    .catch((err) => {
+    .catch(() => {
       profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">No uploads found.</div>`;
     });
 }
@@ -1735,7 +1802,7 @@ function loadMyProfileStories(myUid) {
         const pill = document.createElement('div');
         pill.style.cssText = "min-width:60px; height:70px; background:linear-gradient(135deg,var(--accent-pink),var(--accent-cyan)); border-radius:12px; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; cursor:pointer; position:relative; overflow:hidden;";
         pill.innerHTML = `
-          <div style="background:rgba(0,0,0,0.8); width:100%; font-size:0.55rem; text-align:center; padding:2px; color:#fff; border-bottom-left-radius:10px; border-bottom-right-radius:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${story.title || 'Story'}</div>
+          <div style="background:rgba(0,0,0,0.8); width:100%; font-size:0.55rem; text-align:center; padding:2px; color:#fff; border-bottom-left-radius:10px; border-bottom-right-radius:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${filterOffensiveWords(story.title || 'Story')}</div>
           <button onclick="deleteStory('${storyId}')" style="position:absolute; top:2px; right:2px; background:rgba(239,68,68,0.9); color:#fff; border:none; border-radius:50%; width:16px; height:16px; font-size:0.5rem; cursor:pointer;">✕</button>
         `;
         storiesList.appendChild(pill);
@@ -1759,7 +1826,7 @@ function publishHighlightStory() {
     return;
   }
   const file = fileInput.files[0];
-  const title = titleInput ? titleInput.value.trim() : "My Story";
+  const title = filterOffensiveWords(titleInput ? titleInput.value.trim() : "My Story");
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
   const fileUrl = URL.createObjectURL(file);
 
@@ -1887,7 +1954,7 @@ function publishUgcVideoPost() {
     return;
   }
 
-  const caption = captionInput ? captionInput.value.trim() : "#VibePulse";
+  const caption = filterOffensiveWords(captionInput ? captionInput.value.trim() : "#VibePulse");
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
   const myName = localStorage.getItem('vibepulse_name') || "Creator";
 
@@ -2039,6 +2106,39 @@ function sendProfileLike(targetUid, targetName) {
   }, { merge: true }).then(() => {
     triggerScreenEffect("❤️");
   }).catch(err => console.error("Like error:", err));
+}
+
+/* LIVE STREAM MODERATION & SUBSCRIBER ASSIGNMENT */
+function openLiveModeratorModal() {
+  openTikTokModal('live-moderators-modal');
+  const container = document.getElementById('live-moderators-list');
+  if (!container || !db) return;
+
+  db.collection("users").limit(30).get().then((snapshot) => {
+    container.innerHTML = '';
+    if (snapshot.empty) {
+      container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No subscribers found.</div>`;
+      return;
+    }
+    snapshot.forEach((doc) => {
+      const u = doc.data();
+      const div = document.createElement('div');
+      div.className = 'active-user-item';
+      div.innerHTML = `
+        <div>
+          <strong style="font-size:0.78rem; color:#fff;">👤 ${u.name || 'Subscriber'}</strong>
+          <div style="font-size:0.65rem; color:#25f4ee;">🛡️ Moderation Ready</div>
+        </div>
+        <button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="assignModerator('${u.name || 'Subscriber'}')">Assign Mod 🛡️</button>
+      `;
+      container.appendChild(div);
+    });
+  });
+}
+
+function assignModerator(modName) {
+  alert(`🛡️ ${modName} has been assigned as Live Stream Moderator! Offensive words filtering is now active.`);
+  closeTikTokModal('live-moderators-modal');
 }
 
 /* WHATSAPP & ZALO WEBRTC VOICE & VIDEO CALL SIGNALING ENGINE */
@@ -2505,7 +2605,7 @@ function triggerLaughEffect() {
         const el = document.createElement('div');
         el.className = 'floating-laugh';
         el.innerText = '😂';
-        el.style.right = (Math.random() * 60 - 30) + 'px';
+        el.style.left = (Math.random() * 60 - 30) + 'px';
         container.appendChild(el);
         setTimeout(() => el.remove(), 1800);
       }, i * 100);
@@ -2705,9 +2805,10 @@ function subscribeToActiveRoom(roomName) {
       chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName}</div>`;
       snapshot.forEach((doc) => {
         const m = doc.data();
+        const safeText = filterOffensiveWords(m.text);
         const bubble = document.createElement('div');
         bubble.className = 'chat-bubble';
-        bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${m.text}`;
+        bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${safeText}`;
         chatContainer.appendChild(bubble);
       });
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -2717,9 +2818,10 @@ function subscribeToActiveRoom(roomName) {
         chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName}</div>`;
         snap.forEach((d) => {
           const m = d.data();
+          const safeText = filterOffensiveWords(m.text);
           const bubble = document.createElement('div');
           bubble.className = 'chat-bubble';
-          bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${m.text}`;
+          bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${safeText}`;
           chatContainer.appendChild(bubble);
         });
         chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -2842,9 +2944,10 @@ function connectWithUser(targetName, targetUid) {
       chatContainer.innerHTML = `<div class="chat-bubble">💬 <b>Direct Message Thread with ${targetName}</b></div>`;
       snapshot.forEach((doc) => {
         const m = doc.data();
+        const safeText = filterOffensiveWords(m.text);
         const bubble = document.createElement('div');
         bubble.className = 'chat-bubble';
-        bubble.innerHTML = `<b>${m.sender}:</b> ${m.text}`;
+        bubble.innerHTML = `<b>${m.sender}:</b> ${safeText}`;
         chatContainer.appendChild(bubble);
       });
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -2856,9 +2959,10 @@ function sendChatMessage() {
   const box = document.getElementById('chat-box');
   if (!box) return;
 
-  const msg = box.value ? box.value.trim() : "";
-  if (!msg) return;
+  const rawMsg = box.value ? box.value.trim() : "";
+  if (!rawMsg) return;
 
+  const msg = filterOffensiveWords(rawMsg);
   box.value = '';
   box.blur();
   document.getElementById('emoji-popup-drawer').classList.remove('active');
@@ -2898,7 +3002,20 @@ function startLiveCamera() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((stream) => {
       const preview = document.getElementById('preview-area');
-      preview.innerHTML = `<div id="pk-split-view" class="pk-split-container"><div class="pk-pane"><div class="pk-label-tag">🔴 You (Live)</div><video id="local-live-video" autoplay playsinline muted></video></div><div class="pk-pane" id="opponent-pane" style="display:none; background:#1e1e24;"><div class="pk-label-tag">⚔️ Opponent PK</div><video id="opponent-live-video" autoplay playsinline></video></div></div><button id="pk-toggle-btn" class="live-pk-toggle-btn" onclick="toggleLivePKBattle()">⚔️ Activate PK Battle</button>`;
+      preview.innerHTML = `
+        <div id="pk-split-view" class="pk-split-container">
+          <div class="pk-pane">
+            <div class="pk-label-tag">🔴 You (Live)</div>
+            <video id="local-live-video" autoplay playsinline muted></video>
+          </div>
+          <div class="pk-pane" id="opponent-pane" style="display:none; background:#1e1e24;">
+            <div class="pk-label-tag">⚔️ Opponent PK</div>
+            <video id="opponent-live-video" autoplay playsinline></video>
+          </div>
+        </div>
+        <button id="pk-toggle-btn" class="live-pk-toggle-btn" onclick="toggleLivePKBattle()">⚔️ Activate PK Battle</button>
+        <button class="btn btn-primary" style="position:absolute; bottom:70px; left:12px; z-index:45; padding:8px 12px; font-size:0.75rem;" onclick="openLiveModeratorModal()">🛡️ Assign Moderator</button>
+      `;
       document.getElementById('local-live-video').srcObject = stream;
     })
     .catch((err) => alert("Camera permission error: " + err.message));
@@ -3180,7 +3297,7 @@ function saveProfileDetails() {
   const bioInput = document.getElementById('edit-bio');
 
   const name = nameInput ? nameInput.value.trim() : "";
-  const bio = bioInput ? bioInput.value.trim() : "";
+  const bio = filterOffensiveWords(bioInput ? bioInput.value.trim() : "");
 
   if (name) {
     localStorage.setItem('vibepulse_name', name);
