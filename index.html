@@ -354,7 +354,7 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-/* Floating Live/PK Screen Quick Laugh Button Overlay (Safe position at bottom: 180px) */
+/* Floating Live/PK Screen Quick Laugh Button Overlay */
 .floating-screen-laugh-btn {
   position: absolute;
   bottom: 180px;
@@ -434,7 +434,7 @@ body {
   flex: 1;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 8px 45px 8px 12px; /* space only for the emoji button inside input */
+  padding: 8px 45px 8px 12px;
   border-radius: 20px;
   color: white;
   font-size: 0.78rem;
@@ -1058,16 +1058,16 @@ let myUserLevel = 1;
 let activeSpeechRecognition = null;
 let isRecordingActive = false;
 
-// TikTok Coin Packages matching uploaded reference image exact VND values
+// Updated Lemon Squeezy product buy links mapped to exact coin tiers
 const coinPackages = [
-  { sku: 'vibepulse_coins_5', coins: 5, bonus: 13, priceVnd: '₫2,000', usd: 0.08, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_70', coins: 70, bonus: 47, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
-  { sku: 'vibepulse_coins_350', coins: 350, bonus: 47, priceVnd: '₫133,000', usd: 5.25, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_700', coins: 700, bonus: 160, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_1400', coins: 1400, bonus: 297, priceVnd: '₫532,000', usd: 21.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
-  { sku: 'vibepulse_coins_3500', coins: 3500, bonus: 272, priceVnd: '₫1,330,000', usd: 52.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_7000', coins: 7000, bonus: 272, priceVnd: '₫2,660,000', usd: 105.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_17500', coins: 17500, bonus: 272, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
+  { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫2,000', usd: 0.08, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', usd: 5.25, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_700', coins: 860, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_1400', coins: 1697, priceVnd: '₫532,000', usd: 21.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_3500', coins: 3772, priceVnd: '₫1,330,000', usd: 52.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_7000', coins: 7272, priceVnd: '₫2,660,000', usd: 105.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_17500', coins: 17772, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
 ];
 
 // Generate 100 distinct gift levels with level unlock cost
@@ -1194,29 +1194,38 @@ function renderCoinStoreGrid() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  coinPackages.forEach((pkg, index) => {
+  const rawDisplayList = [
+    { sku: 'vibepulse_coins_5', label: '5 +13', priceVnd: '₫2,000', amount: 18 },
+    { sku: 'vibepulse_coins_70', label: '70 +47', priceVnd: '₫26,600', amount: 117 },
+    { sku: 'vibepulse_coins_350', label: '350 +47', priceVnd: '₫133,000', amount: 397 },
+    { sku: 'vibepulse_coins_700', label: '700 +160', priceVnd: '₫266,000', amount: 860 },
+    { sku: 'vibepulse_coins_1400', label: '1400 +297', priceVnd: '₫532,000', amount: 1697 },
+    { sku: 'vibepulse_coins_3500', label: '3500 +272', priceVnd: '₫1,330,000', amount: 3772 },
+    { sku: 'vibepulse_coins_7000', label: '7000 +272', priceVnd: '₫2,660,000', amount: 7272 },
+    { sku: 'vibepulse_coins_17500', label: '17500 +272', priceVnd: '₫6,650,000', amount: 17772 }
+  ];
+
+  rawDisplayList.forEach((item, index) => {
     const card = document.createElement('div');
     card.className = `coin-card-item ${index === 0 ? 'selected' : ''}`;
     if (index === 0) {
-      selectedCoinSku = pkg.sku;
-      selectedCoinAmount = pkg.coins + pkg.bonus;
-      selectedCoinPrice = pkg.usd;
+      selectedCoinSku = item.sku;
+      selectedCoinAmount = item.amount;
     }
-    card.onclick = () => selectCoinPackage(pkg, card);
+    card.onclick = () => selectCoinPackage(item, card);
     card.innerHTML = `
-      <div class="coin-card-title">🪙 ${pkg.coins} <span class="coin-card-bonus">+${pkg.bonus}</span></div>
-      <div class="coin-card-price">${pkg.priceVnd}</div>
+      <div class="coin-card-title">🪙 ${item.label}</div>
+      <div class="coin-card-price">${item.priceVnd}</div>
     `;
     grid.appendChild(card);
   });
 }
 
-function selectCoinPackage(pkg, cardEl) {
+function selectCoinPackage(item, cardEl) {
   document.querySelectorAll('.coin-card-item').forEach(el => el.classList.remove('selected'));
   cardEl.classList.add('selected');
-  selectedCoinSku = pkg.sku;
-  selectedCoinAmount = pkg.coins + pkg.bonus;
-  selectedCoinPrice = pkg.usd;
+  selectedCoinSku = item.sku;
+  selectedCoinAmount = item.amount;
 }
 
 function executeCoinRecharge() {
