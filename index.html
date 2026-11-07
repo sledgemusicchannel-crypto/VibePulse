@@ -434,21 +434,28 @@ body {
   flex: 1;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 8px 36px 8px 12px;
+  padding: 8px 75px 8px 12px; /* space for separated emoji & laugh buttons */
   border-radius: 20px;
   color: white;
   font-size: 0.78rem;
   outline: none;
 }
 
+/* Separated Chat Emoji Toggle Button */
 .emoji-picker-toggle {
   position: absolute;
-  right: 68px;
-  background: none;
-  border: none;
-  font-size: 1.1rem;
+  right: 44px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  padding: 2px;
+  z-index: 55;
 }
 
 /* Expanded Chat Emoji Drawer (14 Emojis Grid) */
@@ -480,21 +487,23 @@ body {
 }
 .emoji-item:hover { background: rgba(255,255,255,0.2); }
 
-/* Separate TikTok Live Laugh Button */
+/* Separated TikTok Live Laugh Button */
 .laugh-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  position: absolute;
+  right: 10px;
+  background: rgba(254, 44, 85, 0.25);
+  border: 1px solid var(--accent-pink);
   color: white;
-  padding: 7px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 0.9rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.1s ease;
-  z-index: 50;
-  pointer-events: auto !important;
+  z-index: 55;
 }
 .laugh-btn:active { transform: scale(1.2); }
 
@@ -830,11 +839,11 @@ body {
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
       <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
       
-      <!-- Normal Chat Emoji Picker Toggle Button -->
-      <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
+      <!-- Separated Chat Emoji Picker Toggle Button -->
+      <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
       
-      <!-- Separate TikTok Live Laugh Button -->
-      <button type="button" class="laugh-btn" onclick="triggerLaughEffect()" title="Send Laugh Effect 😂">😂</button>
+      <!-- Separated TikTok Live Laugh Button -->
+      <button type="button" class="laugh-btn" onclick="triggerLaughEffect()" title="Send Echo Laugh Effect 😂">😂</button>
 
       <!-- Expanded Chat Emojis Drawer (14 Emojis Grid) -->
       <div class="emoji-drawer" id="emoji-popup-drawer">
@@ -871,23 +880,23 @@ body {
   <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
 
-<!-- FULLY INTEGRATED MULTI-LANGUAGE VOICE TRANSLATOR MODAL -->
+<!-- FULLY INTEGRATED MULTI-LANGUAGE VOICE TRANSLATOR MODAL WITH START/STOP -->
 <div class="tiktok-modal" id="voice-translator-modal">
   <div class="modal-body-container">
     <div class="modal-header">
       <span>🌐 Multi-Language Voice Translator</span>
       <span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span>
     </div>
-    <div style="font-size: 0.75rem; color: #a1a1aa;">Type or use the mic recorder below. It instantly translates your message (e.g. English "hello" -> Vietnamese "Xin chào"):</div>
+    <div style="font-size: 0.75rem; color: #a1a1aa;">Record speech and translate instantly (e.g., English "hello" -> Vietnamese "Xin chào"):</div>
     
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-top:4px;">Input Text / Speech:</label>
-    <textarea id="translator-input-text" class="input-field" rows="3" placeholder="Type text here (e.g., hello, how are you)..."></textarea>
+    <textarea id="translator-input-text" class="input-field" rows="3" placeholder="Type text here or record with mic..."></textarea>
     
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Live Translated Result:</label>
     <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:10px; border-radius:8px; font-size:0.85rem; color:#25f4ee; min-height:40px;">[Translation will appear here]</div>
 
     <div style="display:flex; gap:6px; margin-top:4px;">
-      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="startInteractiveMicRecording()">🎙️ Start Mic Recording</button>
+      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Start Recording</button>
       <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Translate & Send</button>
     </div>
   </div>
@@ -1069,6 +1078,8 @@ let selectedCoinSku = null;
 let selectedCoinAmount = 0;
 let selectedCoinPrice = 0;
 let myUserLevel = 1;
+let activeSpeechRecognition = null;
+let isRecordingActive = false;
 
 // TikTok Coin Packages matching uploaded reference image exact VND values
 const coinPackages = [
@@ -1344,7 +1355,6 @@ function playEchoLaughSound() {
       osc.frequency.setValueAtTime(260 + (idx % 2 * 40), now + delay);
       osc.frequency.exponentialRampToValueAtTime(160, now + delay + 0.1);
       
-      // Echo decay volume scaling
       const volume = 0.35 * (1 - (idx * 0.15));
       gain.gain.setValueAtTime(volume, now + delay);
       gain.gain.exponentialRampToValueAtTime(0.005, now + delay + 0.11);
@@ -1386,7 +1396,7 @@ function triggerLaughEffect() {
   }
 }
 
-/* FULLY INTEGRATED MULTI-LANGUAGE TRANSLATION ENGINE */
+/* FULLY INTEGRATED MULTI-LANGUAGE TRANSLATION ENGINE WITH START/STOP VOICE */
 const translationDictionary = {
   'vi': {
     'hello': 'Xin chào',
@@ -1451,53 +1461,73 @@ function updateLiveTranslationPreview() {
   preview.innerText = translated || '[Translation will appear here]';
 }
 
-function startInteractiveMicRecording() {
+function toggleInteractiveMicRecording() {
   const micBtn = document.getElementById('mic-record-action-btn');
   const input = document.getElementById('translator-input-text');
-  
-  micBtn.innerText = "🔴 Listening & Recording...";
+
+  if (isRecordingActive) {
+    stopInteractiveMicRecording();
+    return;
+  }
+
+  isRecordingActive = true;
+  micBtn.innerText = "⏹️ Stop Recording";
   micBtn.style.background = "#ef4444";
 
   const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SpeechRecognitionAPI) {
     try {
-      const recognition = new SpeechRecognitionAPI();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.onresult = (event) => {
-        const speechText = event.results[0][0].transcript;
-        input.value = speechText;
+      activeSpeechRecognition = new SpeechRecognitionAPI();
+      activeSpeechRecognition.continuous = true;
+      activeSpeechRecognition.interimResults = true;
+      activeSpeechRecognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        input.value = transcript;
         updateLiveTranslationPreview();
-        resetMicBtnState(micBtn);
       };
-      recognition.onerror = () => {
-        fallbackVoiceSimulation(input, micBtn);
+      activeSpeechRecognition.onerror = () => {
+        stopInteractiveMicRecording();
       };
-      recognition.start();
+      activeSpeechRecognition.onend = () => {
+        stopInteractiveMicRecording();
+      };
+      activeSpeechRecognition.start();
       return;
     } catch(e) {
-      fallbackVoiceSimulation(input, micBtn);
+      startFallbackRecordingSimulation(input, micBtn);
     }
   } else {
-    fallbackVoiceSimulation(input, micBtn);
+    startFallbackRecordingSimulation(input, micBtn);
   }
 }
 
-function fallbackVoiceSimulation(input, micBtn) {
+function stopInteractiveMicRecording() {
+  isRecordingActive = false;
+  const micBtn = document.getElementById('mic-record-action-btn');
+  if (micBtn) {
+    micBtn.innerText = "🎙️ Start Recording";
+    micBtn.style.background = "#27272a";
+  }
+  if (activeSpeechRecognition) {
+    try { activeSpeechRecognition.stop(); } catch(e){}
+    activeSpeechRecognition = null;
+  }
+}
+
+function startFallbackRecordingSimulation(input, micBtn) {
   setTimeout(() => {
     input.value = "hello";
     updateLiveTranslationPreview();
-    resetMicBtnState(micBtn);
-    alert("🎙️ Voice recorded simulated successfully: 'hello'");
-  }, 1500);
-}
-
-function resetMicBtnState(micBtn) {
-  micBtn.innerText = "🎙️ Start Mic Recording";
-  micBtn.style.background = "#27272a";
+    stopInteractiveMicRecording();
+    alert("🎙️ Voice recorded (simulation): 'hello'");
+  }, 2000);
 }
 
 function submitVoiceTranslation() {
+  stopInteractiveMicRecording();
   const input = document.getElementById('translator-input-text');
   const langSel = document.getElementById('target-lang-select');
   if (!input || !input.value.trim()) {
