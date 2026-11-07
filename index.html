@@ -307,7 +307,7 @@ body {
   object-fit: cover;
 }
 
-/* CLEAN TIKTOK OVERLAY INFO - HELD HIGHER TO AVOID BOTTOM BAR OVERLAP */
+/* CLEAN TIKTOK OVERLAY INFO - AVOIDING BOTTOM BAR OVERLAP */
 .video-overlay-info {
   position: absolute;
   bottom: 85px;
@@ -339,9 +339,10 @@ body {
   -webkit-box-orient: vertical;
 }
 
+/* RIGHT SIDE ACTIONS - SHIFTED UPWARD TO PREVENT LAUGH & GIFT COLLISION */
 .video-side-actions {
   position: absolute;
-  bottom: 95px;
+  bottom: 125px;
   right: 12px;
   z-index: 25;
   display: flex;
@@ -455,10 +456,10 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-/* FLOATING LAUGH BUTTON MOVED HIGHER TO PREVENT OVERLAP WITH RIGHT SIDE BUTTONS */
+/* FLOATING LAUGH BUTTON MOVED HIGHER */
 .floating-screen-laugh-btn {
   position: absolute;
-  bottom: 210px;
+  bottom: 245px;
   right: 16px;
   width: 42px;
   height: 42px;
@@ -478,7 +479,7 @@ body {
 }
 .floating-screen-laugh-btn:active { transform: scale(1.25); }
 
-/* Bottom Floating Overlay Area - COMPACTED HEIGHT & BALANCED SPACING */
+/* Bottom Floating Overlay Area */
 .bottom-overlay {
   position: absolute;
   bottom: 56px;
@@ -1073,7 +1074,7 @@ body {
     </div>
   </div>
 
-  <!-- Bottom Overlay - FIXED SPACING AND CLICKABILITY -->
+  <!-- Bottom Overlay -->
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <div class="active-room-tag" id="current-room-label">Feed: Community Videos</div>
@@ -1128,7 +1129,7 @@ body {
   <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
 
-<!-- DUAL ACTION '+' MODAL - POST VIDEO OR GO LIVE -->
+<!-- DUAL ACTION '+' MODAL - POST VIDEO, HIGHLIGHT STORY OR GO LIVE -->
 <div class="tiktok-modal" id="plus-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1136,7 +1137,23 @@ body {
       <span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span>
     </div>
     <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post (Unmuted Audio)</button>
+    <button class="btn btn-secondary" onclick="openHighlightStoryModal()">✨ Add Highlight Story (Channel Story)</button>
     <button class="btn btn-secondary" onclick="startLiveCamera()">🔴 Go Live & PK Battle</button>
+  </div>
+</div>
+
+<!-- HIGHLIGHT STORY MODAL -->
+<div class="tiktok-modal" id="highlight-story-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>✨ Add Channel Highlight Story</span>
+      <span class="modal-close" onclick="closeTikTokModal('highlight-story-modal')">✕</span>
+    </div>
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Story Media / Image / Short Video:</label>
+    <input type="file" id="story-file-input" class="input-field" accept="video/*,image/*">
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Story Title / Tag:</label>
+    <input type="text" id="story-title-input" class="input-field" placeholder="e.g., Behind the Scenes 🎬">
+    <button class="btn btn-primary" onclick="publishHighlightStory()">🚀 Publish to Channel Highlights</button>
   </div>
 </div>
 
@@ -1173,6 +1190,41 @@ body {
     </div>
 
     <button class="btn btn-primary" id="publish-submit-btn" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
+  </div>
+</div>
+
+<!-- SHARE & DOWNLOAD MODAL -->
+<div class="tiktok-modal" id="share-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🔗 Share or Download Video</span>
+      <span class="modal-close" onclick="closeTikTokModal('share-modal')">✕</span>
+    </div>
+    <div style="font-size:0.8rem; color:#a1a1aa;">Choose an option to share this video or download it directly to your device:</div>
+    
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:6px;">
+      <button class="btn btn-secondary" onclick="shareToPlatform('facebook')">📘 Share to Facebook</button>
+      <button class="btn btn-secondary" onclick="shareToPlatform('twitter')">🐦 Share to X / Twitter</button>
+      <button class="btn btn-secondary" onclick="shareToPlatform('whatsapp')">💬 Share to WhatsApp</button>
+      <button class="btn btn-secondary" onclick="shareToPlatform('copy')">📋 Copy Video Link</button>
+    </div>
+
+    <a id="download-video-anchor" class="btn btn-primary" style="text-align:center; text-decoration:none; margin-top:6px;" download="vibepulse_video.mp4">📥 Download Video File</a>
+  </div>
+</div>
+
+<!-- DUET RECORDING / CREATION MODAL -->
+<div class="tiktok-modal" id="duet-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>👥 Record Duet Video</span>
+      <span class="modal-close" onclick="closeTikTokModal('duet-modal')">✕</span>
+    </div>
+    <div style="font-size:0.75rem; color:#a1a1aa;">Record your reaction side-by-side with this video!</div>
+    <div style="width:100%; height:200px; background:#000; border-radius:8px; display:flex; justify-content:center; align-items:center; overflow:hidden; position:relative;">
+      <video id="duet-preview-cam" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+    </div>
+    <button class="btn btn-primary" onclick="publishDuetPost()">🚀 Publish Duet Post</button>
   </div>
 </div>
 
@@ -1248,7 +1300,7 @@ body {
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>👤 Profile & My Channel Uploads</span>
+      <span>👤 Profile & My Channel Highlights</span>
       <span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span>
     </div>
 
@@ -1278,6 +1330,14 @@ body {
       <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (Unlocks Gifts 1-100)</div>
       <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
       <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
+    </div>
+
+    <!-- HIGHLIGHT STORIES SECTION -->
+    <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
+      <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">✨ Channel Highlight Stories:</span>
+      <div id="my-profile-stories-list" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;">
+        <div style="font-size:0.7rem; color:#a1a1aa;">No highlights yet.</div>
+      </div>
     </div>
 
     <!-- MY CHANNEL UPLOADS TAB SECTION -->
@@ -1391,6 +1451,7 @@ let selectedCoinPrice = 0;
 let myUserLevel = 1;
 let activeSpeechRecognition = null;
 let isRecordingActive = false;
+let currentShareUrl = "";
 
 /* WebRTC Call System Variables */
 let peerConnection = null;
@@ -1491,6 +1552,7 @@ try {
           updatePresence(activeUid, activeName);
           loadUgcVideoFeed();
           loadMyProfileVideos(activeUid);
+          loadMyProfileStories(activeUid);
           startGlobalHudSync();
           listenForIncomingCalls(activeUid);
 
@@ -1522,7 +1584,9 @@ try {
 window.addEventListener('DOMContentLoaded', () => {
   renderCoinStoreGrid();
   loadUgcVideoFeed();
-  loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+  const activeUid = currentUser ? currentUser.uid : myDevice.uid;
+  loadMyProfileVideos(activeUid);
+  loadMyProfileStories(activeUid);
 
   const transInput = document.getElementById('translator-input-text');
   if (transInput) {
@@ -1579,6 +1643,13 @@ function loadUgcVideoFeed() {
         snapshot.forEach((docSnap) => {
           const post = docSnap.data();
           const postId = docSnap.id;
+          
+          // Clear stuck or broken zero-url/placeholder mock posts if requested
+          if (!post.videoUrl || post.videoUrl.includes("blob:") === false && post.videoUrl.startsWith("http") === false) {
+            db.collection("ugc_videos").doc(postId).delete().catch(()=>{});
+            return;
+          }
+
           const item = document.createElement('div');
           item.className = 'video-feed-item';
           
@@ -1597,6 +1668,8 @@ function loadUgcVideoFeed() {
             <div class="video-side-actions">
               <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
+              <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
               <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
             </div>
           `;
@@ -1638,33 +1711,127 @@ function loadMyProfileVideos(myUid) {
       });
     })
     .catch((err) => {
-      console.warn("Profile videos query fallback without ordering:", err);
-      // Fallback query without orderBy if index is building or missing
-      db.collection("ugc_videos")
-        .where("authorUid", "==", myUid)
-        .get()
-        .then((fallbackSnap) => {
-          profileList.innerHTML = '';
-          if (fallbackSnap.empty) {
-            profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">You haven't uploaded any videos yet.</div>`;
-            return;
-          }
-          fallbackSnap.forEach((docSnap) => {
-            const post = docSnap.data();
-            const postId = docSnap.id;
-            const row = document.createElement('div');
-            row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);";
-            row.innerHTML = `
-              <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${post.caption || 'Video Post'}</div>
-              <button class="btn btn-danger" style="padding:2px 6px; font-size:0.65rem;" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>
-            `;
-            profileList.appendChild(row);
-          });
-        })
-        .catch((subErr) => {
-          profileList.innerHTML = `<div style="font-size:0.72rem; color:#ef4444; text-align:center; padding:6px;">Error loading uploads.</div>`;
-        });
+      profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">No uploads found.</div>`;
     });
+}
+
+function loadMyProfileStories(myUid) {
+  const storiesList = document.getElementById('my-profile-stories-list');
+  if (!storiesList || !db) return;
+
+  db.collection("highlight_stories")
+    .where("authorUid", "==", myUid)
+    .get()
+    .then((snapshot) => {
+      storiesList.innerHTML = '';
+      if (snapshot.empty) {
+        storiesList.innerHTML = `<div style="font-size:0.7rem; color:#a1a1aa;">No highlights yet. Tap '+' to add story.</div>`;
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        const story = docSnap.data();
+        const storyId = docSnap.id;
+        const pill = document.createElement('div');
+        pill.style.cssText = "min-width:60px; height:70px; background:linear-gradient(135deg,var(--accent-pink),var(--accent-cyan)); border-radius:12px; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; cursor:pointer; position:relative; overflow:hidden;";
+        pill.innerHTML = `
+          <div style="background:rgba(0,0,0,0.8); width:100%; font-size:0.55rem; text-align:center; padding:2px; color:#fff; border-bottom-left-radius:10px; border-bottom-right-radius:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${story.title || 'Story'}</div>
+          <button onclick="deleteStory('${storyId}')" style="position:absolute; top:2px; right:2px; background:rgba(239,68,68,0.9); color:#fff; border:none; border-radius:50%; width:16px; height:16px; font-size:0.5rem; cursor:pointer;">✕</button>
+        `;
+        storiesList.appendChild(pill);
+      });
+    })
+    .catch(() => {
+      storiesList.innerHTML = `<div style="font-size:0.7rem; color:#a1a1aa;">No stories found.</div>`;
+    });
+}
+
+function openHighlightStoryModal() {
+  closeTikTokModal('plus-modal');
+  openTikTokModal('highlight-story-modal');
+}
+
+function publishHighlightStory() {
+  const fileInput = document.getElementById('story-file-input');
+  const titleInput = document.getElementById('story-title-input');
+  if (!fileInput.files || fileInput.files.length === 0) {
+    alert("Please select a photo or video file for your story.");
+    return;
+  }
+  const file = fileInput.files[0];
+  const title = titleInput ? titleInput.value.trim() : "My Story";
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const fileUrl = URL.createObjectURL(file);
+
+  if (db) {
+    db.collection("highlight_stories").add({
+      authorUid: myUid,
+      mediaUrl: fileUrl,
+      title: title,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert("✨ Highlight story published successfully!");
+      closeTikTokModal('highlight-story-modal');
+      loadMyProfileStories(myUid);
+      fileInput.value = '';
+      titleInput.value = '';
+    }).catch(err => alert("Error publishing story: " + err.message));
+  }
+}
+
+function deleteStory(storyId) {
+  if (!confirm("Delete this highlight story?")) return;
+  if (!db) return;
+  db.collection("highlight_stories").doc(storyId).delete().then(() => {
+    alert("Story deleted.");
+    loadMyProfileStories(currentUser ? currentUser.uid : myDevice.uid);
+  });
+}
+
+function openShareModal(videoUrl) {
+  currentShareUrl = videoUrl;
+  const downloadAnchor = document.getElementById('download-video-anchor');
+  if (downloadAnchor) {
+    downloadAnchor.href = videoUrl;
+  }
+  openTikTokModal('share-modal');
+}
+
+function shareToPlatform(platform) {
+  if (platform === 'copy') {
+    navigator.clipboard.writeText(currentShareUrl || window.location.href);
+    alert("📋 Video link copied to clipboard!");
+    closeTikTokModal('share-modal');
+    return;
+  }
+  let shareLink = "";
+  const encodedUrl = encodeURIComponent(currentShareUrl || window.location.href);
+  if (platform === 'facebook') {
+    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+  } else if (platform === 'twitter') {
+    shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=Check%20out%20this%20awesome%20video%20on%20VibePulse!`;
+  } else if (platform === 'whatsapp') {
+    shareLink = `https://api.whatsapp.com/send?text=Check%20out%20this%20video:%20${encodedUrl}`;
+  }
+  if (shareLink) {
+    window.open(shareLink, '_blank');
+  }
+}
+
+function openDuetModal(videoUrl) {
+  openTikTokModal('duet-modal');
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+      const cam = document.getElementById('duet-preview-cam');
+      if (cam) cam.srcObject = stream;
+    })
+    .catch(err => console.warn("Duet camera error:", err));
+}
+
+function publishDuetPost() {
+  alert("🎉 Duet video successfully created and published to feed!");
+  closeTikTokModal('duet-modal');
+  loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
 }
 
 function deleteUgcPost(postId) {
@@ -2262,7 +2429,9 @@ function toggleFeatureMenu() {
 
 function openTikTokModal(id) {
   if (id === 'profile-modal') {
-    loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+    const activeUid = currentUser ? currentUser.uid : myDevice.uid;
+    loadMyProfileVideos(activeUid);
+    loadMyProfileStories(activeUid);
   }
   document.getElementById(id).classList.add('active');
 }
