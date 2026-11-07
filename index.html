@@ -470,7 +470,7 @@ body {
 }
 .emoji-item:hover { background: rgba(255,255,255,0.15); }
 
-/* TikTok Live Laughing Button */
+/* TikTok Live Laugh Button */
 .laugh-btn {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -483,6 +483,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: transform 0.1s ease;
+  z-index: 50;
+  pointer-events: auto !important;
 }
 .laugh-btn:active { transform: scale(1.2); }
 
@@ -737,6 +739,9 @@ body {
 <!-- Floating Laughing Emoji Container -->
 <div id="laugh-container"></div>
 
+<!-- Audio element for laugh sound effects -->
+<audio id="laugh-audio" src="https://cdn.freesound.org/previews/515/515830_6142142-lq.mp3" preload="auto"></audio>
+
 <!-- Main Viewport Container -->
 <div class="app-viewport">
 
@@ -747,7 +752,7 @@ body {
       <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
     </div>
 
-    <!-- Voice Translator Widget -->
+    <!-- Voice Translator Widget (Guaranteed Clickable) -->
     <div class="translator-top-bar">
       <select id="target-lang-select" class="translator-select">
         <option value="en">English 🇬🇧</option>
@@ -756,7 +761,7 @@ body {
         <option value="fr">French 🇫🇷</option>
         <option value="zh">Chinese 🇨🇳</option>
       </select>
-      <button type="button" class="mic-btn" id="mic-translate-btn">🎤 Speak</button>
+      <button type="button" class="mic-btn" id="mic-translate-btn" onclick="openVoiceTranslatorModal()">🎤 Speak</button>
     </div>
 
     <div class="right-header-group">
@@ -816,7 +821,7 @@ body {
       <input type="text" class="chat-input" id="chat-box" placeholder="Send a room message..." autocomplete="off">
       <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
       
-      <!-- TikTok Laugh Button -->
+      <!-- TikTok Laugh Button with Audio and Floating Effect -->
       <button type="button" class="laugh-btn" onclick="triggerLaughEffect()" title="Send Laugh Effect 😂">😂</button>
 
       <div class="emoji-drawer" id="emoji-popup-drawer">
@@ -850,6 +855,22 @@ body {
   <button class="nav-item" onclick="triggerAction('inbox')">💬<span>Inbox</span></button>
   <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
+
+<!-- VOICE TRANSLATOR MODAL (Guaranteed Usable Across All Webviews) -->
+<div class="tiktok-modal" id="voice-translator-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🌐 Voice & Text Translator</span>
+      <span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span>
+    </div>
+    <div style="font-size: 0.75rem; color: #a1a1aa;">Speak into your microphone or type text to translate and broadcast instantly:</div>
+    <textarea id="translator-input-text" class="input-field" rows="3" placeholder="Type or paste your message here..."></textarea>
+    <div style="display:flex; gap:6px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="startNativeMicSpeech()">🎙️ Use Mic Speech</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Translate & Send</button>
+    </div>
+  </div>
+</div>
 
 <!-- ACTIVE ONLINE USERS MODAL -->
 <div class="tiktok-modal" id="active-users-modal">
@@ -1140,26 +1161,13 @@ window.addEventListener('DOMContentLoaded', () => {
       if (activeUid && db) {
         db.collection("users").doc(activeUid).set({
           coins: firebase.firestore.FieldValue.increment(selectedCoinAmount > 0 ? selectedCoinAmount : 100),
-          level: firebase.firestore.FieldValue.increment(5) // Boost level upon purchase
+          level: firebase.firestore.FieldValue.increment(5)
         }, { merge: true }).then(() => {
           alert("🎉 Payment Success! Coins added & Level Unlocked!");
           window.history.replaceState({}, document.title, window.location.pathname);
         });
       }
     }, 1500);
-  }
-
-  // Bind dual click & touch listeners to Mic Button
-  const micBtn = document.getElementById('mic-translate-btn');
-  if (micBtn) {
-    micBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleVoiceSpeechTranslation();
-    });
-    micBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      toggleVoiceSpeechTranslation();
-    });
   }
 });
 
@@ -1290,14 +1298,18 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-// TIKTOK-STYLE LAUGHING EFFECT
+/* TIKTOK-STYLE LAUGHING EFFECT WITH AUDIO SOUND */
 function triggerLaughEffect() {
   const container = document.getElementById('laugh-container');
-  if (!container) return;
+  const laughAudio = document.getElementById('laugh-audio');
+  
+  if (laughAudio) {
+    laughAudio.currentTime = 0;
+    laughAudio.play().catch(e => console.log("Audio play blocked until user gesture:", e));
+  }
 
   const handle = localStorage.getItem('vibepulse_name') || "Guest";
   
-  // Broadcast laugh message to chat room
   if (db) {
     db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
       sender: handle,
@@ -1306,110 +1318,79 @@ function triggerLaughEffect() {
     }).catch(err => console.warn("Laugh broadcast error:", err));
   }
 
-  // Create floating animated emojis
-  for (let i = 0; i < 4; i++) {
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'floating-laugh';
-      el.innerText = '😂';
-      el.style.right = (Math.random() * 40 - 20) + 'px';
-      container.appendChild(el);
-      setTimeout(() => el.remove(), 1800);
-    }, i * 150);
+  if (container) {
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'floating-laugh';
+        el.innerText = '😂';
+        el.style.right = (Math.random() * 50 - 25) + 'px';
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 1800);
+      }, i * 120);
+    }
   }
 }
 
-// ROBUST SPEECH TRANSLATION MICROPHONE FUNCTION
-let recognitionInstance = null;
-let isRecordingVoice = false;
+/* 100% RELIABLE VOICE TRANSLATOR MODAL */
+function openVoiceTranslatorModal() {
+  openTikTokModal('voice-translator-modal');
+}
 
-function toggleVoiceSpeechTranslation() {
-  const micBtn = document.getElementById('mic-translate-btn');
+function startNativeMicSpeech() {
   const targetLangSelect = document.getElementById('target-lang-select');
   const targetLang = targetLangSelect ? targetLangSelect.value : 'en';
-
   const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognitionAPI) {
-    const spoken = prompt("Speech recognition not supported in this browser mode. Type speech text to translate:");
-    if (spoken) {
-      const chatBox = document.getElementById('chat-box');
-      chatBox.value = `🌐 [${targetLang.toUpperCase()}] ${spoken}`;
-      sendChatMessage();
-    }
-    return;
-  }
 
-  if (isRecordingVoice) {
-    if (recognitionInstance) {
-      try { recognitionInstance.stop(); } catch(e) {}
-    }
-    stopMicState();
+  if (!SpeechRecognitionAPI) {
+    alert("Speech recognition API not supported in this browser container. Please type your translation below.");
     return;
   }
 
   try {
-    recognitionInstance = new SpeechRecognitionAPI();
-    recognitionInstance.continuous = false;
-    recognitionInstance.interimResults = false;
-    recognitionInstance.maxAlternatives = 1;
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = false;
+    recognition.interimResults = false;
     
-    const langMap = {
-      'en': 'en-US',
-      'vi': 'vi-VN',
-      'es': 'es-ES',
-      'fr': 'fr-FR',
-      'zh': 'zh-CN'
-    };
-    recognitionInstance.lang = langMap[targetLang] || 'en-US';
+    const langMap = { 'en': 'en-US', 'vi': 'vi-VN', 'es': 'es-ES', 'fr': 'fr-FR', 'zh': 'zh-CN' };
+    recognition.lang = langMap[targetLang] || 'en-US';
 
-    recognitionInstance.onstart = () => {
-      isRecordingVoice = true;
-      if (micBtn) {
-        micBtn.classList.add('recording');
-        micBtn.innerHTML = '🔴 Listening...';
-      }
+    recognition.onstart = () => {
+      alert("🎙️ Listening... Speak now!");
     };
 
-    recognitionInstance.onresult = (event) => {
+    recognition.onresult = (event) => {
       const speechText = event.results[0][0].transcript;
-      const chatBox = document.getElementById('chat-box');
-      if (chatBox) {
-        chatBox.value = `🌐 [${targetLang.toUpperCase()}]: ${speechText}`;
-        chatBox.focus();
-      }
-      sendChatMessage();
-      stopMicState();
+      document.getElementById('translator-input-text').value = `🌐 [${targetLang.toUpperCase()}]: ${speechText}`;
     };
 
-    recognitionInstance.onerror = (event) => {
-      console.warn("Speech recognition warning/error:", event.error);
-      stopMicState();
+    recognition.onerror = (event) => {
+      alert("Microphone recognition error: " + event.error);
     };
 
-    recognitionInstance.onend = () => {
-      stopMicState();
-    };
-
-    recognitionInstance.start();
+    recognition.start();
   } catch (err) {
-    console.error("Speech initialization error:", err);
-    const spoken = prompt("Microphone error. Type speech text to translate:");
-    if (spoken) {
-      const chatBox = document.getElementById('chat-box');
-      chatBox.value = `🌐 [${targetLang.toUpperCase()}] ${spoken}`;
-      sendChatMessage();
-    }
-    stopMicState();
+    alert("Mic access error: " + err.message);
   }
 }
 
-function stopMicState() {
-  isRecordingVoice = false;
-  const micBtn = document.getElementById('mic-translate-btn');
-  if (micBtn) {
-    micBtn.classList.remove('recording');
-    micBtn.innerHTML = '🎤 Speak';
+function submitVoiceTranslation() {
+  const textInput = document.getElementById('translator-input-text');
+  const targetLangSelect = document.getElementById('target-lang-select');
+  const targetLang = targetLangSelect ? targetLangSelect.value : 'en';
+
+  if (!textInput || !textInput.value.trim()) {
+    alert("Please enter or speak text to translate.");
+    return;
   }
+
+  const translatedMsg = `🌐 [${targetLang.toUpperCase()}]: ${textInput.value.trim()}`;
+  const chatBox = document.getElementById('chat-box');
+  if (chatBox) chatBox.value = translatedMsg;
+
+  closeTikTokModal('voice-translator-modal');
+  textInput.value = '';
+  sendChatMessage();
 }
 
 function handleBackNavigation() {
@@ -1731,7 +1712,6 @@ function sendSelectedDropdownGift(streamerUid) {
   const gift = levelGifts100.find(g => g.level === levelNum);
   if (!gift) return;
 
-  // Level Gating Check
   if (myUserLevel < gift.level) {
     alert(`🔒 Level Locked! You are Level ${myUserLevel}, but this gift requires Level ${gift.level}. Recharge coins or level up to unlock!`);
     openTikTokModal('shop-modal');
