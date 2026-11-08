@@ -345,7 +345,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .video-action-btn {
@@ -380,6 +380,7 @@ body {
   align-items: center;
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .avatar-ring-img {
@@ -1033,7 +1034,7 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- LEFT-SIDE FLOATING CONTROLS (😂 Laughter, ❤️ Love + Live Counter, 💬 Comments) -->
+<!-- LEFT-SIDE FLOATING CONTROLS (😂 Laughter, ❤️ Love + Counter, 💬 Comments) -->
 <div class="left-side-floating-controls">
   <div class="floating-action-wrapper">
     <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
@@ -1262,7 +1263,6 @@ body {
 
     <div style="display:flex; flex-direction:column; gap:8px; background:#09090b; padding:12px; border-radius:10px; border:1px solid #27272a; text-align:center; align-items:center;">
       
-      <!-- TikTok Ring Avatar in Creator Inspector -->
       <div class="avatar-ring-container" style="width:70px; height:70px;">
         <div class="avatar-ring-img" id="inspect-avatar-img">👤</div>
         <div class="online-dot-badge" style="width:14px; height:14px;"></div>
@@ -1413,7 +1413,7 @@ body {
   </div>
 </div>
 
-<!-- PROFILE DASHBOARD MODAL WITH PROFILE PHOTO UPLOAD -->
+<!-- PROFILE DASHBOARD MODAL -->
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1423,7 +1423,6 @@ body {
 
     <div style="display:flex; flex-direction:column; gap:8px; background:#09090b; padding:12px; border-radius:10px; border:1px solid #27272a; align-items:center; text-align:center;">
       
-      <!-- PROFILE AVATAR PHOTO WITH GREEN TIKTOK ONLINE RING -->
       <div class="avatar-ring-container" style="width:76px; height:76px;">
         <div class="avatar-ring-img" id="my-profile-avatar-display">👤</div>
         <div class="online-dot-badge" style="width:16px; height:16px;"></div>
@@ -1558,6 +1557,7 @@ let activeRoom = "Global Lounge";
 let activeDirectTarget = null;
 let activeCommentVideoId = null;
 let currentActiveVideoId = null;
+let activeVideoMetadata = null;
 let inspectTargetUser = null;
 let roomUnsubscribe = null;
 let usersUnsubscribe = null;
@@ -1586,7 +1586,6 @@ function filterOffensiveWords(text) {
   return filtered;
 }
 
-/* WebRTC Setup */
 let peerConnection = null;
 let localMediaStream = null;
 let currentCallDocId = null;
@@ -1630,7 +1629,6 @@ const currentSessionStartTime = (typeof firebase !== 'undefined' && firebase.fir
 function getDeviceUser() {
   let localId = localStorage.getItem('vibepulse_uid');
   let localName = localStorage.getItem('vibepulse_name');
-
   if (!localId) {
     localId = 'usr_' + Math.random().toString(36).substring(2, 9);
     localStorage.setItem('vibepulse_uid', localId);
@@ -1646,69 +1644,60 @@ const myDevice = getDeviceUser();
 
 try {
   if (typeof firebase !== 'undefined') {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
 
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => {
-        auth.onAuthStateChanged((user) => {
-          const signoutBtn = document.getElementById('signout-btn');
-          let activeUid = myDevice.uid;
-          let activeName = myDevice.name;
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+      auth.onAuthStateChanged((user) => {
+        const signoutBtn = document.getElementById('signout-btn');
+        let activeUid = myDevice.uid;
+        let activeName = myDevice.name;
 
-          if (user) {
-            currentUser = user;
-            activeUid = user.uid;
-            activeName = user.displayName || user.email.split('@')[0];
-            localStorage.setItem('vibepulse_uid', activeUid);
-            localStorage.setItem('vibepulse_name', activeName);
-            if (signoutBtn) signoutBtn.style.display = "block";
-          } else {
-            currentUser = null;
-            if (signoutBtn) signoutBtn.style.display = "none";
-          }
+        if (user) {
+          currentUser = user;
+          activeUid = user.uid;
+          activeName = user.displayName || user.email.split('@')[0];
+          localStorage.setItem('vibepulse_uid', activeUid);
+          localStorage.setItem('vibepulse_name', activeName);
+          if (signoutBtn) signoutBtn.style.display = "block";
+        } else {
+          currentUser = null;
+          if (signoutBtn) signoutBtn.style.display = "none";
+        }
 
-          document.getElementById('profile-card-name').innerText = activeName;
-          document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
-          renderProfileAvatarDisplay();
+        document.getElementById('profile-card-name').innerText = activeName;
+        document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
+        renderProfileAvatarDisplay();
 
-          updatePresence(activeUid, activeName);
-          loadUgcVideoFeed();
-          loadMyProfileVideos(activeUid);
-          loadMyProfileStories(activeUid);
-          startGlobalHudSync();
-          listenForIncomingCalls(activeUid);
+        updatePresence(activeUid, activeName);
+        loadUgcVideoFeed();
+        loadMyProfileVideos(activeUid);
+        loadMyProfileStories(activeUid);
+        startGlobalHudSync();
+        listenForIncomingCalls(activeUid);
 
-          if (db) {
-            db.collection("users").doc(activeUid).onSnapshot((doc) => {
-              if (doc.exists) {
-                const data = doc.data();
-                const balance = data.coins || data.diamonds || 0;
-                const earned = data.earnedCoins || data.earnedDiamonds || 0;
-                myUserLevel = data.level || 1;
-                if (data.avatarUrl) {
-                  myAvatarPhotoUrl = data.avatarUrl;
-                  localStorage.setItem('vibepulse_avatar', data.avatarUrl);
-                  renderProfileAvatarDisplay();
-                }
-
-                document.getElementById('wallet-coins-count').innerText = `🪙 ${balance} Coins`;
-                document.getElementById('wallet-earned-count').innerText = `🪙 ${earned} Earned`;
-                document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Unlocks Gifts 1-100)`;
-
-                document.getElementById('profile-stat-followers').innerText = data.followersCount || 0;
-                document.getElementById('profile-stat-following').innerText = data.followingCount || 0;
-                document.getElementById('profile-stat-likes').innerText = data.likesCount || 0;
-                myFollowingList = data.followingList || [];
+        if (db) {
+          db.collection("users").doc(activeUid).onSnapshot((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              myUserLevel = data.level || 1;
+              if (data.avatarUrl) {
+                myAvatarPhotoUrl = data.avatarUrl;
+                localStorage.setItem('vibepulse_avatar', data.avatarUrl);
+                renderProfileAvatarDisplay();
               }
-            });
-          }
-        });
-      })
-      .catch((err) => console.warn("Auth persistence error:", err));
+              document.getElementById('wallet-coins-count').innerText = `🪙 ${data.coins || 0} Coins`;
+              document.getElementById('wallet-earned-count').innerText = `🪙 ${data.earnedCoins || 0} Earned`;
+              document.getElementById('profile-stat-followers').innerText = data.followersCount || 0;
+              document.getElementById('profile-stat-following').innerText = data.followingCount || 0;
+              document.getElementById('profile-stat-likes').innerText = data.likesCount || 0;
+              myFollowingList = data.followingList || [];
+            }
+          });
+        }
+      });
+    });
   }
 } catch (e) { console.warn("Firebase standby:", e); }
 
@@ -1716,11 +1705,6 @@ window.addEventListener('DOMContentLoaded', () => {
   renderCoinStoreGrid();
   loadUgcVideoFeed();
   renderProfileAvatarDisplay();
-
-  const transInput = document.getElementById('translator-input-text');
-  if (transInput) transInput.addEventListener('input', updateLiveTranslationPreview);
-  const langSel = document.getElementById('target-lang-select');
-  if (langSel) langSel.addEventListener('change', updateLiveTranslationPreview);
 });
 
 function renderProfileAvatarDisplay() {
@@ -1743,14 +1727,12 @@ function uploadProfileAvatarPhoto(input) {
 
   const activeUid = currentUser ? currentUser.uid : myDevice.uid;
   if (db) {
-    db.collection("users").doc(activeUid).set({
-      avatarUrl: photoUrl
-    }, { merge: true });
+    db.collection("users").doc(activeUid).set({ avatarUrl: photoUrl }, { merge: true });
   }
-  alert("📷 Profile photo successfully updated!");
+  alert("📷 Profile photo updated!");
 }
 
-/* UGC VIDEO FEED & REAL-TIME LIKE COUNTER SYNC */
+/* UGC FEED & VIDEO PLAYBACK FIX */
 function loadUgcVideoFeed() {
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
@@ -1793,16 +1775,15 @@ function loadUgcVideoFeed() {
               <div class="video-caption">${safeCaption}</div>
             </div>
             
-            <!-- RIGHT SIDE ACTION CONTROLS -->
+            <!-- RIGHT SIDE ACTIONS (NO DUP LOVE, FULLY CLICKABLE PROFILE & DUET) -->
             <div class="video-side-actions">
-              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${post.caption || ''}', '${post.authorAvatar || ''}')" title="Inspect Creator Profile">
+              <div class="avatar-ring-container" onclick="openVideoCreatorProfile('${post.authorUid}', '${post.authorName || 'Creator'}', '${post.caption || ''}', '${post.authorAvatar || ''}')" title="Creator Profile">
                 ${authorAvatarHtml}
                 <div class="online-dot-badge"></div>
               </div>
-              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span class="right-like-count">${post.likes || 0}</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
+              <button class="video-action-btn" onclick="openVideoDuet('${post.videoUrl}')">👥<span>Duet</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -1810,7 +1791,6 @@ function loadUgcVideoFeed() {
 
         setupFeedScrollObserver();
       }, (err) => {
-        console.warn("Feed snapshot fallback:", err);
         renderSampleFeed(feedContainer);
       });
   } else {
@@ -1827,13 +1807,19 @@ function setupFeedScrollObserver() {
       const vid = entry.target.querySelector('video');
       if (entry.isIntersecting) {
         currentActiveVideoId = entry.target.dataset.postId;
-        if (vid) vid.play().catch(()=>{});
+        if (vid) {
+          vid.muted = false;
+          vid.play().catch(() => {
+            vid.muted = true;
+            vid.play().catch(()=>{});
+          });
+        }
         syncActiveVideoLoveCount();
       } else {
         if (vid) vid.pause();
       }
     });
-  }, { threshold: 0.6 });
+  }, { threshold: 0.5 });
 
   items.forEach(item => observer.observe(item));
 }
@@ -1854,15 +1840,11 @@ function openActiveFeedComments() {
     const firstItem = document.querySelector('.video-feed-item');
     if (firstItem) currentActiveVideoId = firstItem.dataset.postId;
   }
-  if (currentActiveVideoId) {
-    openCommentsModal(currentActiveVideoId);
-  } else {
-    alert("Please select a video from the feed to view comments.");
-  }
+  if (currentActiveVideoId) openCommentsModal(currentActiveVideoId);
 }
 
-function likeUgcPost(postId) {
-  const targetId = postId || currentActiveVideoId;
+function triggerLoveReaction() {
+  const targetId = currentActiveVideoId;
   triggerScreenEffect("❤️");
 
   if (!db || !targetId) {
@@ -1873,9 +1855,15 @@ function likeUgcPost(postId) {
 
   db.collection("ugc_videos").doc(targetId).update({
     likes: firebase.firestore.FieldValue.increment(1)
-  }).then(() => {
-    syncActiveVideoLoveCount();
-  }).catch(err => console.error("Like post error:", err));
+  }).then(() => syncActiveVideoLoveCount());
+}
+
+function openVideoCreatorProfile(uid, name, bio, avatarUrl) {
+  openUserProfileView(uid, name, bio, avatarUrl);
+}
+
+function openVideoDuet(videoUrl) {
+  openDuetModal(videoUrl);
 }
 
 function openUserProfileView(uid, name, bio, avatarUrl) {
@@ -1889,24 +1877,12 @@ function openUserProfileView(uid, name, bio, avatarUrl) {
 
   document.getElementById('inspect-profile-name').innerText = name;
   document.getElementById('inspect-profile-uid').innerText = "ID: " + uid;
-  document.getElementById('inspect-profile-bio').innerText = "Bio: " + (bio || "VibePulse Creator & Streamer");
+  document.getElementById('inspect-profile-bio').innerText = "Bio: " + (bio || "VibePulse Creator");
 
   const isFollowing = myFollowingList.includes(uid);
   const followBtn = document.getElementById('inspect-follow-action-btn');
   followBtn.innerText = isFollowing ? 'Following' : '+ Follow';
   followBtn.className = `btn ${isFollowing ? 'btn-secondary' : 'btn-primary'}`;
-
-  if (db) {
-    db.collection("users").doc(uid).get().then((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        document.getElementById('inspect-stat-followers').innerText = data.followersCount || 0;
-        document.getElementById('inspect-stat-following').innerText = data.followingCount || 0;
-        document.getElementById('inspect-stat-likes').innerText = data.likesCount || 0;
-        if (data.bio) document.getElementById('inspect-profile-bio').innerText = "Bio: " + filterOffensiveWords(data.bio);
-      }
-    });
-  }
 
   openTikTokModal('user-profile-view-modal');
 }
@@ -1944,10 +1920,9 @@ function loadVideoComments(postId) {
       }
       snapshot.forEach((doc) => {
         const com = doc.data();
-        const safeText = filterOffensiveWords(com.text);
         const div = document.createElement('div');
         div.style.cssText = "background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; font-size:0.75rem; color:#fff;";
-        div.innerHTML = `<b>@${com.sender}:</b> ${safeText}`;
+        div.innerHTML = `<b>@${com.sender}:</b> ${filterOffensiveWords(com.text)}`;
         container.appendChild(div);
       });
       container.scrollTop = container.scrollHeight;
@@ -1957,76 +1932,59 @@ function loadVideoComments(postId) {
 function submitVideoComment() {
   const input = document.getElementById('video-comment-input');
   if (!input || !input.value.trim() || !activeCommentVideoId || !db) return;
-  const rawText = input.value.trim();
-  const safeText = filterOffensiveWords(rawText);
+  const safeText = filterOffensiveWords(input.value.trim());
   const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
 
   db.collection("ugc_videos").doc(activeCommentVideoId).collection("comments").add({
     sender: myHandle,
     text: safeText,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    input.value = '';
-  });
+  }).then(() => input.value = '');
 }
 
 function loadMyProfileVideos(myUid) {
   const profileList = document.getElementById('my-profile-videos-list');
   if (!profileList || !db) return;
 
-  db.collection("ugc_videos")
-    .where("authorUid", "==", myUid)
-    .get()
-    .then((snapshot) => {
-      profileList.innerHTML = '';
-      if (snapshot.empty) {
-        profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">No uploads found.</div>`;
-        return;
-      }
-
-      snapshot.forEach((docSnap) => {
-        const post = docSnap.data();
-        const postId = docSnap.id;
-        const row = document.createElement('div');
-        row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);";
-        row.innerHTML = `
-          <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${filterOffensiveWords(post.caption || 'Video Post')}</div>
-          <button class="btn btn-danger" style="padding:2px 6px; font-size:0.65rem;" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>
-        `;
-        profileList.appendChild(row);
-      });
-    })
-    .catch(() => {
+  db.collection("ugc_videos").where("authorUid", "==", myUid).get().then((snapshot) => {
+    profileList.innerHTML = '';
+    if (snapshot.empty) {
       profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">No uploads found.</div>`;
+      return;
+    }
+    snapshot.forEach((docSnap) => {
+      const post = docSnap.data();
+      const postId = docSnap.id;
+      const row = document.createElement('div');
+      row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);";
+      row.innerHTML = `
+        <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${filterOffensiveWords(post.caption || 'Video')}</div>
+        <button class="btn btn-danger" style="padding:2px 6px; font-size:0.65rem;" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>
+      `;
+      profileList.appendChild(row);
     });
+  });
 }
 
 function loadMyProfileStories(myUid) {
   const storiesList = document.getElementById('my-profile-stories-list');
   if (!storiesList || !db) return;
 
-  db.collection("highlight_stories")
-    .where("authorUid", "==", myUid)
-    .get()
-    .then((snapshot) => {
-      storiesList.innerHTML = '';
-      if (snapshot.empty) {
-        storiesList.innerHTML = `<div style="font-size:0.7rem; color:#a1a1aa;">No highlights yet.</div>`;
-        return;
-      }
-
-      snapshot.forEach((docSnap) => {
-        const story = docSnap.data();
-        const storyId = docSnap.id;
-        const pill = document.createElement('div');
-        pill.style.cssText = "min-width:60px; height:70px; background:linear-gradient(135deg,var(--accent-pink),var(--accent-cyan)); border-radius:12px; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; cursor:pointer; position:relative; overflow:hidden;";
-        pill.innerHTML = `
-          <div style="background:rgba(0,0,0,0.8); width:100%; font-size:0.55rem; text-align:center; padding:2px; color:#fff; border-bottom-left-radius:10px; border-bottom-right-radius:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${filterOffensiveWords(story.title || 'Story')}</div>
-          <button onclick="deleteStory('${storyId}')" style="position:absolute; top:2px; right:2px; background:rgba(239,68,68,0.9); color:#fff; border:none; border-radius:50%; width:16px; height:16px; font-size:0.5rem; cursor:pointer;">✕</button>
-        `;
-        storiesList.appendChild(pill);
-      });
+  db.collection("highlight_stories").where("authorUid", "==", myUid).get().then((snapshot) => {
+    storiesList.innerHTML = '';
+    if (snapshot.empty) {
+      storiesList.innerHTML = `<div style="font-size:0.7rem; color:#a1a1aa;">No highlights yet.</div>`;
+      return;
+    }
+    snapshot.forEach((docSnap) => {
+      const story = docSnap.data();
+      const storyId = docSnap.id;
+      const pill = document.createElement('div');
+      pill.style.cssText = "min-width:60px; height:70px; background:linear-gradient(135deg,var(--accent-pink),var(--accent-cyan)); border-radius:12px; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; position:relative; overflow:hidden;";
+      pill.innerHTML = `<div style="background:rgba(0,0,0,0.8); width:100%; font-size:0.55rem; text-align:center; padding:2px; color:#fff;">${filterOffensiveWords(story.title || 'Story')}</div>`;
+      storiesList.appendChild(pill);
     });
+  });
 }
 
 function openHighlightStoryModal() {
@@ -2037,34 +1995,19 @@ function openHighlightStoryModal() {
 function publishHighlightStory() {
   const fileInput = document.getElementById('story-file-input');
   const titleInput = document.getElementById('story-title-input');
-  if (!fileInput.files || fileInput.files.length === 0) {
-    alert("Please select a photo or video file for your story.");
-    return;
-  }
+  if (!fileInput.files || fileInput.files.length === 0) return;
   const file = fileInput.files[0];
   const title = filterOffensiveWords(titleInput ? titleInput.value.trim() : "My Story");
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
-  const fileUrl = URL.createObjectURL(file);
 
-  if (db) {
-    db.collection("highlight_stories").add({
-      authorUid: myUid,
-      mediaUrl: fileUrl,
-      title: title,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      alert("✨ Highlight story published!");
-      closeTikTokModal('highlight-story-modal');
-      loadMyProfileStories(myUid);
-    });
-  }
-}
-
-function deleteStory(storyId) {
-  if (!confirm("Delete this story?")) return;
-  if (!db) return;
-  db.collection("highlight_stories").doc(storyId).delete().then(() => {
-    loadMyProfileStories(currentUser ? currentUser.uid : myDevice.uid);
+  db.collection("highlight_stories").add({
+    authorUid: myUid,
+    mediaUrl: URL.createObjectURL(file),
+    title: title,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    closeTikTokModal('highlight-story-modal');
+    loadMyProfileStories(myUid);
   });
 }
 
@@ -2078,17 +2021,14 @@ function openShareModal(videoUrl) {
 function shareToPlatform(platform) {
   if (platform === 'copy') {
     navigator.clipboard.writeText(currentShareUrl || window.location.href);
-    alert("📋 Link copied to clipboard!");
+    alert("📋 Link copied!");
     closeTikTokModal('share-modal');
     return;
   }
-  let shareLink = "";
-  const encodedUrl = encodeURIComponent(currentShareUrl || window.location.href);
-  if (platform === 'facebook') shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-  else if (platform === 'twitter') shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}`;
-  else if (platform === 'whatsapp') shareLink = `https://api.whatsapp.com/send?text=${encodedUrl}`;
-
-  if (shareLink) window.open(shareLink, '_blank');
+  let url = encodeURIComponent(currentShareUrl || window.location.href);
+  if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+  else if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?url=${url}`, '_blank');
+  else if (platform === 'whatsapp') window.open(`https://api.whatsapp.com/send?text=${url}`, '_blank');
 }
 
 function openDuetModal(videoUrl) {
@@ -2097,22 +2037,18 @@ function openDuetModal(videoUrl) {
     .then((stream) => {
       const cam = document.getElementById('duet-preview-cam');
       if (cam) cam.srcObject = stream;
-    })
-    .catch(err => console.warn("Duet cam error:", err));
+    }).catch(()=>{});
 }
 
 function publishDuetPost() {
-  alert("🎉 Duet video published!");
+  alert("🎉 Duet published!");
   closeTikTokModal('duet-modal');
   loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
 }
 
 function deleteUgcPost(postId) {
-  if (!confirm("Delete this video post?")) return;
-  if (!db) return;
-
+  if (!confirm("Delete video?")) return;
   db.collection("ugc_videos").doc(postId).delete().then(() => {
-    alert("🗑️ Video deleted.");
     loadUgcVideoFeed();
     loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
   });
@@ -2124,17 +2060,16 @@ function renderSampleFeed(container) {
       <video src="https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4" autoplay loop playsinline preload="auto"></video>
       <div class="video-overlay-info">
         <div class="video-author-name">@VibePulse_Official</div>
-        <div class="video-caption">Welcome to VibePulse! Tap '+' below to post your videos. #VibePulse</div>
+        <div class="video-caption">Welcome to VibePulse! #VibePulse</div>
       </div>
       <div class="video-side-actions">
-        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')">
+        <div class="avatar-ring-container" onclick="openVideoCreatorProfile('official_1', 'VibePulse_Official', 'Official Channel', '')">
           <div class="avatar-ring-img">⚡</div>
           <div class="online-dot-badge"></div>
         </div>
-        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span class="right-like-count">128</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('')">👥<span>Duet</span></button>
+        <button class="video-action-btn" onclick="openVideoDuet('')">👥<span>Duet</span></button>
       </div>
     </div>
   `;
@@ -2149,70 +2084,32 @@ function openUploadVideoModal() {
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const captionInput = document.getElementById('upload-caption-input');
-  const progressContainer = document.getElementById('upload-progress-container');
-  const progressBar = document.getElementById('upload-progress-bar');
-  const progressPct = document.getElementById('upload-percentage');
-  const statusText = document.getElementById('upload-status-text');
-  const submitBtn = document.getElementById('publish-submit-btn');
-
-  if (!fileInput.files || fileInput.files.length === 0) {
-    alert("Please select a video file.");
-    return;
-  }
+  if (!fileInput.files || fileInput.files.length === 0) return;
 
   const file = fileInput.files[0];
   const caption = filterOffensiveWords(captionInput ? captionInput.value.trim() : "#VibePulse");
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
   const myName = localStorage.getItem('vibepulse_name') || "Creator";
   const myAvatar = myAvatarPhotoUrl;
-
-  progressContainer.style.display = 'flex';
-  submitBtn.disabled = true;
-
-  let currentProgress = 0;
-  const progressInterval = setInterval(() => {
-    currentProgress += 15;
-    if (currentProgress > 90) currentProgress = 90;
-    progressBar.style.width = currentProgress + '%';
-    progressPct.innerText = currentProgress + '%';
-  }, 200);
-
   const fileUrl = URL.createObjectURL(file);
 
-  setTimeout(() => {
-    clearInterval(progressInterval);
-    if (db) {
-      db.collection("ugc_videos").add({
-        authorUid: myUid,
-        authorName: myName,
-        authorAvatar: myAvatar,
-        videoUrl: fileUrl,
-        caption: caption,
-        likes: 0,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        completeUploadSuccess(progressContainer, submitBtn, fileInput, captionInput);
-      });
-    } else {
-      completeUploadSuccess(progressContainer, submitBtn, fileInput, captionInput);
-    }
-  }, 1500);
-}
-
-function completeUploadSuccess(progressContainer, submitBtn, fileInput, captionInput) {
-  document.getElementById('upload-progress-bar').style.width = '100%';
-  document.getElementById('upload-percentage').innerText = '100%';
-  
-  setTimeout(() => {
-    progressContainer.style.display = 'none';
-    submitBtn.disabled = false;
-    closeTikTokModal('upload-video-modal');
-    fileInput.value = '';
-    captionInput.value = '';
-    alert("🎉 Video posted successfully!");
-    loadUgcVideoFeed();
-    loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
-  }, 500);
+  if (db) {
+    db.collection("ugc_videos").add({
+      authorUid: myUid,
+      authorName: myName,
+      authorAvatar: myAvatar,
+      videoUrl: fileUrl,
+      caption: caption,
+      likes: 0,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      closeTikTokModal('upload-video-modal');
+      fileInput.value = '';
+      captionInput.value = '';
+      loadUgcVideoFeed();
+      loadMyProfileVideos(myUid);
+    });
+  }
 }
 
 function switchTab(tabName) {
@@ -2228,71 +2125,25 @@ function switchTab(tabName) {
 function toggleFollowUser(targetUid, targetName) {
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
   if (!db || !myUid || targetUid === myUid) return;
-
   const isFollowing = myFollowingList.includes(targetUid);
   const myRef = db.collection("users").doc(myUid);
   const targetRef = db.collection("users").doc(targetUid);
-
   const batch = db.batch();
+
   if (isFollowing) {
-    batch.update(myRef, {
-      followingCount: firebase.firestore.FieldValue.increment(-1),
-      followingList: firebase.firestore.FieldValue.arrayRemove(targetUid)
-    });
+    batch.update(myRef, { followingCount: firebase.firestore.FieldValue.increment(-1), followingList: firebase.firestore.FieldValue.arrayRemove(targetUid) });
     batch.set(targetRef, { followersCount: firebase.firestore.FieldValue.increment(-1) }, { merge: true });
   } else {
-    batch.set(myRef, {
-      followingCount: firebase.firestore.FieldValue.increment(1),
-      followingList: firebase.firestore.FieldValue.arrayUnion(targetUid)
-    }, { merge: true });
+    batch.set(myRef, { followingCount: firebase.firestore.FieldValue.increment(1), followingList: firebase.firestore.FieldValue.arrayUnion(targetUid) }, { merge: true });
     batch.set(targetRef, { followersCount: firebase.firestore.FieldValue.increment(1) }, { merge: true });
   }
-
-  batch.commit().then(() => {
-    alert(isFollowing ? `Unfollowed ${targetName}` : `🎉 Following ${targetName}!`);
-  });
+  batch.commit().then(() => alert(isFollowing ? `Unfollowed` : `🎉 Following!`));
 }
 
-function openLiveModeratorModal() {
-  openTikTokModal('live-moderators-modal');
-  const container = document.getElementById('live-moderators-list');
-  if (!container || !db) return;
-
-  db.collection("users").limit(30).get().then((snapshot) => {
-    container.innerHTML = '';
-    if (snapshot.empty) {
-      container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No subscribers found.</div>`;
-      return;
-    }
-    snapshot.forEach((doc) => {
-      const u = doc.data();
-      const div = document.createElement('div');
-      div.className = 'active-user-item';
-      div.innerHTML = `
-        <div>
-          <strong style="font-size:0.78rem; color:#fff;">👤 ${u.name || 'Subscriber'}</strong>
-          <div style="font-size:0.65rem; color:#25f4ee;">🛡️ Moderation Ready</div>
-        </div>
-        <button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="assignModerator('${u.name || 'Subscriber'}')">Assign 🛡️</button>
-      `;
-      container.appendChild(div);
-    });
-  });
-}
-
-function assignModerator(modName) {
-  alert(`🛡️ ${modName} assigned as Live Stream Moderator!`);
-  closeTikTokModal('live-moderators-modal');
-}
-
-/* Call signaling */
 function listenForIncomingCalls(myUid) {
   if (!db) return;
   if (callsUnsubscribe) callsUnsubscribe();
-
-  callsUnsubscribe = db.collection("call_signals")
-    .where("targetUid", "==", myUid)
-    .where("status", "==", "ringing")
+  callsUnsubscribe = db.collection("call_signals").where("targetUid", "==", myUid).where("status", "==", "ringing")
     .onSnapshot((snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
@@ -2306,48 +2157,29 @@ function listenForIncomingCalls(myUid) {
 }
 
 function showIncomingCallScreen(callerName, callType) {
-  const overlay = document.getElementById('whatsapp-call-overlay');
-  const nameEl = document.getElementById('call-name-display');
-  const statusEl = document.getElementById('call-status-display');
-  const actionsEl = document.getElementById('call-actions-container');
-
-  nameEl.innerText = callerName;
-  statusEl.innerText = `Incoming ${callType.toUpperCase()} Call...`;
-
-  actionsEl.innerHTML = `
+  document.getElementById('call-name-display').innerText = callerName;
+  document.getElementById('call-status-display').innerText = `Incoming ${callType.toUpperCase()} Call...`;
+  document.getElementById('call-actions-container').innerHTML = `
     <button class="call-btn call-btn-decline" onclick="declineIncomingCall()">❌</button>
     <button class="call-btn call-btn-accept" onclick="acceptIncomingCall()">📞</button>
   `;
-
-  overlay.classList.add('active');
+  document.getElementById('whatsapp-call-overlay').classList.add('active');
 }
 
 function initiateDirectCall(callType) {
   if (!activeDirectTarget) return;
   activeCallType = callType;
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
-  const myName = localStorage.getItem('vibepulse_name') || "Guest";
-
   currentCallDocId = myUid + "_" + activeDirectTarget.uid + "_" + Date.now();
-
-  const overlay = document.getElementById('whatsapp-call-overlay');
-  const nameEl = document.getElementById('call-name-display');
-  const statusEl = document.getElementById('call-status-display');
-  const actionsEl = document.getElementById('call-actions-container');
-
-  nameEl.innerText = activeDirectTarget.name;
-  statusEl.innerText = `Calling (${callType.toUpperCase()})...`;
-
-  actionsEl.innerHTML = `
-    <button class="call-btn call-btn-decline" onclick="endCurrentCall()">❌</button>
-  `;
-
-  overlay.classList.add('active');
+  document.getElementById('call-name-display').innerText = activeDirectTarget.name;
+  document.getElementById('call-status-display').innerText = `Calling...`;
+  document.getElementById('call-actions-container').innerHTML = `<button class="call-btn call-btn-decline" onclick="endCurrentCall()">❌</button>`;
+  document.getElementById('whatsapp-call-overlay').classList.add('active');
 
   if (db) {
     db.collection("call_signals").doc(currentCallDocId).set({
       callerUid: myUid,
-      callerName: myName,
+      callerName: localStorage.getItem('vibepulse_name') || "Guest",
       targetUid: activeDirectTarget.uid,
       targetName: activeDirectTarget.name,
       type: callType,
@@ -2358,138 +2190,53 @@ function initiateDirectCall(callType) {
 }
 
 function acceptIncomingCall() {
-  if (db && currentCallDocId) {
-    db.collection("call_signals").doc(currentCallDocId).update({ status: "accepted" });
-  }
-  setupWebRTCMediaConnection(false);
+  if (db && currentCallDocId) db.collection("call_signals").doc(currentCallDocId).update({ status: "accepted" });
 }
 
 function declineIncomingCall() {
-  if (db && currentCallDocId) {
-    db.collection("call_signals").doc(currentCallDocId).update({ status: "declined" });
-  }
+  if (db && currentCallDocId) db.collection("call_signals").doc(currentCallDocId).update({ status: "declined" });
   cleanupCallSession();
 }
 
-async function setupWebRTCMediaConnection(isCaller) {
-  try {
-    const isVideo = (activeCallType === 'video');
-    localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
-    const localVid = document.getElementById('local-call-video');
-    const videoGrid = document.getElementById('call-video-container');
-
-    if (isVideo) {
-      videoGrid.style.display = 'block';
-      localVid.srcObject = localMediaStream;
-    }
-
-    renderActiveCallControls();
-  } catch(err) {
-    alert("Camera/Mic error: " + err.message);
-    endCurrentCall();
-  }
-}
-
-function renderActiveCallControls() {
-  const actionsEl = document.getElementById('call-actions-container');
-  actionsEl.innerHTML = `
-    <button class="call-btn call-btn-action" onclick="toggleMuteMic()">🎤</button>
-    <button class="call-btn call-btn-action" onclick="toggleCallVideo()">📹</button>
-    <button class="call-btn call-btn-decline" onclick="endCurrentCall()">❌</button>
-  `;
-}
-
-function toggleMuteMic() {
-  if (localMediaStream) {
-    isMicMuted = !isMicMuted;
-    localMediaStream.getAudioTracks().forEach(t => t.enabled = !isMicMuted);
-  }
-}
-
-function toggleCallVideo() {
-  if (localMediaStream && localMediaStream.getVideoTracks().length > 0) {
-    isVideoDisabled = !isVideoDisabled;
-    localMediaStream.getVideoTracks().forEach(t => t.enabled = !isVideoDisabled);
-  }
-}
-
 function endCurrentCall() {
-  if (db && currentCallDocId) {
-    db.collection("call_signals").doc(currentCallDocId).update({ status: "ended" }).catch(()=>{});
-  }
+  if (db && currentCallDocId) db.collection("call_signals").doc(currentCallDocId).update({ status: "ended" }).catch(()=>{});
   cleanupCallSession();
 }
 
 function cleanupCallSession() {
-  if (localMediaStream) {
-    localMediaStream.getTracks().forEach(t => t.stop());
-    localMediaStream = null;
-  }
-  const overlay = document.getElementById('whatsapp-call-overlay');
-  if (overlay) overlay.classList.remove('active');
+  document.getElementById('whatsapp-call-overlay').classList.remove('active');
 }
 
 function renderCoinStoreGrid() {
   const grid = document.getElementById('coin-packages-grid');
   if (!grid) return;
   grid.innerHTML = '';
-
-  const rawDisplayList = [
-    { sku: 'vibepulse_coins_5', label: '5 +13', priceVnd: '₫13,000', amount: 18 },
-    { sku: 'vibepulse_coins_70', label: '70 +47', priceVnd: '₫26,600', amount: 117 },
-    { sku: 'vibepulse_coins_350', label: '350 +47', priceVnd: '₫133,000', amount: 397 },
-    { sku: 'vibepulse_coins_700', label: '700 +160', priceVnd: '₫266,000', amount: 860 },
-    { sku: 'vibepulse_coins_1400', label: '1400 +297', priceVnd: '₫532,000', amount: 1697 },
-    { sku: 'vibepulse_coins_3500', label: '3500 +272', priceVnd: '₫1,330,000', amount: 3772 },
-    { sku: 'vibepulse_coins_7000', label: '7000 +272', priceVnd: '₫2,660,000', amount: 7272 },
-    { sku: 'vibepulse_coins_17500', label: '17500 +272', priceVnd: '₫6,650,000', amount: 17772 }
-  ];
-
-  rawDisplayList.forEach((item, index) => {
+  coinPackages.forEach((item, index) => {
     const card = document.createElement('div');
     card.className = `coin-card-item ${index === 0 ? 'selected' : ''}`;
-    if (index === 0) {
-      selectedCoinSku = item.sku;
-      selectedCoinAmount = item.amount;
-    }
+    if (index === 0) selectedCoinSku = item.sku;
     card.onclick = () => {
       document.querySelectorAll('.coin-card-item').forEach(el => el.classList.remove('selected'));
       card.classList.add('selected');
       selectedCoinSku = item.sku;
-      selectedCoinAmount = item.amount;
     };
-    card.innerHTML = `
-      <div class="coin-card-title">🪙 ${item.label}</div>
-      <div class="coin-card-price">${item.priceVnd}</div>
-    `;
+    card.innerHTML = `<div class="coin-card-title">🪙 ${item.coins} Coins</div><div class="coin-card-price">${item.priceVnd}</div>`;
     grid.appendChild(card);
   });
 }
 
 function executeCoinRecharge() {
-  if (!selectedCoinSku) return;
   const pkg = coinPackages.find(p => p.sku === selectedCoinSku);
   if (!pkg) return;
-
-  const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
-  const checkoutUrl = `${pkg.link}?checkout[custom][user_id]=${activeUid}`;
-
-  if (window.LemonSqueezy) LemonSqueezy.Url.Open(checkoutUrl);
-  else window.open(checkoutUrl, '_blank');
+  const activeUid = currentUser ? currentUser.uid : myDevice.uid;
+  window.open(`${pkg.link}?checkout[custom][user_id]=${activeUid}`, '_blank');
 }
 
 function updatePresence(uid, name) {
   if (!db) return;
   const userRef = db.collection("users").doc(uid);
   const sendHeartbeat = () => {
-    userRef.set({
-      uid: uid,
-      name: name,
-      avatarUrl: myAvatarPhotoUrl,
-      level: myUserLevel,
-      lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-      online: true
-    }, { merge: true });
+    userRef.set({ uid: uid, name: name, avatarUrl: myAvatarPhotoUrl, level: myUserLevel, lastActive: firebase.firestore.FieldValue.serverTimestamp(), online: true }, { merge: true });
   };
   sendHeartbeat();
   setInterval(sendHeartbeat, 10000);
@@ -2506,25 +2253,14 @@ function startGlobalHudSync() {
 
     snapshot.forEach((doc) => {
       const u = doc.data();
-      const lastSec = u.lastActive ? u.lastActive.seconds : 0;
-      if ((nowSec - lastSec) < 60) {
+      if ((nowSec - (u.lastActive ? u.lastActive.seconds : 0)) < 60) {
         activeCount++;
         if (modalList) {
           const userItem = document.createElement('div');
           userItem.className = 'active-user-item';
-          const avatarHtml = u.avatarUrl ? `<img src="${u.avatarUrl}" class="avatar-ring-img" style="width:32px; height:32px;">` : `<div class="avatar-ring-img" style="width:32px; height:32px; font-size:0.75rem;">👤</div>`;
           userItem.innerHTML = `
-            <div style="display:flex; align-items:center; gap:8px;">
-              <div class="avatar-ring-container" style="width:36px; height:36px;">
-                ${avatarHtml}
-                <div class="online-dot-badge"></div>
-              </div>
-              <div>
-                <strong style="font-size:0.8rem; color:#fff;">${u.name || 'User'} (Lvl ${u.level || 1})</strong>
-                <div style="font-size:0.65rem; color:#a1a1aa;">ID: ${u.uid}</div>
-              </div>
-            </div>
-            <button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="closeTikTokModal('active-users-modal'); connectWithUser('${u.name || 'User'}', '${u.uid}');">Chat 💬</button>
+            <div><strong style="font-size:0.8rem; color:#fff;">🟢 ${u.name || 'User'}</strong><div style="font-size:0.65rem; color:#a1a1aa;">ID: ${u.uid}</div></div>
+            <button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="closeTikTokModal('active-users-modal'); connectWithUser('${u.name}', '${u.uid}');">Chat 💬</button>
           `;
           modalList.appendChild(userItem);
         }
@@ -2534,55 +2270,19 @@ function startGlobalHudSync() {
   });
 }
 
-function toggleFeatureMenu() {
-  document.getElementById('feature-dropdown-menu').classList.toggle('active');
-}
-
-function openTikTokModal(id) {
-  if (id === 'profile-modal') {
-    const activeUid = currentUser ? currentUser.uid : myDevice.uid;
-    loadMyProfileVideos(activeUid);
-    loadMyProfileStories(activeUid);
-  }
-  document.getElementById(id).classList.add('active');
-}
-
-function closeTikTokModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-
-function openAuthModal() {
-  closeTikTokModal('profile-modal');
-  openTikTokModal('auth-modal');
-}
-
-function toggleEmojiDrawer() {
-  document.getElementById('emoji-popup-drawer').classList.toggle('active');
-}
+function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').classList.toggle('active'); }
+function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
+function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
+function openAuthModal() { closeTikTokModal('profile-modal'); openTikTokModal('auth-modal'); }
+function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
 
 function insertEmoji(emoji) {
-  const chatBox = document.getElementById('chat-box');
-  chatBox.value += emoji;
+  const box = document.getElementById('chat-box');
+  box.value += emoji;
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
 function triggerLaughEffect() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioCtx.currentTime;
-    [0, 0.12, 0.24].forEach((delay) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(300, now + delay);
-      osc.frequency.exponentialRampToValueAtTime(180, now + delay + 0.1);
-      gain.gain.setValueAtTime(0.3, now + delay);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.1);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(now + delay); osc.stop(now + delay + 0.1);
-    });
-  } catch(e){}
-
   const container = document.getElementById('laugh-container');
   if (container) {
     for (let i = 0; i < 5; i++) {
@@ -2598,96 +2298,13 @@ function triggerLaughEffect() {
   }
 }
 
-function triggerLoveReaction() {
-  likeUgcPost(currentActiveVideoId);
-}
-
-function translateText(text, targetLang) {
-  if (!text) return '';
-  if (targetLang === 'en') return text;
-  return `[${targetLang.toUpperCase()}] ${text}`;
-}
-
-function openVoiceTranslatorModal() {
-  openTikTokModal('voice-translator-modal');
-  updateLiveTranslationPreview();
-}
-
-function updateLiveTranslationPreview() {
-  const input = document.getElementById('translator-input-text');
-  const preview = document.getElementById('translator-output-preview');
-  const langSel = document.getElementById('target-lang-select');
-  if (!input || !preview || !langSel) return;
-  preview.innerText = translateText(input.value, langSel.value) || '[Translation preview]';
-}
-
-function toggleInteractiveMicRecording() {
-  const micBtn = document.getElementById('mic-record-action-btn');
-  const input = document.getElementById('translator-input-text');
-
-  if (isRecordingActive) {
-    isRecordingActive = false;
-    micBtn.innerText = "🎙️ Start Recording";
-    return;
-  }
-  isRecordingActive = true;
-  micBtn.innerText = "⏹️ Stop Recording";
-  setTimeout(() => {
-    input.value = "Hello world";
-    updateLiveTranslationPreview();
-    isRecordingActive = false;
-    micBtn.innerText = "🎙️ Start Recording";
-  }, 2000);
-}
-
-function submitVoiceTranslation() {
-  const input = document.getElementById('translator-input-text');
-  const langSel = document.getElementById('target-lang-select');
-  if (!input || !input.value.trim()) return;
-
-  const chatBox = document.getElementById('chat-box');
-  if (chatBox) chatBox.value = translateText(input.value.trim(), langSel.value);
-  closeTikTokModal('voice-translator-modal');
-  input.value = '';
-  sendChatMessage();
-}
-
-function handleBackNavigation() {
-  switchTab('feed');
-}
-
-function selectRoomFromModal(roomName) {
-  closeTikTokModal('chatrooms-modal');
-  switchRoom(roomName);
-}
-
+function handleBackNavigation() { switchTab('feed'); }
+function selectRoomFromModal(roomName) { closeTikTokModal('chatrooms-modal'); switchRoom(roomName); }
 function switchRoom(roomName) {
   activeRoom = roomName;
   activeDirectTarget = null;
   document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
   document.getElementById('direct-call-header-bar').style.display = 'none';
-  subscribeToActiveRoom(roomName);
-}
-
-function subscribeToActiveRoom(roomName) {
-  const chatContainer = document.getElementById('chat-messages-container');
-  if (!chatContainer) return;
-  if (roomUnsubscribe) roomUnsubscribe();
-
-  if (db) {
-    roomUnsubscribe = db.collection("chat_rooms").doc(roomName).collection("messages").limit(50)
-      .onSnapshot((snapshot) => {
-        chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName}</div>`;
-        snapshot.forEach((doc) => {
-          const m = doc.data();
-          const bubble = document.createElement('div');
-          bubble.className = 'chat-bubble';
-          bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${filterOffensiveWords(m.text)}`;
-          chatContainer.appendChild(bubble);
-        });
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      });
-  }
 }
 
 function addFriendFromProfile() {
@@ -2701,50 +2318,18 @@ function connectWithUser(targetName, targetUid) {
   activeDirectTarget = { name: targetName, uid: targetUid };
   document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
   document.getElementById('direct-call-header-bar').style.display = 'flex';
-
   triggerAction('inbox');
-  const chatContainer = document.getElementById('chat-messages-container');
-  if (directUnsubscribe) directUnsubscribe();
-
-  if (db) {
-    const myUid = currentUser ? currentUser.uid : myDevice.uid;
-    const sortedIds = [myUid, targetUid].sort();
-    const threadId = sortedIds[0] + "_" + sortedIds[1];
-
-    directUnsubscribe = db.collection("direct_chats").doc(threadId).collection("messages").limit(50).onSnapshot((snapshot) => {
-      chatContainer.innerHTML = `<div class="chat-bubble">💬 <b>Direct Message Thread with ${targetName}</b></div>`;
-      snapshot.forEach((doc) => {
-        const m = doc.data();
-        const bubble = document.createElement('div');
-        bubble.className = 'chat-bubble';
-        bubble.innerHTML = `<b>${m.sender}:</b> ${filterOffensiveWords(m.text)}`;
-        chatContainer.appendChild(bubble);
-      });
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    });
-  }
 }
 
 function sendChatMessage() {
   const box = document.getElementById('chat-box');
   if (!box || !box.value.trim()) return;
-
   const msg = filterOffensiveWords(box.value.trim());
   box.value = '';
   document.getElementById('emoji-popup-drawer').classList.remove('active');
-
   const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
 
-  if (activeDirectTarget && db) {
-    const myUid = currentUser ? currentUser.uid : myDevice.uid;
-    const sortedIds = [myUid, activeDirectTarget.uid].sort();
-    const threadId = sortedIds[0] + "_" + sortedIds[1];
-    db.collection("direct_chats").doc(threadId).collection("messages").add({
-      sender: myHandle,
-      text: msg,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } else if (db) {
+  if (db) {
     db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
       sender: myHandle,
       text: msg,
@@ -2755,111 +2340,40 @@ function sendChatMessage() {
 
 function startLiveCamera() {
   closeTikTokModal('plus-modal');
-  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then((stream) => {
-      const preview = document.getElementById('preview-area');
-      preview.innerHTML = `
-        <div id="pk-split-view" class="pk-split-container">
-          <div class="pk-pane">
-            <div class="pk-label-tag">🔴 You (Live)</div>
-            <video id="local-live-video" autoplay playsinline muted></video>
-          </div>
-          <div class="pk-pane" id="opponent-pane" style="display:none; background:#1e1e24;">
-            <div class="pk-label-tag">⚔️ Opponent PK</div>
-            <video id="opponent-live-video" autoplay playsinline></video>
-          </div>
-        </div>
-        <button id="pk-toggle-btn" class="live-pk-toggle-btn" onclick="toggleLivePKBattle()">⚔️ Activate PK Battle</button>
-      `;
-      document.getElementById('local-live-video').srcObject = stream;
-    })
-    .catch((err) => alert("Camera permission error: " + err.message));
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+    document.getElementById('preview-area').innerHTML = `
+      <div id="pk-split-view" class="pk-split-container">
+        <div class="pk-pane"><div class="pk-label-tag">🔴 You</div><video id="local-live-video" autoplay playsinline muted></video></div>
+      </div>
+    `;
+    document.getElementById('local-live-video').srcObject = stream;
+  }).catch(e => alert("Camera error: " + e.message));
 }
 
-let isPkActive = false;
-function toggleLivePKBattle() {
-  const opponentPane = document.getElementById('opponent-pane');
-  const opponentVideo = document.getElementById('opponent-live-video');
-  const pkBtn = document.getElementById('pk-toggle-btn');
-  isPkActive = !isPkActive;
-
-  if (isPkActive) {
-    if (opponentPane) opponentPane.style.display = 'flex';
-    const localVideo = document.getElementById('local-live-video');
-    if (localVideo && localVideo.srcObject) opponentVideo.srcObject = localVideo.srcObject;
-    pkBtn.innerText = '⏹ End PK Battle';
-    pkBtn.style.background = '#ef4444';
-  } else {
-    if (opponentPane) opponentPane.style.display = 'none';
-    if (opponentVideo) opponentVideo.srcObject = null;
-    pkBtn.innerText = '⚔️ Activate PK Battle';
-    pkBtn.style.background = 'linear-gradient(135deg, #fe2c55, #ff007f)';
-  }
-}
-
-function changeRadioStation(streamUrl) {
+function changeRadioStation(url) {
   const audio = document.getElementById('radio-audio');
-  audio.pause();
-  audio.src = streamUrl;
-  audio.load();
-  audio.play();
+  audio.src = url; audio.load(); audio.play();
 }
-
 function toggleRadio() {
   const audio = document.getElementById('radio-audio');
-  const select = document.getElementById('radio-station-select');
-  if (!audio.src) audio.src = select.value;
-  if (audio.paused) audio.play();
-  else audio.pause();
+  if (audio.paused) audio.play(); else audio.pause();
 }
-
-function stopRadio() {
-  const audio = document.getElementById('radio-audio');
-  audio.pause();
-  audio.currentTime = 0;
-}
+function stopRadio() { document.getElementById('radio-audio').pause(); }
 
 function triggerAction(action) {
   const preview = document.getElementById('preview-area');
-  let contentHtml = '';
-
   if (action === 'gifts') {
-    let dropdownOptionsHtml = '';
-    levelGifts100.forEach(g => {
-      dropdownOptionsHtml += `<option value="${g.level}">Lvl ${g.level} (${g.icon}) — Cost: ${g.cost} Coins</option>`;
-    });
-
-    contentHtml = `
-      <div class="media-placeholder" style="background:rgba(24, 24, 27, 0.95); border: 1px solid var(--accent-pink); padding:14px; border-radius:14px; width:94%; max-width:400px; display:flex; flex-direction:column; gap:10px;">
-        🎁 <b>100-Level Gift Store</b>
-        <select id="gift-tier-dropdown" class="input-field" style="padding:8px; font-size:0.75rem;">
-          ${dropdownOptionsHtml}
-        </select>
-        <button class="btn btn-primary" style="padding:10px; font-size:0.8rem;" onclick="sendSelectedDropdownGift()">Send Selected Gift 🚀</button>
+    preview.innerHTML = `
+      <div class="media-placeholder" style="background:#18181b; padding:16px; border-radius:14px;">
+        🎁 <b>100-Level Gift Store</b><br><br>
+        <button class="btn btn-primary" onclick="alert('🎉 Gift Sent!')">Send Rose (🪙 15)</button>
       </div>
     `;
-  } else if (action === 'jukebox') {
-    contentHtml = `<div class="media-placeholder" style="background:rgba(79, 70, 229, 0.15); border: 2px dashed #4f46e5; padding:16px; border-radius:14px; width:95%;">🎵 <b>Live YouTube Jukebox</b><br><br><div style="display:flex; flex-direction:column; gap:8px;"><input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link..." style="font-size:0.8rem; padding:8px;"><button class="btn btn-primary" style="padding:8px; font-size:0.8rem;" onclick="playYouTubeTrack()">Play Track ▶</button></div><div id="youtube-player-frame" style="margin-top:10px; width:100%; height:170px; background:#000; border-radius:8px; overflow:hidden; display:flex; justify-content:center; align-items:center; color:#aaa; font-size:0.75rem;">Player ready.</div></div>`;
   } else if (action === 'inbox') {
-    contentHtml = `<div class="media-placeholder" style="background:rgba(37, 99, 235, 0.15); border: 2px dashed #2563eb; padding:20px; border-radius:14px;">💬 <b>Messenger & Direct Chats</b></div>`;
+    preview.innerHTML = `<div class="media-placeholder">💬 <b>Inbox & Messages</b></div>`;
+  } else if (action === 'jukebox') {
+    preview.innerHTML = `<div class="media-placeholder">🎵 <b>YouTube Jukebox</b></div>`;
   }
-  preview.innerHTML = contentHtml;
-}
-
-function sendSelectedDropdownGift() {
-  const select = document.getElementById('gift-tier-dropdown');
-  if (!select) return;
-  const levelNum = parseInt(select.value, 10);
-  const gift = levelGifts100.find(g => g.level === levelNum);
-  if (!gift) return;
-
-  if (myUserLevel < gift.level) {
-    alert(`🔒 Level ${gift.level} Gift locked! Reach level ${gift.level} to send.`);
-    openTikTokModal('shop-modal');
-    return;
-  }
-  triggerScreenEffect(gift.effect);
-  alert(`🎉 Sent Level ${gift.level} Gift!`);
 }
 
 function triggerScreenEffect(emoji) {
@@ -2868,55 +2382,25 @@ function triggerScreenEffect(emoji) {
   overlay.innerText = emoji;
   overlay.style.transform = "scale(3)";
   overlay.style.opacity = "1";
-
-  setTimeout(() => {
-    overlay.style.transform = "scale(1)";
-    overlay.style.opacity = "0";
-    overlay.innerText = "";
-  }, 1200);
+  setTimeout(() => { overlay.style.transform = "scale(1)"; overlay.style.opacity = "0"; overlay.innerText = ""; }, 1200);
 }
 
-function playYouTubeTrack() {
-  const rawUrl = document.getElementById('song-link-input').value.trim();
-  const frame = document.getElementById('youtube-player-frame');
-  const match = rawUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
-  if (match && match[1]) {
-    frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-  } else alert("Invalid YouTube URL");
-}
-
-function requestFundWithdrawalStructured() {
-  alert("📥 Payout request submitted!");
-}
-
-function executeAuthAction() {
-  closeTikTokModal('auth-modal');
-}
-
-function executeSignOut() {
-  if (auth) auth.signOut().then(() => closeTikTokModal('profile-modal'));
-}
+function requestFundWithdrawalStructured() { alert("📥 Payout requested!"); }
+function executeAuthAction() { closeTikTokModal('auth-modal'); }
+function executeSignOut() { if (auth) auth.signOut().then(() => closeTikTokModal('profile-modal')); }
 
 function saveProfileDetails() {
-  const nameInput = document.getElementById('edit-name');
-  const bioInput = document.getElementById('edit-bio');
-  const name = nameInput ? nameInput.value.trim() : "";
-  const bio = bioInput ? bioInput.value.trim() : "";
-
-  if (name) {
-    localStorage.setItem('vibepulse_name', name);
-    document.getElementById('profile-card-name').innerText = name;
-  }
+  const name = document.getElementById('edit-name').value.trim();
+  const bio = document.getElementById('edit-bio').value.trim();
+  if (name) { localStorage.setItem('vibepulse_name', name); document.getElementById('profile-card-name').innerText = name; }
   if (bio) document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
-
   closeTikTokModal('profile-modal');
   alert("Profile updated!");
 }
 
 function copyMyUserId() {
-  const uidText = currentUser ? currentUser.uid : myDevice.uid;
-  navigator.clipboard.writeText(uidText);
-  alert("Copied User ID: " + uidText);
+  navigator.clipboard.writeText(currentUser ? currentUser.uid : myDevice.uid);
+  alert("Copied User ID!");
 }
 </script>
 </body>
