@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VibePulse — Real-Time Social & Stream Network</title>
+<title>VibePulse — Clean Interface Stream Network</title>
 
 <!-- Lemon Squeezy SDK -->
 <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
@@ -44,7 +44,7 @@ body {
 .app-viewport {
   flex: 1;
   position: relative;
-  background: #000;
+  background: var(--bg-dark);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -61,7 +61,7 @@ body {
   justify-content: space-between;
   align-items: center;
   z-index: 500;
-  background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
   gap: 6px;
 }
 
@@ -216,7 +216,56 @@ body {
 
 .menu-item-btn:hover { background: rgba(255, 255, 255, 0.18); }
 
-/* Main Viewport Container */
+.menu-radio-section {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.menu-radio-title {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.radio-select-menu {
+  background: #18181b;
+  color: white;
+  border: 1px solid #3f3f46;
+  padding: 5px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  outline: none;
+  width: 100%;
+}
+
+.radio-controls-row {
+  display: flex;
+  gap: 6px;
+}
+
+.radio-control-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Clean Main Viewport Container */
 .media-container {
   width: 100%;
   height: 100%;
@@ -226,7 +275,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000;
+  background: var(--bg-dark);
   z-index: 10;
 }
 
@@ -288,7 +337,6 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* RIGHT SIDE ACTIONS */
 .video-side-actions {
   position: absolute;
   bottom: 95px;
@@ -297,7 +345,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .video-action-btn {
@@ -375,7 +423,7 @@ body {
   pointer-events: auto !important;
 }
 
-/* LEFT-SIDE FLOATING CONTROLS (LOVE WITH COUNT & LAUGH) */
+/* Left-Side Floating Controls (Re-routed Duet & Reactions here) */
 .left-side-floating-controls {
   position: absolute;
   top: 85px;
@@ -383,15 +431,8 @@ body {
   z-index: 500;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   pointer-events: auto;
-}
-
-.floating-action-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
 }
 
 .floating-side-icon-btn {
@@ -411,13 +452,6 @@ body {
   pointer-events: auto !important;
 }
 .floating-side-icon-btn:active { transform: scale(1.2); }
-
-.floating-action-counter {
-  font-size: 0.68rem;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
-}
 
 .pk-split-container {
   width: 100%;
@@ -496,7 +530,7 @@ body {
   right: 0;
   padding: 6px 10px;
   z-index: 800;
-  background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(0deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.4) 75%, rgba(5,5,5,0) 100%);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -982,15 +1016,11 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- LEFT-SIDE FLOATING CONTROLS (LOVE WITH COUNT & LAUGH) -->
+<!-- Left-Side Floating Controls (Re-routed Duet & Reactions here) -->
 <div class="left-side-floating-controls">
-  <div class="floating-action-wrapper">
-    <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
-    <span class="floating-action-counter" id="floating-love-count">0</span>
-  </div>
-  <div class="floating-action-wrapper">
-    <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
-  </div>
+  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
+  <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
+  <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
 
 <div class="call-fullscreen-overlay" id="whatsapp-call-overlay">
@@ -1048,7 +1078,25 @@ body {
     <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
+
+    <!-- LOCAL RADIO SECTION (FIXED STREAM ENGINE & CONTROLS) -->
+    <div class="menu-radio-section">
+      <div class="menu-radio-title">📻 Radio Station Controller</div>
+      <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
+        <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
+        <option value="https://stream.zeno.fm/f95a5yt254zuv">📻 90's Retro Hits</option>
+        <option value="https://stream.zeno.fm/0t3z2h05k9duv">🎤 Classic Hip-Hop</option>
+        <option value="https://stream.zeno.fm/3wy757f5g1duv">🎷 R&B Soul Grooves</option>
+        <option value="https://stream.zeno.fm/8xt7yp92k9duv">🎸 Rock Anthems</option>
+      </select>
+      <div class="radio-controls-row">
+        <button class="radio-control-btn" id="radio-play-btn" onclick="toggleRadio()">▶ Play</button>
+        <button class="radio-control-btn" onclick="stopRadio()">⏹ Stop</button>
+      </div>
+    </div>
   </div>
+
+  <audio id="radio-audio" crossorigin="anonymous" preload="none"></audio>
 
   <div class="media-container" id="preview-area">
     <div class="video-feed-container" id="ugc-video-feed">
@@ -1144,7 +1192,7 @@ body {
     <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
 
     <div id="upload-progress-container" style="display:none; flex-direction:column; gap:4px; margin-top:6px;">
-      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#a1a1aa;">
+      <div style="display:flex; justify-space-between; font-size:0.7rem; color:#a1a1aa;">
         <span id="upload-status-text">Uploading...</span>
         <span id="upload-percentage">0%</span>
       </div>
@@ -1530,10 +1578,6 @@ for (let i = 1; i <= 100; i++) {
   levelGifts100.push({ level: i, name: `Lvl ${i} Gift`, cost: cost, icon: emoji, effect: emoji });
 }
 
-const currentSessionStartTime = (typeof firebase !== 'undefined' && firebase.firestore)
-  ? firebase.firestore.Timestamp.now()
-  : { seconds: Math.floor(Date.now() / 1000) };
-
 function getDeviceUser() {
   let localId = localStorage.getItem('vibepulse_uid');
   let localName = localStorage.getItem('vibepulse_name');
@@ -1699,10 +1743,10 @@ function loadUgcVideoFeed() {
                 ${authorAvatarHtml}
                 <div class="online-dot-badge"></div>
               </div>
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
               <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
             </div>
           `;
@@ -1982,10 +2026,10 @@ function renderSampleFeed(container) {
           <div class="avatar-ring-img">⚡</div>
           <div class="online-dot-badge"></div>
         </div>
+        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('')">👥<span>Duet</span></button>
       </div>
     </div>
   `;
@@ -2027,6 +2071,16 @@ function publishUgcVideoPost() {
   }
 }
 
+function likeUgcPost(postId) {
+  if (!db) {
+    triggerScreenEffect("❤️");
+    return;
+  }
+  db.collection("ugc_videos").doc(postId).update({
+    likes: firebase.firestore.FieldValue.increment(1)
+  }).then(() => triggerScreenEffect("❤️"));
+}
+
 function switchTab(tabName) {
   const preview = document.getElementById('preview-area');
   document.getElementById('direct-call-header-bar').style.display = 'none';
@@ -2061,6 +2115,13 @@ function toggleFollowUser(targetUid, targetName) {
   }
 
   batch.commit().then(() => alert(isFollowing ? `Unfollowed ${targetName}` : `🎉 You are now following ${targetName}!`));
+}
+
+function sendProfileLike(targetUid) {
+  if (!db || !targetUid) return;
+  db.collection("users").doc(targetUid).set({
+    likesCount: firebase.firestore.FieldValue.increment(1)
+  }, { merge: true }).then(() => triggerScreenEffect("❤️"));
 }
 
 function openLiveModeratorModal() {
@@ -2425,30 +2486,25 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* ECHO LAUGHTER SYNTHESIZER ("haha ha ha") */
-function playEchoLaughSound() {
+function playAudioPopSound() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioCtx.currentTime;
-    const laughs = [0, 0.15, 0.32, 0.48];
-    laughs.forEach((delay, idx) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(320 - (idx * 25), now + delay);
-      osc.frequency.exponentialRampToValueAtTime(180, now + delay + 0.12);
-      gain.gain.setValueAtTime(0.3, now + delay);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.12);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now + delay);
-      osc.stop(now + delay + 0.12);
-    });
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
   } catch(e) {}
 }
 
 function triggerLaughEffect() {
-  playEchoLaughSound();
+  playAudioPopSound();
   triggerScreenEffect("😂");
 
   const container = document.getElementById('laugh-container');
@@ -2479,9 +2535,6 @@ function triggerLaughEffect() {
 function triggerLoveReaction() {
   playAudioPopSound();
   triggerScreenEffect("❤️");
-  const countEl = document.getElementById('floating-love-count');
-  if (countEl) countEl.innerText = parseInt(countEl.innerText || "0", 10) + 1;
-
   const handle = localStorage.getItem('vibepulse_name') || "Guest";
   if (db) {
     db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
@@ -2490,23 +2543,6 @@ function triggerLoveReaction() {
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(()=>{});
   }
-}
-
-function playAudioPopSound() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-    osc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
-  } catch(e) {}
 }
 
 function openVoiceTranslatorModal() { openTikTokModal('voice-translator-modal'); }
@@ -2680,6 +2716,62 @@ function toggleLivePKBattle() {
     if (opponentVideo) opponentVideo.srcObject = null;
     pkBtn.innerText = '⚔️ Activate PK Battle';
   }
+}
+
+/* FIXED RADIO CONTROLLER ENGINE WITH AUTOPLAY EXCEPTION HANDLING */
+function changeRadioStation(streamUrl) {
+  const audio = document.getElementById('radio-audio');
+  const btn = document.getElementById('radio-play-btn');
+  if (!audio) return;
+
+  audio.pause();
+  audio.src = streamUrl;
+  audio.load();
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      if (btn) btn.innerText = "⏸ Pause";
+    }).catch(err => {
+      console.warn("Radio autoplay blocked:", err);
+      if (btn) btn.innerText = "▶ Play";
+    });
+  }
+}
+
+function toggleRadio() {
+  const audio = document.getElementById('radio-audio');
+  const btn = document.getElementById('radio-play-btn');
+  const select = document.getElementById('radio-station-select');
+  if (!audio) return;
+
+  if (!audio.src || audio.src === "about:blank") {
+    audio.src = select.value;
+  }
+
+  if (audio.paused) {
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        if (btn) btn.innerText = "⏸ Pause";
+      }).catch(err => {
+        alert("Audio playback requires user interaction. Tap Play again.");
+        if (btn) btn.innerText = "▶ Play";
+      });
+    }
+  } else {
+    audio.pause();
+    if (btn) btn.innerText = "▶ Play";
+  }
+}
+
+function stopRadio() {
+  const audio = document.getElementById('radio-audio');
+  if (!audio) return;
+  audio.pause();
+  audio.currentTime = 0;
+  const btn = document.getElementById('radio-play-btn');
+  if (btn) btn.innerText = "▶ Play";
 }
 
 function triggerAction(action) {
