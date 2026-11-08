@@ -108,6 +108,20 @@ body {
   flex-shrink: 0;
 }
 
+.active-users-pill {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  color: #22c55e;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .menu-dropdown-btn {
   background: var(--accent-pink);
   color: white;
@@ -159,7 +173,7 @@ body {
 
 .menu-item-btn:hover { background: rgba(255, 255, 255, 0.18); }
 
-/* Clean Main Viewport Container */
+/* Main Viewport Container */
 .media-container {
   width: 100%;
   height: 100%;
@@ -264,6 +278,64 @@ body {
   font-size: 0.68rem;
   font-weight: bold;
   pointer-events: none;
+}
+
+/* Glowing Green Status Ring & Avatar */
+.avatar-ring-container {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #22c55e, #25f4ee);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  cursor: pointer;
+  pointer-events: auto !important;
+  z-index: 10000 !important;
+}
+
+.avatar-ring-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #18181b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.online-dot-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border: 2px solid #000;
+  border-radius: 50%;
+}
+
+.video-delete-badge {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.85);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10005 !important;
+  pointer-events: auto !important;
 }
 
 .bottom-overlay {
@@ -408,21 +480,6 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.1rem; }
 
-/* OFFLINE / CONNECTION FALLBACK SCREEN */
-#offline-error-screen {
-  display: none;
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg-dark);
-  z-index: 5000;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  text-align: center;
-}
-#offline-error-screen.active { display: flex !important; }
-
 .tiktok-modal {
   display: none;
   position: fixed;
@@ -464,19 +521,24 @@ body {
 .btn { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 .btn-primary { background: var(--accent-pink); color: white; }
 .btn-secondary { background: #27272a; color: white; }
+.input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.85rem; }
+
+#effect-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 150;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+  transition: all 0.5s ease;
+}
 </style>
 </head>
 <body>
 
-<!-- OFFLINE ERROR OVERLAY SCREEN -->
-<div id="offline-error-screen">
-  <div style="font-size: 3rem; margin-bottom: 12px;">⚠️</div>
-  <h2 style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 8px;">Connection Notice</h2>
-  <p style="font-size: 0.82rem; color: #a1a1aa; max-width: 300px; line-height: 1.4; margin-bottom: 16px;">
-    Please make sure the device is connected to the internet and the app is online.
-  </p>
-  <button class="btn btn-primary" onclick="checkConnectionAndReload()" style="padding: 10px 24px; border-radius: 20px;">Retry Connection 🔄</button>
-</div>
+<div id="effect-overlay"></div>
 
 <div class="app-viewport">
 
@@ -487,16 +549,24 @@ body {
     </div>
 
     <div class="right-header-group">
-      <div class="avatar-ring-container" onclick="openTikTokModal('profile-modal')" title="My Profile" style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #22c55e, #25f4ee); padding:2px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-        <div style="width:100%; height:100%; border-radius:50%; background:#18181b; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:0.85rem;">👤</div>
+      <div class="active-users-pill" onclick="openTikTokModal('active-users-modal')">
+        🟢 <span id="top-hud-count">0</span> Online
       </div>
+
+      <div class="avatar-ring-container" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
+        <div class="avatar-ring-img" id="top-right-avatar-display">👤</div>
+        <div class="online-dot-badge"></div>
+      </div>
+
       <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
     </div>
   </div>
 
   <div class="feature-menu-panel" id="feature-dropdown-menu">
-    <button class="menu-item-btn" onclick="openTikTokModal('inbox-modal'); toggleFeatureMenu();">💬 Direct Messages & Inbox</button>
-    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile Dashboard</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('inbox-modal'); toggleFeatureMenu();">💬 Inbox & Direct Messages</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
   </div>
 
   <div class="media-container" id="preview-area">
@@ -560,8 +630,10 @@ body {
       <span>💬 Inbox & Direct Messages</span>
       <span class="modal-close" onclick="closeTikTokModal('inbox-modal')">✕</span>
     </div>
-    <div style="font-size:0.8rem; color:#a1a1aa;">Your recent conversations:</div>
-    <div style="background:#09090b; padding:12px; border-radius:8px; font-size:0.75rem; color:#a1a1aa; text-align:center;">No unread direct messages.</div>
+    <div style="font-size:0.8rem; color:#a1a1aa;">Your recent message threads:</div>
+    <div id="inbox-conversations-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;">
+      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:12px;">No unread direct messages.</div>
+    </div>
   </div>
 </div>
 
@@ -571,7 +643,21 @@ body {
       <span>🎥 Create & Post Content</span>
       <span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span>
     </div>
-    <button class="btn btn-primary" onclick="closeTikTokModal('plus-modal')">📤 Upload Video / Photo Post</button>
+    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post</button>
+  </div>
+</div>
+
+<div class="tiktok-modal" id="upload-video-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>📤 Share Video to VibePulse Feed</span>
+      <span class="modal-close" onclick="closeTikTokModal('upload-video-modal')">✕</span>
+    </div>
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Video File:</label>
+    <input type="file" id="upload-file-input" class="input-field" accept="video/*">
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Caption & Hashtags:</label>
+    <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse"></textarea>
+    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
   </div>
 </div>
 
@@ -594,34 +680,49 @@ body {
   </div>
 </div>
 
+<div class="tiktok-modal" id="active-users-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🟢 Active Online Users</span>
+      <span class="modal-close" onclick="closeTikTokModal('active-users-modal')">✕</span>
+    </div>
+  </div>
+</div>
+
+<div class="tiktok-modal" id="chatrooms-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>💬 Choose a Chatroom</span>
+      <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
+    </div>
+  </div>
+</div>
+
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB6Ikc36xV6Mh74kx6JYtyZVgcF0Hne6Qc",
+  authDomain: "vibepulse-21950.firebaseapp.com",
+  projectId: "vibepulse-21950",
+  storageBucket: "vibepulse-21950.firebasestorage.app",
+  messagingSenderId: "845177411967",
+  appId: "1:845177411967:web:cc46d730fdd6b161a5224a"
+};
+
+let auth = null;
+let db = null;
+let currentUser = null;
 let currentShareUrl = "";
 
-window.addEventListener('DOMContentLoaded', () => {
-  checkConnectionAndReload();
-});
-
-function checkConnectionAndReload() {
-  const offlineScreen = document.getElementById('offline-error-screen');
-  
-  if (!navigator.onLine) {
-    if (offlineScreen) offlineScreen.classList.add('active');
-    return;
+try {
+  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
   }
+} catch(e) { console.warn("Firebase standby:", e); }
 
-  if (offlineScreen) offlineScreen.classList.remove('active');
+window.addEventListener('DOMContentLoaded', () => {
   loadUgcVideoFeed();
-}
-
-window.addEventListener('online', () => {
-  const offlineScreen = document.getElementById('offline-error-screen');
-  if (offlineScreen) offlineScreen.classList.remove('active');
-  loadUgcVideoFeed();
-});
-
-window.addEventListener('offline', () => {
-  const offlineScreen = document.getElementById('offline-error-screen');
-  if (offlineScreen) offlineScreen.classList.add('active');
 });
 
 function loadUgcVideoFeed() {
@@ -637,7 +738,7 @@ function renderSampleFeed(container) {
       <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
         <div class="video-author-name">@VibePulse_Official</div>
-        <div class="video-caption">Welcome back online! #VibePulse</div>
+        <div class="video-caption">Welcome to VibePulse! Check out the share option. #VibePulse</div>
       </div>
       <div class="video-side-actions">
         <button type="button" class="video-action-btn" onclick="triggerScreenEffect('❤️')">❤️<span>128</span></button>
@@ -709,11 +810,23 @@ function switchTab(tabName) {
   }
 }
 
+function openUploadVideoModal() {
+  closeTikTokModal('plus-modal');
+  openTikTokModal('upload-video-modal');
+}
+
+function publishUgcVideoPost() {
+  alert("🚀 Post published successfully!");
+  closeTikTokModal('upload-video-modal');
+}
+
 function triggerScreenEffect(emoji) {
   const overlay = document.getElementById('effect-overlay');
   if (!overlay) return;
   overlay.innerText = emoji;
-  setTimeout(() => { overlay.innerText = ""; }, 1000);
+  overlay.style.transform = "scale(3)";
+  overlay.style.opacity = "1";
+  setTimeout(() => { overlay.style.transform = "scale(1)"; overlay.style.opacity = "0"; overlay.innerText = ""; }, 1200);
 }
 
 function sendChatMessage() {
