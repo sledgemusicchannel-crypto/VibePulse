@@ -337,7 +337,7 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* FIX: Explicit high z-index and pointer-events set on action column */
+/* Action controls configuration for clickability */
 .video-side-actions {
   position: absolute;
   bottom: 95px;
@@ -1729,10 +1729,10 @@ function loadUgcVideoFeed() {
               <div class="video-author-name">@${post.authorName || 'Creator'}</div>
               <div class="video-caption">${safeCaption}</div>
             </div>
-            <div class="video-side-actions">
-              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
-              <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
-              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
+            <div class="video-side-actions" style="pointer-events: auto !important; z-index: 100;">
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')" style="pointer-events: auto !important;">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important;">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')" style="pointer-events: auto !important;">🔗<span>Share</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2006,10 +2006,10 @@ function renderSampleFeed(container) {
         <div class="video-author-name">@VibePulse_Official</div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
-      <div class="video-side-actions">
-        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
-        <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
-        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
+      <div class="video-side-actions" style="pointer-events: auto !important; z-index: 100;">
+        <button class="video-action-btn" onclick="likeUgcPost('sample_1')" style="pointer-events: auto !important;">❤️<span>128</span></button>
+        <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important;">🎁<span>Gift</span></button>
+        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')" style="pointer-events: auto !important;">🔗<span>Share</span></button>
       </div>
     </div>
   `;
