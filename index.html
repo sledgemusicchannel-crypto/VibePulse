@@ -1018,7 +1018,6 @@ body {
 <div id="laugh-container"></div>
 
 <div class="left-side-floating-controls">
-  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
@@ -1682,7 +1681,7 @@ function uploadProfileAvatarPhoto(input) {
   alert("📷 Profile photo updated and synced across VibePulse!");
 }
 
-/* LOADS VIDEO FEED - CLEANED 3-DOT CHAT BUTTON FROM OVERLAY */
+/* LOADS VIDEO FEED - CLEANED NON-WORKING PROFILE ICON, LOVE ICON, AND FIXED SHARE */
 function loadUgcVideoFeed() {
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
@@ -1720,9 +1719,6 @@ function loadUgcVideoFeed() {
           }
 
           const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
-          const authorAvatarHtml = post.authorAvatar 
-            ? `<img src="${post.authorAvatar}" class="avatar-ring-img">` 
-            : `<div class="avatar-ring-img">${(post.authorName || 'C').charAt(0).toUpperCase()}</div>`;
 
           item.innerHTML = `
             ${deleteBtnHtml}
@@ -1732,12 +1728,7 @@ function loadUgcVideoFeed() {
               <div class="video-caption">${safeCaption}</div>
             </div>
             <div class="video-side-actions">
-              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${safeCaption}', '${post.authorAvatar || ''}')" title="Creator Profile">
-                ${authorAvatarHtml}
-                <div class="online-dot-badge"></div>
-              </div>
               <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
-              <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
             </div>
@@ -2014,12 +2005,7 @@ function renderSampleFeed(container) {
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
       <div class="video-side-actions">
-        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')">
-          <div class="avatar-ring-img">⚡</div>
-          <div class="online-dot-badge"></div>
-        </div>
         <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
-        <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
       </div>
@@ -2514,19 +2500,6 @@ function triggerLaughEffect() {
         setTimeout(() => el.remove(), 1800);
       }, i * 100);
     }
-  }
-}
-
-function triggerLoveReaction() {
-  playAudioPopSound();
-  triggerScreenEffect("❤️");
-  const handle = localStorage.getItem('vibepulse_name') || "Guest";
-  if (db) {
-    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-      sender: handle,
-      text: "❤️❤️❤️ (Love reaction)",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(()=>{});
   }
 }
 
