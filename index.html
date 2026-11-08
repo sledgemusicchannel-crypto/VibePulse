@@ -1046,7 +1046,7 @@ body {
     <span class="count-badge" id="left-love-counter-display">21</span>
   </button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
-  <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
+  <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="triggerCurrentVideoDuet()" title="Record Duet 👥">👥</button>
 </div>
 
 <div class="call-fullscreen-overlay" id="whatsapp-call-overlay">
@@ -1551,6 +1551,7 @@ let directUnsubscribe = null;
 let callsUnsubscribe = null;
 let feedUnsubscribe = null;
 let currentActivePostId = null;
+let currentActiveVideoUrl = "";
 let myFollowingList = [];
 let allRegisteredUsers = [];
 let selectedCoinSku = null;
@@ -1794,6 +1795,7 @@ function setupFeedScrollObserver() {
       if (entry.isIntersecting) {
         currentActivePostId = entry.target.dataset.postId || null;
         if (vid) {
+          currentActiveVideoUrl = vid.src || "";
           vid.muted = true;
           vid.play().catch(()=>{});
         }
@@ -2014,13 +2016,22 @@ function shareToPlatform(platform) {
   if (shareLink) window.open(shareLink, '_blank');
 }
 
+/* FIXED DUET MODAL HANDLER */
+function triggerCurrentVideoDuet() {
+  openDuetModal(currentActiveVideoUrl || '');
+}
+
 function openDuetModal(videoUrl) {
+  currentActiveVideoUrl = videoUrl || currentActiveVideoUrl;
   openTikTokModal('duet-modal');
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((stream) => {
       const cam = document.getElementById('duet-preview-cam');
       if (cam) cam.srcObject = stream;
-    }).catch(()=>{});
+    })
+    .catch((err) => {
+      console.warn("Duet camera access standby:", err);
+    });
 }
 
 function publishDuetPost() {
