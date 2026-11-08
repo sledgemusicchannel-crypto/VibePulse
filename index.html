@@ -1,10 +1,21 @@
 
+
+Skip to content
+Using Gmail with screen readers
+1 of 38
+Latest code
+Inbox
+
+Apex Mobility System <apexmobilitysystem@gmail.com>
+11:05 AM (3 hours ago)
+to me
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VibePulse — Real-Time Social & Stream Network</title>
+<title>VibePulse — Clean Interface Stream Network</title>
 
 <!-- Lemon Squeezy SDK -->
 <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
@@ -45,7 +56,7 @@ body {
 .app-viewport {
   flex: 1;
   position: relative;
-  background: #000;
+  background: var(--bg-dark);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -62,7 +73,7 @@ body {
   justify-content: space-between;
   align-items: center;
   z-index: 500;
-  background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
   gap: 6px;
 }
 
@@ -266,7 +277,7 @@ body {
   text-align: center;
 }
 
-/* Main Viewport Container */
+/* Clean Main Viewport Container */
 .media-container {
   width: 100%;
   height: 100%;
@@ -276,7 +287,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000;
+  background: var(--bg-dark);
   z-index: 10;
 }
 
@@ -424,6 +435,7 @@ body {
   pointer-events: auto !important;
 }
 
+/* Left-Side Floating Controls (Re-routed Duet & Reactions here) */
 .left-side-floating-controls {
   position: absolute;
   top: 85px;
@@ -530,7 +542,7 @@ body {
   right: 0;
   padding: 6px 10px;
   z-index: 800;
-  background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(0deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.4) 75%, rgba(5,5,5,0) 100%);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1016,9 +1028,11 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
+<!-- Left-Side Floating Controls (Re-routed Duet & Reactions here) -->
 <div class="left-side-floating-controls">
   <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
+  <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
 
 <div class="call-fullscreen-overlay" id="whatsapp-call-overlay">
@@ -1060,7 +1074,6 @@ body {
         🟢 <span id="top-hud-count">0</span> Online
       </div>
 
-      <!-- TOP RIGHT PROFILE AVATAR CONTAINER -->
       <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
         <div class="avatar-ring-img" id="top-right-avatar-display">👤</div>
         <div class="online-dot-badge"></div>
@@ -1078,6 +1091,7 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
+    <!-- LOCAL RADIO SECTION (FIXED STREAM ENGINE & CONTROLS) -->
     <div class="menu-radio-section">
       <div class="menu-radio-title">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
@@ -1190,7 +1204,7 @@ body {
     <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
 
     <div id="upload-progress-container" style="display:none; flex-direction:column; gap:4px; margin-top:6px;">
-      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#a1a1aa;">
+      <div style="display:flex; justify-space-between; font-size:0.7rem; color:#a1a1aa;">
         <span id="upload-status-text">Uploading...</span>
         <span id="upload-percentage">0%</span>
       </div>
@@ -1236,7 +1250,7 @@ body {
 
       <strong style="color:#fff; font-size:1.05rem;" id="inspect-profile-name">Creator Name</strong>
       <div style="font-size:0.72rem; color:var(--accent-cyan);" id="inspect-profile-uid">ID: -</div>
-     
+      
       <div class="social-stats-row" style="width:100%;">
         <div class="stat-box">
           <span class="stat-number" id="inspect-stat-following">0</span>
@@ -1282,7 +1296,7 @@ body {
       <span class="modal-close" onclick="closeTikTokModal('share-modal')">✕</span>
     </div>
     <div style="font-size:0.8rem; color:#a1a1aa;">Choose an option to share or download:</div>
-   
+    
     <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:6px;">
       <button class="btn btn-secondary" onclick="shareToPlatform('facebook')">📘 Share to Facebook</button>
       <button class="btn btn-secondary" onclick="shareToPlatform('twitter')">🐦 Share to X / Twitter</button>
@@ -1315,10 +1329,10 @@ body {
       <span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span>
     </div>
     <div style="font-size: 0.75rem; color: #a1a1aa;">Record speech and translate instantly:</div>
-   
+    
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-top:4px;">Input Text / Speech:</label>
     <textarea id="translator-input-text" class="input-field" rows="3" placeholder="Type text here or record with mic..."></textarea>
-   
+    
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Live Translated Result:</label>
     <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:10px; border-radius:8px; font-size:0.85rem; color:#25f4ee; min-height:40px;">[Translation will appear here]</div>
 
@@ -1395,7 +1409,7 @@ body {
         <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" onclick="copyMyUserId()">📋 Copy ID</button>
       </div>
       <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
-     
+      
       <div class="social-stats-row" style="width:100%;">
         <div class="stat-box">
           <span class="stat-number" id="profile-stat-following">0</span>
@@ -1576,10 +1590,6 @@ for (let i = 1; i <= 100; i++) {
   levelGifts100.push({ level: i, name: `Lvl ${i} Gift`, cost: cost, icon: emoji, effect: emoji });
 }
 
-const currentSessionStartTime = (typeof firebase !== 'undefined' && firebase.firestore)
-  ? firebase.firestore.Timestamp.now()
-  : { seconds: Math.floor(Date.now() / 1000) };
-
 function getDeviceUser() {
   let localId = localStorage.getItem('vibepulse_uid');
   let localName = localStorage.getItem('vibepulse_name');
@@ -1713,7 +1723,7 @@ function loadUgcVideoFeed() {
         snapshot.forEach((docSnap) => {
           const post = docSnap.data();
           const postId = docSnap.id;
-         
+          
           if (!post.videoUrl || (!post.videoUrl.startsWith("blob:") && !post.videoUrl.startsWith("http"))) {
             db.collection("ugc_videos").doc(postId).delete().catch(()=>{});
             return;
@@ -1729,8 +1739,8 @@ function loadUgcVideoFeed() {
           }
 
           const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
-          const authorAvatarHtml = post.authorAvatar
-            ? `<img src="${post.authorAvatar}" class="avatar-ring-img">`
+          const authorAvatarHtml = post.authorAvatar 
+            ? `<img src="${post.authorAvatar}" class="avatar-ring-img">` 
             : `<div class="avatar-ring-img">${(post.authorName || 'C').charAt(0).toUpperCase()}</div>`;
 
           item.innerHTML = `
@@ -1749,7 +1759,6 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
               <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
             </div>
           `;
@@ -2033,7 +2042,6 @@ function renderSampleFeed(container) {
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('')">👥<span>Duet</span></button>
       </div>
     </div>
   `;
@@ -2490,7 +2498,6 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* AUDIO SYNTHESIZER FOR LAUGHTER/REACTIONS */
 function playAudioPopSound() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2723,23 +2730,60 @@ function toggleLivePKBattle() {
   }
 }
 
+/* FIXED RADIO CONTROLLER ENGINE WITH AUTOPLAY EXCEPTION HANDLING */
 function changeRadioStation(streamUrl) {
   const audio = document.getElementById('radio-audio');
+  const btn = document.getElementById('radio-play-btn');
+  if (!audio) return;
+
   audio.pause();
   audio.src = streamUrl;
   audio.load();
-  audio.play();
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      if (btn) btn.innerText = "⏸ Pause";
+    }).catch(err => {
+      console.warn("Radio autoplay blocked:", err);
+      if (btn) btn.innerText = "▶ Play";
+    });
+  }
 }
 
 function toggleRadio() {
   const audio = document.getElementById('radio-audio');
-  if (audio.paused) audio.play(); else audio.pause();
+  const btn = document.getElementById('radio-play-btn');
+  const select = document.getElementById('radio-station-select');
+  if (!audio) return;
+
+  if (!audio.src || audio.src === "about:blank") {
+    audio.src = select.value;
+  }
+
+  if (audio.paused) {
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        if (btn) btn.innerText = "⏸ Pause";
+      }).catch(err => {
+        alert("Audio playback requires user interaction. Tap Play again.");
+        if (btn) btn.innerText = "▶ Play";
+      });
+    }
+  } else {
+    audio.pause();
+    if (btn) btn.innerText = "▶ Play";
+  }
 }
 
 function stopRadio() {
   const audio = document.getElementById('radio-audio');
+  if (!audio) return;
   audio.pause();
   audio.currentTime = 0;
+  const btn = document.getElementById('radio-play-btn');
+  if (btn) btn.innerText = "▶ Play";
 }
 
 function triggerAction(action) {
