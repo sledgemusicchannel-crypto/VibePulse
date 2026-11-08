@@ -265,7 +265,7 @@ body {
   text-align: center;
 }
 
-/* Clean Main Viewport Container */
+/* Main Viewport Container */
 .media-container {
   width: 100%;
   height: 100%;
@@ -423,7 +423,7 @@ body {
   pointer-events: auto !important;
 }
 
-/* Left-Side Floating Controls (Re-routed Duet & Reactions here) */
+/* Left-Side Floating Controls */
 .left-side-floating-controls {
   position: absolute;
   top: 85px;
@@ -492,9 +492,10 @@ body {
   z-index: 10;
 }
 
+/* FIXED POSITION FOR PK BUTTON TO PREVENT OVERLAPPING CHAT/SEND BAR */
 .live-pk-toggle-btn {
   position: absolute;
-  bottom: 70px;
+  bottom: 120px;
   right: 12px;
   background: linear-gradient(135deg, #fe2c55, #ff007f);
   color: white;
@@ -504,7 +505,7 @@ body {
   font-weight: bold;
   font-size: 0.75rem;
   cursor: pointer;
-  z-index: 45;
+  z-index: 950;
   box-shadow: 0 4px 12px rgba(254, 44, 85, 0.5);
   pointer-events: auto !important;
 }
@@ -1016,7 +1017,6 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls (Re-routed Duet & Reactions here) -->
 <div class="left-side-floating-controls">
   <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
@@ -1570,14 +1570,6 @@ const coinPackages = [
   { sku: 'vibepulse_coins_17500', coins: 17772, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
 ];
 
-const levelGifts100 = [];
-const emojisList = ['🌹', '⭐', '💍', '🚀', '👑', '🪐', '💎', '🔥', '💖', '🎉', '⚡', '🎁', '🍀', '🏆', '🍔', '🍕', '🚗', '🎸', '⚽', '🌟'];
-for (let i = 1; i <= 100; i++) {
-  const cost = i <= 10 ? i * 15 : 150 + (i - 10) * 120;
-  const emoji = emojisList[(i - 1) % emojisList.length];
-  levelGifts100.push({ level: i, name: `Lvl ${i} Gift`, cost: cost, icon: emoji, effect: emoji });
-}
-
 function getDeviceUser() {
   let localId = localStorage.getItem('vibepulse_uid');
   let localName = localStorage.getItem('vibepulse_name');
@@ -1690,6 +1682,7 @@ function uploadProfileAvatarPhoto(input) {
   alert("📷 Profile photo updated and synced across VibePulse!");
 }
 
+/* LOADS VIDEO FEED - CLEANED 3-DOT CHAT BUTTON FROM OVERLAY */
 function loadUgcVideoFeed() {
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
@@ -1747,7 +1740,6 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2115,13 +2107,6 @@ function toggleFollowUser(targetUid, targetName) {
   }
 
   batch.commit().then(() => alert(isFollowing ? `Unfollowed ${targetName}` : `🎉 You are now following ${targetName}!`));
-}
-
-function sendProfileLike(targetUid) {
-  if (!db || !targetUid) return;
-  db.collection("users").doc(targetUid).set({
-    likesCount: firebase.firestore.FieldValue.increment(1)
-  }, { merge: true }).then(() => triggerScreenEffect("❤️"));
 }
 
 function openLiveModeratorModal() {
@@ -2677,6 +2662,7 @@ function sendChatMessage() {
   }
 }
 
+/* STARTS LIVE CAMERA WITH ELEVATED PK BUTTON OVERLAY */
 function startLiveCamera() {
   closeTikTokModal('plus-modal');
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
