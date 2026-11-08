@@ -1077,6 +1077,7 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
+    <!-- LOCAL RADIO SECTION (FIXED STREAM ENGINE & CONTROLS) -->
     <div class="menu-radio-section">
       <div class="menu-radio-title">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
@@ -1189,7 +1190,7 @@ body {
     <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
 
     <div id="upload-progress-container" style="display:none; flex-direction:column; gap:4px; margin-top:6px;">
-      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#a1a1aa;">
+      <div style="display:flex; justify-space-between; font-size:0.7rem; color:#a1a1aa;">
         <span id="upload-status-text">Uploading...</span>
         <span id="upload-percentage">0%</span>
       </div>
@@ -2489,7 +2490,6 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* AUDIO SYNTHESIZER FOR LAUGHTER/REACTIONS */
 function playAudioPopSound() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2722,23 +2722,60 @@ function toggleLivePKBattle() {
   }
 }
 
+/* FIXED RADIO CONTROLLER ENGINE WITH AUTOPLAY EXCEPTION HANDLING */
 function changeRadioStation(streamUrl) {
   const audio = document.getElementById('radio-audio');
+  const btn = document.getElementById('radio-play-btn');
+  if (!audio) return;
+
   audio.pause();
   audio.src = streamUrl;
   audio.load();
-  audio.play();
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      if (btn) btn.innerText = "⏸ Pause";
+    }).catch(err => {
+      console.warn("Radio autoplay blocked:", err);
+      if (btn) btn.innerText = "▶ Play";
+    });
+  }
 }
 
 function toggleRadio() {
   const audio = document.getElementById('radio-audio');
-  if (audio.paused) audio.play(); else audio.pause();
+  const btn = document.getElementById('radio-play-btn');
+  const select = document.getElementById('radio-station-select');
+  if (!audio) return;
+
+  if (!audio.src || audio.src === "about:blank") {
+    audio.src = select.value;
+  }
+
+  if (audio.paused) {
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        if (btn) btn.innerText = "⏸ Pause";
+      }).catch(err => {
+        alert("Audio playback requires user interaction. Tap Play again.");
+        if (btn) btn.innerText = "▶ Play";
+      });
+    }
+  } else {
+    audio.pause();
+    if (btn) btn.innerText = "▶ Play";
+  }
 }
 
 function stopRadio() {
   const audio = document.getElementById('radio-audio');
+  if (!audio) return;
   audio.pause();
   audio.currentTime = 0;
+  const btn = document.getElementById('radio-play-btn');
+  if (btn) btn.innerText = "▶ Play";
 }
 
 function triggerAction(action) {
