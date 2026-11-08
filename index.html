@@ -346,6 +346,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  pointer-events: auto !important;
 }
 
 .video-action-btn {
@@ -360,6 +361,8 @@ body {
   font-size: 1.4rem;
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
   pointer-events: auto !important;
+  z-index: 30;
+  position: relative;
 }
 
 .video-action-btn span {
@@ -492,7 +495,6 @@ body {
   z-index: 10;
 }
 
-/* FIXED POSITION FOR PK BUTTON TO PREVENT OVERLAPPING CHAT/SEND BAR */
 .live-pk-toggle-btn {
   position: absolute;
   bottom: 120px;
@@ -1078,7 +1080,6 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
-    <!-- LOCAL RADIO SECTION (FIXED STREAM ENGINE & CONTROLS) -->
     <div class="menu-radio-section">
       <div class="menu-radio-title">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
@@ -1681,7 +1682,7 @@ function uploadProfileAvatarPhoto(input) {
   alert("📷 Profile photo updated and synced across VibePulse!");
 }
 
-/* LOADS VIDEO FEED - CLEANED NON-WORKING PROFILE ICON, LOVE ICON, AND FIXED SHARE */
+/* LOADS VIDEO FEED - FULLY CLICKABLE SHARE BUTTON & HIGHER Z-INDEX */
 function loadUgcVideoFeed() {
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
@@ -2635,7 +2636,6 @@ function sendChatMessage() {
   }
 }
 
-/* STARTS LIVE CAMERA WITH ELEVATED PK BUTTON OVERLAY */
 function startLiveCamera() {
   closeTikTokModal('plus-modal');
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -2677,7 +2677,6 @@ function toggleLivePKBattle() {
   }
 }
 
-/* FIXED RADIO CONTROLLER ENGINE WITH AUTOPLAY EXCEPTION HANDLING */
 function changeRadioStation(streamUrl) {
   const audio = document.getElementById('radio-audio');
   const btn = document.getElementById('radio-play-btn');
