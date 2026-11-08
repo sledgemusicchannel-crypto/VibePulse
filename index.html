@@ -101,68 +101,11 @@ body {
   font-weight: bold;
 }
 
-/* Voice Translator Header Bar */
-.translator-top-bar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(24, 24, 27, 0.85);
-  padding: 3px 6px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 0.65rem;
-  backdrop-filter: blur(8px);
-}
-
-.translator-select {
-  background: #09090b;
-  color: #fff;
-  border: 1px solid #3f3f46;
-  padding: 2px 4px;
-  border-radius: 6px;
-  font-size: 0.65rem;
-  outline: none;
-  cursor: pointer;
-  max-width: 75px;
-}
-
-.mic-btn {
-  background: #25f4ee;
-  color: #000;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.65rem;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  white-space: nowrap;
-  pointer-events: auto !important;
-  z-index: 600;
-  touch-action: manipulation;
-}
-
 .right-header-group {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-}
-
-.active-users-pill {
-  background: rgba(34, 197, 94, 0.2);
-  border: 1px solid rgba(34, 197, 94, 0.5);
-  color: #22c55e;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.65rem;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .menu-dropdown-btn {
@@ -216,55 +159,6 @@ body {
 
 .menu-item-btn:hover { background: rgba(255, 255, 255, 0.18); }
 
-.menu-radio-section {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 8px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.menu-radio-title {
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: var(--accent-cyan);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.radio-select-menu {
-  background: #18181b;
-  color: white;
-  border: 1px solid #3f3f46;
-  padding: 5px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  outline: none;
-  width: 100%;
-}
-
-.radio-controls-row {
-  display: flex;
-  gap: 6px;
-}
-
-.radio-control-btn {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 4px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.7rem;
-  font-weight: bold;
-  text-align: center;
-}
-
 /* Clean Main Viewport Container */
 .media-container {
   width: 100%;
@@ -299,7 +193,7 @@ body {
   align-items: center;
 }
 
-.video-feed-item video, .video-feed-item img {
+.video-feed-item video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -372,94 +266,6 @@ body {
   pointer-events: none;
 }
 
-/* Glowing Green Status Ring & Avatar */
-.avatar-ring-container {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(135deg, #22c55e, #25f4ee);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
-  cursor: pointer;
-  pointer-events: auto !important;
-  z-index: 10000 !important;
-}
-
-.avatar-ring-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #18181b;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: #fff;
-}
-
-.online-dot-badge {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 10px;
-  height: 10px;
-  background: #22c55e;
-  border: 2px solid #000;
-  border-radius: 50%;
-}
-
-.video-delete-badge {
-  position: absolute;
-  top: 60px;
-  right: 12px;
-  background: rgba(239, 68, 68, 0.85);
-  color: white;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  cursor: pointer;
-  z-index: 10005 !important;
-  pointer-events: auto !important;
-}
-
-/* Left-Side Floating Controls */
-.left-side-floating-controls {
-  position: absolute;
-  top: 85px;
-  left: 12px;
-  z-index: 500;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: auto;
-}
-
-.floating-side-icon-btn {
-  width: 42px;
-  height: 42px;
-  background: rgba(24, 24, 27, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  font-size: 1.25rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-  transition: transform 0.1s ease;
-  touch-action: manipulation;
-  pointer-events: auto !important;
-}
-.floating-side-icon-btn:active { transform: scale(1.2); }
-
 .bottom-overlay {
   position: absolute;
   bottom: 56px;
@@ -527,54 +333,6 @@ body {
   outline: none;
   pointer-events: auto !important;
 }
-
-.chat-input::placeholder { color: #d4d4d8; }
-
-.emoji-picker-toggle {
-  position: absolute;
-  right: 62px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 0.85rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 900;
-  pointer-events: auto !important;
-}
-
-.emoji-drawer {
-  display: none;
-  position: absolute;
-  bottom: 44px;
-  left: 0;
-  background: rgba(24, 24, 27, 0.96);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 8px;
-  width: 260px;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  z-index: 1100;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.85);
-  pointer-events: auto !important;
-}
-.emoji-drawer.active { display: grid !important; }
-.emoji-item {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  text-align: center;
-  padding: 3px;
-  border-radius: 6px;
-}
-.emoji-item:hover { background: rgba(255,255,255,0.2); }
 
 .chat-send-btn {
   background: var(--accent-pink);
@@ -650,19 +408,31 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.1rem; }
 
+/* OFFLINE / CONNECTION FALLBACK SCREEN */
+#offline-error-screen {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg-dark);
+  z-index: 5000;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  text-align: center;
+}
+#offline-error-screen.active { display: flex !important; }
+
 .tiktok-modal {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.75);
   z-index: 1000000 !important;
   justify-content: center;
   align-items: flex-end;
 }
-
 .tiktok-modal.active { display: flex !important; }
 
 .modal-body-container {
@@ -694,38 +464,31 @@ body {
 .btn { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 .btn-primary { background: var(--accent-pink); color: white; }
 .btn-secondary { background: #27272a; color: white; }
-.btn-danger { background: #ef4444; color: white; }
-.input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.85rem; }
-
-#effect-overlay {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 150;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 4rem;
-  transition: all 0.5s ease;
-}
 </style>
 </head>
 <body>
 
-<div id="effect-overlay"></div>
+<!-- OFFLINE ERROR OVERLAY SCREEN -->
+<div id="offline-error-screen">
+  <div style="font-size: 3rem; margin-bottom: 12px;">⚠️</div>
+  <h2 style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 8px;">Connection Notice</h2>
+  <p style="font-size: 0.82rem; color: #a1a1aa; max-width: 300px; line-height: 1.4; margin-bottom: 16px;">
+    Please make sure the device is connected to the internet and the app is online.
+  </p>
+  <button class="btn btn-primary" onclick="checkConnectionAndReload()" style="padding: 10px 24px; border-radius: 20px;">Retry Connection 🔄</button>
+</div>
 
 <div class="app-viewport">
 
   <div class="top-overlay">
     <div class="left-header-group">
-      <button class="back-nav-btn" onclick="handleBackNavigation()">◄ Back</button>
+      <button class="back-nav-btn" onclick="switchTab('feed')">◄ Back</button>
       <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
     </div>
 
     <div class="right-header-group">
-      <!-- Top Right Profile Button -->
-      <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard" style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #22c55e, #25f4ee); padding:2px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-        <div class="avatar-ring-img" id="top-right-avatar-display" style="width:100%; height:100%; border-radius:50%; background:#18181b; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold;">👤</div>
+      <div class="avatar-ring-container" onclick="openTikTokModal('profile-modal')" title="My Profile" style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #22c55e, #25f4ee); padding:2px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        <div style="width:100%; height:100%; border-radius:50%; background:#18181b; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:0.85rem;">👤</div>
       </div>
       <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
     </div>
@@ -733,7 +496,7 @@ body {
 
   <div class="feature-menu-panel" id="feature-dropdown-menu">
     <button class="menu-item-btn" onclick="openTikTokModal('inbox-modal'); toggleFeatureMenu();">💬 Direct Messages & Inbox</button>
-    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile Dashboard</button>
   </div>
 
   <div class="media-container" id="preview-area">
@@ -753,7 +516,7 @@ body {
 
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
       <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
-      <button type="submit" class="chat-send-btn" id="send-btn">Send</button>
+      <button type="submit" class="chat-send-btn">Send</button>
     </form>
   </div>
 
@@ -797,10 +560,8 @@ body {
       <span>💬 Inbox & Direct Messages</span>
       <span class="modal-close" onclick="closeTikTokModal('inbox-modal')">✕</span>
     </div>
-    <div style="font-size:0.8rem; color:#a1a1aa;">Your recent conversations and notification threads:</div>
-    <div id="inbox-conversations-list" style="display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;">
-      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:12px;">No unread direct messages. Check back later!</div>
-    </div>
+    <div style="font-size:0.8rem; color:#a1a1aa;">Your recent conversations:</div>
+    <div style="background:#09090b; padding:12px; border-radius:8px; font-size:0.75rem; color:#a1a1aa; text-align:center;">No unread direct messages.</div>
   </div>
 </div>
 
@@ -810,7 +571,7 @@ body {
       <span>🎥 Create & Post Content</span>
       <span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span>
     </div>
-    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post</button>
+    <button class="btn btn-primary" onclick="closeTikTokModal('plus-modal')">📤 Upload Video / Photo Post</button>
   </div>
 </div>
 
@@ -837,7 +598,30 @@ body {
 let currentShareUrl = "";
 
 window.addEventListener('DOMContentLoaded', () => {
+  checkConnectionAndReload();
+});
+
+function checkConnectionAndReload() {
+  const offlineScreen = document.getElementById('offline-error-screen');
+  
+  if (!navigator.onLine) {
+    if (offlineScreen) offlineScreen.classList.add('active');
+    return;
+  }
+
+  if (offlineScreen) offlineScreen.classList.remove('active');
   loadUgcVideoFeed();
+}
+
+window.addEventListener('online', () => {
+  const offlineScreen = document.getElementById('offline-error-screen');
+  if (offlineScreen) offlineScreen.classList.remove('active');
+  loadUgcVideoFeed();
+});
+
+window.addEventListener('offline', () => {
+  const offlineScreen = document.getElementById('offline-error-screen');
+  if (offlineScreen) offlineScreen.classList.add('active');
 });
 
 function loadUgcVideoFeed() {
@@ -853,7 +637,7 @@ function renderSampleFeed(container) {
       <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
         <div class="video-author-name">@VibePulse_Official</div>
-        <div class="video-caption">Welcome to VibePulse! Check out the share option. #VibePulse</div>
+        <div class="video-caption">Welcome back online! #VibePulse</div>
       </div>
       <div class="video-side-actions">
         <button type="button" class="video-action-btn" onclick="triggerScreenEffect('❤️')">❤️<span>128</span></button>
@@ -929,9 +713,7 @@ function triggerScreenEffect(emoji) {
   const overlay = document.getElementById('effect-overlay');
   if (!overlay) return;
   overlay.innerText = emoji;
-  overlay.style.transform = "scale(3)";
-  overlay.style.opacity = "1";
-  setTimeout(() => { overlay.style.transform = "scale(1)"; overlay.style.opacity = "0"; overlay.innerText = ""; }, 1200);
+  setTimeout(() => { overlay.innerText = ""; }, 1000);
 }
 
 function sendChatMessage() {
