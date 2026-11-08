@@ -370,36 +370,6 @@ body {
   font-weight: bold;
 }
 
-.avatar-ring-container {
-  position: relative;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(135deg, #22c55e, #25f4ee);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
-  cursor: pointer;
-  pointer-events: auto !important;
-  z-index: 10000 !important;
-}
-
-.avatar-ring-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #18181b;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #fff;
-}
-
 .online-dot-badge {
   position: absolute;
   bottom: 0;
@@ -1065,8 +1035,9 @@ body {
         🟢 <span id="top-hud-count">0</span> Online
       </div>
 
-      <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
-        <div class="avatar-ring-img" id="top-right-avatar-display">👤</div>
+      <!-- Top Right Profile Button Only (Duplicate removed) -->
+      <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard" style="width:36px; height:36px; cursor:pointer;">
+        <div class="avatar-ring-img" id="top-right-avatar-display" style="font-size:0.9rem;">👤</div>
         <div class="online-dot-badge"></div>
       </div>
 
@@ -1730,9 +1701,7 @@ function loadUgcVideoFeed() {
           }
 
           const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
-          const authorAvatarHtml = post.authorAvatar 
-            ? `<img src="${post.authorAvatar}" class="avatar-ring-img">` 
-            : `<div class="avatar-ring-img">${(post.authorName || 'C').charAt(0).toUpperCase()}</div>`;
+          const safeVideoUrl = post.videoUrl ? post.videoUrl.replace(/'/g, "\\'") : '';
 
           item.innerHTML = `
             ${deleteBtnHtml}
@@ -1742,14 +1711,10 @@ function loadUgcVideoFeed() {
               <div class="video-caption">${safeCaption}</div>
             </div>
             <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
-              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${safeCaption}', '${post.authorAvatar || ''}')" title="Creator Profile" style="pointer-events: auto !important; z-index: 10000;">
-                ${authorAvatarHtml}
-                <div class="online-dot-badge"></div>
-              </div>
               <button class="video-action-btn" onclick="likeUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>${post.likes || 0}</span></button>
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
-              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2016,22 +1981,19 @@ function deleteUgcPost(postId) {
 }
 
 function renderSampleFeed(container) {
+  const sampleUrl = "https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4";
   container.innerHTML = `
     <div class="video-feed-item" data-post-id="sample_1">
-      <video src="https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4" autoplay loop playsinline muted></video>
+      <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
         <div class="video-author-name">@VibePulse_Official</div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
       <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
-        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')" style="pointer-events: auto !important; z-index: 10000;">
-          <div class="avatar-ring-img">⚡</div>
-          <div class="online-dot-badge"></div>
-        </div>
         <button class="video-action-btn" onclick="likeUgcPost('sample_1')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>128</span></button>
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
-        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
+        <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
       </div>
     </div>
   `;
