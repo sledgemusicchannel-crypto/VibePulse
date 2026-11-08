@@ -1039,7 +1039,7 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls: Love Icon with Count Above Laughter -->
+<!-- Left-Side Floating Controls: Love, Laugh, and Duet -->
 <div class="left-side-floating-controls">
   <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">
     ❤️
@@ -1772,7 +1772,6 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openDuetModal('${safeVideoUrl}')">👥<span>Duet</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2052,7 +2051,6 @@ function renderSampleFeed(container) {
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('${sampleUrl}')">👥<span>Duet</span></button>
       </div>
     </div>
   `;
@@ -2522,7 +2520,7 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* SYNTHESIZED MULTI-STAGE ECHO LAUGHTER AUDIO ENGINE */
+/* SYNTHESIZED ECHO "HA HA HA HA" LAUGHTER AUDIO ENGINE */
 function triggerLaughEffect() {
   triggerScreenEffect("😂");
 
@@ -2539,25 +2537,49 @@ function triggerLaughEffect() {
 
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [320, 290, 340, 310]; 
-    notes.forEach((freq, idx) => {
+    // Multi-stage echo "Ha Ha Ha Ha" cadence frequencies
+    const echoSyllables = [
+      { freq: 350, delay: 0 },
+      { freq: 320, delay: 180 },
+      { freq: 360, delay: 360 },
+      { freq: 330, delay: 540 },
+      { freq: 300, delay: 720 }
+    ];
+
+    echoSyllables.forEach(syl => {
       setTimeout(() => {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const now = audioCtx.currentTime;
+        
+        // Primary syllable oscillator
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + 0.12);
+        osc.frequency.setValueAtTime(syl.freq, now);
+        osc.frequency.exponentialRampToValueAtTime(syl.freq * 0.75, now + 0.12);
         
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now);
-        osc.stop(now + 0.15);
-      }, idx * 140);
+        osc.stop(now + 0.14);
+
+        // Echo feedback resonance oscillator
+        const echoOsc = audioCtx.createOscillator();
+        const echoGain = audioCtx.createGain();
+        echoOsc.type = 'sine';
+        echoOsc.frequency.setValueAtTime(syl.freq * 0.5, now + 0.05);
+        
+        echoGain.gain.setValueAtTime(0.12, now + 0.05);
+        echoGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        echoOsc.connect(echoGain);
+        echoGain.connect(audioCtx.destination);
+        echoOsc.start(now + 0.05);
+        echoOsc.stop(now + 0.22);
+      }, syl.delay);
     });
   } catch(e) {}
 
@@ -2961,4 +2983,3 @@ function triggerScreenEffect(emoji) {
 </script>
 </body>
 </html>
-
