@@ -1046,7 +1046,6 @@ body {
     <span class="count-badge" id="left-love-counter-display">21</span>
   </button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
-  <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="triggerCurrentVideoDuet()" title="Record Duet 👥">👥</button>
 </div>
 
 <div class="call-fullscreen-overlay" id="whatsapp-call-overlay">
@@ -1196,6 +1195,18 @@ body {
   </div>
 </div>
 
+<div class="tiktok-modal" id="remix-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>✂️ Remix this Video</span>
+      <span class="modal-close" onclick="closeTikTokModal('remix-modal')">✕</span>
+    </div>
+    <div style="font-size:0.78rem; color:#a1a1aa;">Create shorts or sample audio from this video:</div>
+    <button class="btn btn-primary" onclick="executeRemixAction('sound')">🎵 Use Sound from this Video</button>
+    <button class="btn btn-secondary" onclick="executeRemixAction('cut')">✂️ Cut & Sample Video Clip (15s)</button>
+  </div>
+</div>
+
 <div class="tiktok-modal" id="highlight-story-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1323,20 +1334,6 @@ body {
     </div>
 
     <a id="download-video-anchor" class="btn btn-primary" style="text-align:center; text-decoration:none; margin-top:6px;" download="vibepulse_video.mp4">📥 Download Video File</a>
-  </div>
-</div>
-
-<div class="tiktok-modal" id="duet-modal">
-  <div class="modal-body-container">
-    <div class="modal-header">
-      <span>👥 Record Duet Video</span>
-      <span class="modal-close" onclick="closeTikTokModal('duet-modal')">✕</span>
-    </div>
-    <div style="font-size:0.75rem; color:#a1a1aa;">Record your reaction side-by-side!</div>
-    <div style="width:100%; height:200px; background:#000; border-radius:8px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
-      <video id="duet-preview-cam" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
-    </div>
-    <button class="btn btn-primary" onclick="publishDuetPost()">🚀 Publish Duet Post</button>
   </div>
 </div>
 
@@ -1773,7 +1770,7 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openDuetModal('${safeVideoUrl}')">👥<span>Duet</span></button>
+              <button class="video-action-btn" onclick="openRemixModal('${safeVideoUrl}')">✂️<span>Remix</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2016,28 +2013,25 @@ function shareToPlatform(platform) {
   if (shareLink) window.open(shareLink, '_blank');
 }
 
-/* FIXED DUET MODAL HANDLER */
-function triggerCurrentVideoDuet() {
-  openDuetModal(currentActiveVideoUrl || '');
-}
-
-function openDuetModal(videoUrl) {
+/* YOUTUBE SHORTS-STYLE REMIX FEATURE */
+function openRemixModal(videoUrl) {
   currentActiveVideoUrl = videoUrl || currentActiveVideoUrl;
-  openTikTokModal('duet-modal');
-  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then((stream) => {
-      const cam = document.getElementById('duet-preview-cam');
-      if (cam) cam.srcObject = stream;
-    })
-    .catch((err) => {
-      console.warn("Duet camera access standby:", err);
-    });
+  openTikTokModal('remix-modal');
 }
 
-function publishDuetPost() {
-  alert("🎉 Duet video published!");
-  closeTikTokModal('duet-modal');
-  loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+function executeRemixAction(type) {
+  closeTikTokModal('remix-modal');
+  if (type === 'sound') {
+    alert("🎵 Audio track extracted! Opening video publisher with audio overlay...");
+    openUploadVideoModal();
+    const captionInput = document.getElementById('upload-caption-input');
+    if (captionInput) captionInput.value = "#RemixSound #VibePulse";
+  } else if (type === 'cut') {
+    alert("✂️ Video sampled! Select your video snippet to remix...");
+    openUploadVideoModal();
+    const captionInput = document.getElementById('upload-caption-input');
+    if (captionInput) captionInput.value = "#RemixClip #VibePulse";
+  }
 }
 
 function deleteUgcPost(postId) {
@@ -2063,7 +2057,7 @@ function renderSampleFeed(container) {
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('${sampleUrl}')">👥<span>Duet</span></button>
+        <button class="video-action-btn" onclick="openRemixModal('${sampleUrl}')">✂️<span>Remix</span></button>
       </div>
     </div>
   `;
