@@ -1,3 +1,15 @@
+
+
+Skip to content
+Using Gmail with screen readers
+1 of 38
+Latest code
+Inbox
+
+Apex Mobility System <apexmobilitysystem@gmail.com>
+11:05 AM (3 hours ago)
+to me
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -341,12 +353,11 @@ body {
   position: absolute;
   bottom: 95px;
   right: 12px;
-  z-index: 9999 !important;
+  z-index: 25;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  pointer-events: auto !important;
 }
 
 .video-action-btn {
@@ -361,8 +372,6 @@ body {
   font-size: 1.4rem;
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
   pointer-events: auto !important;
-  z-index: 10000 !important;
-  position: relative;
 }
 
 .video-action-btn span {
@@ -370,11 +379,10 @@ body {
   font-weight: bold;
 }
 
-/* Glowing Green Status Ring & Avatar */
 .avatar-ring-container {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   padding: 2px;
   background: linear-gradient(135deg, #22c55e, #25f4ee);
@@ -384,7 +392,6 @@ body {
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
   cursor: pointer;
   pointer-events: auto !important;
-  z-index: 10000 !important;
 }
 
 .avatar-ring-img {
@@ -396,7 +403,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #fff;
 }
@@ -405,8 +412,8 @@ body {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   background: #22c55e;
   border: 2px solid #000;
   border-radius: 50%;
@@ -424,11 +431,11 @@ body {
   font-size: 0.7rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 10005 !important;
+  z-index: 30;
   pointer-events: auto !important;
 }
 
-/* Left-Side Floating Controls */
+/* Left-Side Floating Controls (Re-routed Duet & Reactions here) */
 .left-side-floating-controls {
   position: absolute;
   top: 85px;
@@ -499,7 +506,7 @@ body {
 
 .live-pk-toggle-btn {
   position: absolute;
-  bottom: 125px;
+  bottom: 70px;
   right: 12px;
   background: linear-gradient(135deg, #fe2c55, #ff007f);
   color: white;
@@ -509,7 +516,7 @@ body {
   font-weight: bold;
   font-size: 0.75rem;
   cursor: pointer;
-  z-index: 950;
+  z-index: 45;
   box-shadow: 0 4px 12px rgba(254, 44, 85, 0.5);
   pointer-events: auto !important;
 }
@@ -1021,8 +1028,9 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls -->
+<!-- Left-Side Floating Controls (Re-routed Duet & Reactions here) -->
 <div class="left-side-floating-controls">
+  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
@@ -1066,7 +1074,6 @@ body {
         🟢 <span id="top-hud-count">0</span> Online
       </div>
 
-      <!-- Top Right Profile Button with Glowing Green Ring & Online Status Badge -->
       <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
         <div class="avatar-ring-img" id="top-right-avatar-display">👤</div>
         <div class="online-dot-badge"></div>
@@ -1084,6 +1091,7 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
+    <!-- LOCAL RADIO SECTION (FIXED STREAM ENGINE & CONTROLS) -->
     <div class="menu-radio-section">
       <div class="menu-radio-title">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
@@ -1148,7 +1156,6 @@ body {
 
 </div>
 
-<!-- BOTTOM NAVIGATION BAR -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="switchTab('feed')">🏠<span>Home</span></button>
   <button class="nav-item" onclick="openTikTokModal('shop-modal')">🪙<span>Store</span></button>
@@ -1243,7 +1250,7 @@ body {
 
       <strong style="color:#fff; font-size:1.05rem;" id="inspect-profile-name">Creator Name</strong>
       <div style="font-size:0.72rem; color:var(--accent-cyan);" id="inspect-profile-uid">ID: -</div>
-     
+      
       <div class="social-stats-row" style="width:100%;">
         <div class="stat-box">
           <span class="stat-number" id="inspect-stat-following">0</span>
@@ -1322,10 +1329,10 @@ body {
       <span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span>
     </div>
     <div style="font-size: 0.75rem; color: #a1a1aa;">Record speech and translate instantly:</div>
-   
+    
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-top:4px;">Input Text / Speech:</label>
     <textarea id="translator-input-text" class="input-field" rows="3" placeholder="Type text here or record with mic..."></textarea>
-   
+    
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Live Translated Result:</label>
     <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:10px; border-radius:8px; font-size:0.85rem; color:#25f4ee; min-height:40px;">[Translation will appear here]</div>
 
@@ -1402,7 +1409,7 @@ body {
         <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" onclick="copyMyUserId()">📋 Copy ID</button>
       </div>
       <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
-     
+      
       <div class="social-stats-row" style="width:100%;">
         <div class="stat-box">
           <span class="stat-number" id="profile-stat-following">0</span>
@@ -1716,7 +1723,7 @@ function loadUgcVideoFeed() {
         snapshot.forEach((docSnap) => {
           const post = docSnap.data();
           const postId = docSnap.id;
-         
+          
           if (!post.videoUrl || (!post.videoUrl.startsWith("blob:") && !post.videoUrl.startsWith("http"))) {
             db.collection("ugc_videos").doc(postId).delete().catch(()=>{});
             return;
@@ -1728,11 +1735,13 @@ function loadUgcVideoFeed() {
 
           let deleteBtnHtml = '';
           if (post.authorUid === myUid) {
-            deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 10005;">🗑️ Delete</button>`;
+            deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>`;
           }
 
           const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
-          const safeVideoUrl = post.videoUrl ? post.videoUrl.replace(/'/g, "\\'") : '';
+          const authorAvatarHtml = post.authorAvatar 
+            ? `<img src="${post.authorAvatar}" class="avatar-ring-img">` 
+            : `<div class="avatar-ring-img">${(post.authorName || 'C').charAt(0).toUpperCase()}</div>`;
 
           item.innerHTML = `
             ${deleteBtnHtml}
@@ -1741,11 +1750,16 @@ function loadUgcVideoFeed() {
               <div class="video-author-name">@${post.authorName || 'Creator'}</div>
               <div class="video-caption">${safeCaption}</div>
             </div>
-            <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
-              <button class="video-action-btn" onclick="likeUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>${post.likes || 0}</span></button>
-              <button class="video-action-btn" onclick="openCommentsModal('${postId}')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
-              <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
-              <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
+            <div class="video-side-actions">
+              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${safeCaption}', '${post.authorAvatar || ''}')" title="Creator Profile">
+                ${authorAvatarHtml}
+                <div class="online-dot-badge"></div>
+              </div>
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
+              <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
+              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2012,19 +2026,22 @@ function deleteUgcPost(postId) {
 }
 
 function renderSampleFeed(container) {
-  const sampleUrl = "https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4";
   container.innerHTML = `
     <div class="video-feed-item" data-post-id="sample_1">
-      <video src="${sampleUrl}" autoplay loop playsinline muted></video>
+      <video src="https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
         <div class="video-author-name">@VibePulse_Official</div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
-      <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
-        <button class="video-action-btn" onclick="likeUgcPost('sample_1')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>128</span></button>
-        <button class="video-action-btn" onclick="openCommentsModal('sample_1')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
-        <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
-        <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
+      <div class="video-side-actions">
+        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')">
+          <div class="avatar-ring-img">⚡</div>
+          <div class="online-dot-badge"></div>
+        </div>
+        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
+        <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
+        <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
       </div>
     </div>
   `;
@@ -2481,8 +2498,25 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* SYNTHESIZED MULTI-STAGE ECHO "HA HA HA" LAUGHTER AUDIO ENGINE */
+function playAudioPopSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
+  } catch(e) {}
+}
+
 function triggerLaughEffect() {
+  playAudioPopSound();
   triggerScreenEffect("😂");
 
   const container = document.getElementById('laugh-container');
@@ -2491,34 +2525,10 @@ function triggerLaughEffect() {
   if (db) {
     db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
       sender: handle,
-      text: "😂😂😂 (Ha Ha Ha Laughter)",
+      text: "😂😂😂 (Laughing reaction)",
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(()=>{});
   }
-
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [320, 290, 340, 310];
-    notes.forEach((freq, idx) => {
-      setTimeout(() => {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + 0.12);
-       
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.15);
-      }, idx * 140);
-    });
-  } catch(e) {}
 
   if (container) {
     for (let i = 0; i < 6; i++) {
@@ -2531,6 +2541,19 @@ function triggerLaughEffect() {
         setTimeout(() => el.remove(), 1800);
       }, i * 100);
     }
+  }
+}
+
+function triggerLoveReaction() {
+  playAudioPopSound();
+  triggerScreenEffect("❤️");
+  const handle = localStorage.getItem('vibepulse_name') || "Guest";
+  if (db) {
+    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+      sender: handle,
+      text: "❤️❤️❤️ (Love reaction)",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
   }
 }
 
@@ -2707,6 +2730,7 @@ function toggleLivePKBattle() {
   }
 }
 
+/* FIXED RADIO CONTROLLER ENGINE WITH AUTOPLAY EXCEPTION HANDLING */
 function changeRadioStation(streamUrl) {
   const audio = document.getElementById('radio-audio');
   const btn = document.getElementById('radio-play-btn');
