@@ -341,7 +341,7 @@ body {
   position: absolute;
   bottom: 95px;
   right: 12px;
-  z-index: 100 !important;
+  z-index: 9999 !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -361,7 +361,7 @@ body {
   font-size: 1.4rem;
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
   pointer-events: auto !important;
-  z-index: 105 !important;
+  z-index: 10000 !important;
   position: relative;
 }
 
@@ -383,7 +383,7 @@ body {
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
   cursor: pointer;
   pointer-events: auto !important;
-  z-index: 105 !important;
+  z-index: 10000 !important;
 }
 
 .avatar-ring-img {
@@ -423,7 +423,7 @@ body {
   font-size: 0.7rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 110 !important;
+  z-index: 10005 !important;
   pointer-events: auto !important;
 }
 
@@ -498,7 +498,7 @@ body {
 
 .live-pk-toggle-btn {
   position: absolute;
-  bottom: 125px; /* Moved up to avoid overlapping send button */
+  bottom: 125px;
   right: 12px;
   background: linear-gradient(135deg, #fe2c55, #ff007f);
   color: white;
@@ -1020,7 +1020,7 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls (Love icon removed, only Laugh & Duet remain) -->
+<!-- Left-Side Floating Controls -->
 <div class="left-side-floating-controls">
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
@@ -1146,6 +1146,7 @@ body {
 
 </div>
 
+<!-- BOTTOM NAVIGATION BAR (Profile button fully working, duplicate removed) -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="switchTab('feed')">🏠<span>Home</span></button>
   <button class="nav-item" onclick="openTikTokModal('shop-modal')">🪙<span>Store</span></button>
@@ -1725,7 +1726,7 @@ function loadUgcVideoFeed() {
 
           let deleteBtnHtml = '';
           if (post.authorUid === myUid) {
-            deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 110;">🗑️ Delete</button>`;
+            deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 10005;">🗑️ Delete</button>`;
           }
 
           const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
@@ -1740,15 +1741,15 @@ function loadUgcVideoFeed() {
               <div class="video-author-name">@${post.authorName || 'Creator'}</div>
               <div class="video-caption">${safeCaption}</div>
             </div>
-            <div class="video-side-actions" style="pointer-events: auto !important; z-index: 100;">
-              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${safeCaption}', '${post.authorAvatar || ''}')" title="Creator Profile" style="pointer-events: auto !important; z-index: 105;">
+            <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
+              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${safeCaption}', '${post.authorAvatar || ''}')" title="Creator Profile" style="pointer-events: auto !important; z-index: 10000;">
                 ${authorAvatarHtml}
                 <div class="online-dot-badge"></div>
               </div>
-              <button class="video-action-btn" onclick="likeUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 105;">❤️<span>${post.likes || 0}</span></button>
-              <button class="video-action-btn" onclick="openCommentsModal('${postId}')" style="pointer-events: auto !important; z-index: 105;">💬<span>Comments</span></button>
-              <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 105;">🎁<span>Gift</span></button>
-              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')" style="pointer-events: auto !important; z-index: 105;">🔗<span>Share</span></button>
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="openCommentsModal('${postId}')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
+              <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2022,15 +2023,15 @@ function renderSampleFeed(container) {
         <div class="video-author-name">@VibePulse_Official</div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
-      <div class="video-side-actions" style="pointer-events: auto !important; z-index: 100;">
-        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')" style="pointer-events: auto !important; z-index: 105;">
+      <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
+        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')" style="pointer-events: auto !important; z-index: 10000;">
           <div class="avatar-ring-img">⚡</div>
           <div class="online-dot-badge"></div>
         </div>
-        <button class="video-action-btn" onclick="likeUgcPost('sample_1')" style="pointer-events: auto !important; z-index: 105;">❤️<span>128</span></button>
-        <button class="video-action-btn" onclick="openCommentsModal('sample_1')" style="pointer-events: auto !important; z-index: 105;">💬<span>Comments</span></button>
-        <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 105;">🎁<span>Gift</span></button>
-        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')" style="pointer-events: auto !important; z-index: 105;">🔗<span>Share</span></button>
+        <button class="video-action-btn" onclick="likeUgcPost('sample_1')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>128</span></button>
+        <button class="video-action-btn" onclick="openCommentsModal('sample_1')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
+        <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
+        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
       </div>
     </div>
   `;
@@ -2504,7 +2505,7 @@ function triggerLaughEffect() {
 
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [320, 290, 340, 310]; // Laugh pitch cadence
+    const notes = [320, 290, 340, 310]; 
     notes.forEach((freq, idx) => {
       setTimeout(() => {
         if (audioCtx.state === 'suspended') audioCtx.resume();
