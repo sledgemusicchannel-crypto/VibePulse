@@ -171,7 +171,7 @@ body {
 }
 
 .mic-btn {
-  background: #25f4ee;
+  background: var(--accent-cyan);
   color: #000;
   border: none;
   padding: 4px 8px;
@@ -387,7 +387,7 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* FIX: Guaranteed High Priority Pointer Events for Right Side Actions */
+/* Streamlined Right-Side Actions (No Duet, No Remix clutter) */
 .video-side-actions {
   position: absolute;
   bottom: 95px;
@@ -396,13 +396,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   pointer-events: auto !important;
 }
 
 .video-action-btn {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   width: 48px;
   height: 48px;
@@ -424,8 +424,9 @@ body {
   font-size: 0.58rem;
   font-weight: bold;
   position: absolute;
-  bottom: -13px;
+  bottom: -14px;
   width: max-content;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
 }
 
 .video-delete-badge {
@@ -1063,7 +1064,7 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls: Love Icon with Count Above Laughter -->
+<!-- Left-Side Floating Controls -->
 <div class="left-side-floating-controls">
   <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">
     ❤️
@@ -1093,7 +1094,6 @@ body {
     <div class="left-header-group">
       <button class="back-nav-btn" onclick="handleBackNavigation()">◄ Back</button>
       
-      <!-- Profile Avatar Ring Positioned Top Left -->
       <div class="avatar-ring-container" id="top-left-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
         <div class="avatar-ring-img" id="top-left-avatar-display">👤</div>
         <div class="online-dot-badge"></div>
@@ -1170,7 +1170,6 @@ body {
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
       <div class="chat-input-wrapper">
         <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
-        <!-- Emoji Picker Toggle Inside Chat Box -->
         <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
         
         <div class="emoji-drawer" id="emoji-popup-drawer">
@@ -1219,18 +1218,6 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="remix-modal">
-  <div class="modal-body-container">
-    <div class="modal-header">
-      <span>✂️ Remix this Video</span>
-      <span class="modal-close" onclick="closeTikTokModal('remix-modal')">✕</span>
-    </div>
-    <div style="font-size:0.78rem; color:#a1a1aa;">Create shorts or sample audio from this video:</div>
-    <button class="btn btn-primary" onclick="executeRemixAction('sound')">🎵 Use Sound from this Video</button>
-    <button class="btn btn-secondary" onclick="executeRemixAction('cut')">✂️ Cut & Sample Video Clip (15s)</button>
-  </div>
-</div>
-
 <div class="tiktok-modal" id="highlight-story-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -1255,18 +1242,6 @@ body {
     <input type="file" id="upload-file-input" class="input-field" accept="video/*">
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Caption & Hashtags (#VibePulse):</label>
     <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
-
-    <div id="upload-progress-container" style="display:none; flex-direction:column; gap:4px; margin-top:6px;">
-      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#a1a1aa;">
-        <span id="upload-status-text">Uploading...</span>
-        <span id="upload-percentage">0%</span>
-      </div>
-      <div style="width:100%; background:#27272a; height:8px; border-radius:4px; overflow:hidden;">
-        <div id="upload-progress-bar" style="width:0%; background:var(--accent-pink); height:100%; transition: width 0.2s ease;"></div>
-      </div>
-    </div>
-
-    <div id="upload-error-banner" style="display:none; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:8px; border-radius:8px; font-size:0.72rem; margin-top:4px;"></div>
 
     <button class="btn btn-primary" id="publish-submit-btn" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
   </div>
@@ -1325,19 +1300,6 @@ body {
     <div style="display:flex; gap:8px;">
       <button class="btn btn-primary" style="flex:1;" id="inspect-follow-action-btn" onclick="toggleInspectFollow()">+ Follow</button>
       <button class="btn btn-secondary" style="flex:1;" onclick="closeTikTokModal('user-profile-view-modal'); connectWithInspectTarget();">💬 Direct Chat</button>
-    </div>
-  </div>
-</div>
-
-<div class="tiktok-modal" id="live-moderators-modal">
-  <div class="modal-body-container">
-    <div class="modal-header">
-      <span>🛡️ Assign Live Stream Moderators</span>
-      <span class="modal-close" onclick="closeTikTokModal('live-moderators-modal')">✕</span>
-    </div>
-    <div style="font-size:0.75rem; color:#a1a1aa;">Pick any subscriber to moderate your live stream:</div>
-    <div id="live-moderators-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px; margin-top:4px;">
-      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">Loading subscribers...</div>
     </div>
   </div>
 </div>
@@ -1483,14 +1445,6 @@ body {
       </div>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
-      <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📇 Address Book — Connect by User ID:</label>
-      <div style="display:flex; gap:6px;">
-        <input type="text" id="profile-add-id-input" class="input-field" placeholder="Search handle or User ID..." style="padding:6px 10px; font-size:0.75rem;">
-        <button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="addFriendFromProfile()">Search / Add</button>
-      </div>
-    </div>
-
     <label style="font-size:0.75rem; color:#a1a1aa;">Update Display Name:</label>
     <input type="text" class="input-field" id="edit-name" placeholder="New Display Name">
 
@@ -1523,29 +1477,9 @@ body {
       </div>
     </div>
 
-    <div style="background: linear-gradient(135deg, #4c1d95, #831843); border-radius: 10px; padding: 10px; font-size: 0.72rem; color: #fbcfe8; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);">
-      <strong style="color:#fff;">🔥 Bonus Roses & Coins on First Recharge</strong>
-      <div>Get Rose x3 in your backpack — Rose x1 ready to be sent instantly!</div>
-    </div>
-
     <div class="coin-grid-store" id="coin-packages-grid"></div>
 
     <button class="btn btn-primary" id="recharge-action-btn" style="background: var(--accent-pink); border-radius: 24px; padding: 12px; font-weight:bold; font-size:0.95rem; margin-top:4px;" onclick="executeCoinRecharge()">Recharge</button>
-
-    <div style="background: #1c1c1e; padding: 10px; border-radius: 10px; border: 1px solid #2c2c2e; display: flex; flex-direction: column; gap: 6px; margin-top:6px;">
-      <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Convert Earnings to Bank Payout</span>
-      <select id="withdrawal-bank-name" class="input-field" style="padding:6px; font-size:0.75rem;">
-        <option value="" disabled selected>Select Bank / E-Wallet...</option>
-        <option value="Vietcombank">Vietcombank</option>
-        <option value="Techcombank">Techcombank</option>
-        <option value="MB Bank">MB Bank</option>
-        <option value="ACB">ACB</option>
-        <option value="MoMo E-Wallet">MoMo E-Wallet</option>
-      </select>
-      <input type="text" id="withdrawal-account-number" class="input-field" placeholder="Account Number" style="padding:6px 8px; font-size:0.75rem;">
-      <input type="text" id="withdrawal-full-name" class="input-field" placeholder="Full Name on Account" style="padding:6px 8px; font-size:0.75rem;">
-      <button class="btn btn-secondary" style="padding:6px; font-size:0.75rem;" onclick="requestFundWithdrawalStructured()">📥 Request Payout</button>
-    </div>
   </div>
 </div>
 
@@ -1574,11 +1508,9 @@ let feedUnsubscribe = null;
 let currentActivePostId = null;
 let currentActiveVideoUrl = "";
 let myFollowingList = [];
-let allRegisteredUsers = [];
 let selectedCoinSku = null;
 let selectedCoinAmount = 0;
 let myUserLevel = 1;
-let activeSpeechRecognition = null;
 let isRecordingActive = false;
 let currentShareUrl = "";
 let currentLoveCount = 21;
@@ -1617,11 +1549,7 @@ const coinPackages = [
   { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', usd: 0.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
   { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
   { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', usd: 5.25, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_700', coins: 860, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_1400', coins: 1697, priceVnd: '₫532,000', usd: 21.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
-  { sku: 'vibepulse_coins_3500', coins: 3772, priceVnd: '₫1,330,000', usd: 52.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_7000', coins: 7272, priceVnd: '₫2,660,000', usd: 105.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_17500', coins: 17772, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
+  { sku: 'vibepulse_coins_700', coins: 860, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' }
 ];
 
 const levelGifts100 = [];
@@ -1794,7 +1722,6 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openRemixModal('${safeVideoUrl}')">✂️<span>Remix</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -1827,53 +1754,6 @@ function setupFeedScrollObserver() {
   }, { threshold: 0.5 });
 
   items.forEach(item => observer.observe(item));
-}
-
-function openUserProfileView(uid, name, bio, avatarUrl) {
-  inspectTargetUser = { uid: uid, name: name };
-  const avatarImg = document.getElementById('inspect-avatar-display');
-
-  if (avatarUrl) {
-    avatarImg.innerHTML = `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-  } else {
-    avatarImg.innerText = (name || 'C').charAt(0).toUpperCase();
-  }
-
-  document.getElementById('inspect-profile-name').innerText = name;
-  document.getElementById('inspect-profile-uid').innerText = "ID: " + uid;
-  document.getElementById('inspect-profile-bio').innerText = "Bio: " + (bio || "VibePulse Creator & Streamer");
-
-  const myUid = currentUser ? currentUser.uid : myDevice.uid;
-  const isFollowing = myFollowingList.includes(uid);
-  const followBtn = document.getElementById('inspect-follow-action-btn');
-  followBtn.innerText = isFollowing ? 'Following' : '+ Follow';
-  followBtn.className = `btn ${isFollowing ? 'btn-secondary' : 'btn-primary'}`;
-
-  if (db) {
-    db.collection("users").doc(uid).get().then((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        document.getElementById('inspect-stat-followers').innerText = data.followersCount || 0;
-        document.getElementById('inspect-stat-following').innerText = data.followingCount || 0;
-        document.getElementById('inspect-stat-likes').innerText = data.likesCount || 0;
-        if (data.bio) document.getElementById('inspect-profile-bio').innerText = "Bio: " + filterOffensiveWords(data.bio);
-      }
-    });
-  }
-  openTikTokModal('user-profile-view-modal');
-}
-
-function toggleInspectFollow() {
-  if (!inspectTargetUser) return;
-  toggleFollowUser(inspectTargetUser.uid, inspectTargetUser.name);
-  setTimeout(() => {
-    openUserProfileView(inspectTargetUser.uid, inspectTargetUser.name, document.getElementById('inspect-profile-bio').innerText);
-  }, 400);
-}
-
-function connectWithInspectTarget() {
-  if (!inspectTargetUser) return;
-  connectWithUser(inspectTargetUser.name, inspectTargetUser.uid);
 }
 
 function openCommentsModal(postId) {
@@ -2037,27 +1917,6 @@ function shareToPlatform(platform) {
   if (shareLink) window.open(shareLink, '_blank');
 }
 
-/* YOUTUBE SHORTS-STYLE REMIX FEATURE */
-function openRemixModal(videoUrl) {
-  currentActiveVideoUrl = videoUrl || currentActiveVideoUrl;
-  openTikTokModal('remix-modal');
-}
-
-function executeRemixAction(type) {
-  closeTikTokModal('remix-modal');
-  if (type === 'sound') {
-    alert("🎵 Audio track extracted! Opening video publisher with audio overlay...");
-    openUploadVideoModal();
-    const captionInput = document.getElementById('upload-caption-input');
-    if (captionInput) captionInput.value = "#RemixSound #VibePulse";
-  } else if (type === 'cut') {
-    alert("✂️ Video sampled! Select your video snippet to remix...");
-    openUploadVideoModal();
-    const captionInput = document.getElementById('upload-caption-input');
-    if (captionInput) captionInput.value = "#RemixClip #VibePulse";
-  }
-}
-
 function deleteUgcPost(postId) {
   if (!confirm("Are you sure you want to delete this video?")) return;
   if (!db) return;
@@ -2081,7 +1940,6 @@ function renderSampleFeed(container) {
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openRemixModal('${sampleUrl}')">✂️<span>Remix</span></button>
       </div>
     </div>
   `;
@@ -2154,70 +2012,6 @@ function switchTab(tabName) {
     preview.innerHTML = `<div class="video-feed-container" id="ugc-video-feed"></div>`;
     loadUgcVideoFeed();
   }
-}
-
-function toggleFollowUser(targetUid, targetName) {
-  const myUid = currentUser ? currentUser.uid : myDevice.uid;
-  if (!db || !myUid || targetUid === myUid) return;
-
-  const isFollowing = myFollowingList.includes(targetUid);
-  const myRef = db.collection("users").doc(myUid);
-  const targetRef = db.collection("users").doc(targetUid);
-  const batch = db.batch();
-
-  if (isFollowing) {
-    batch.update(myRef, {
-      followingCount: firebase.firestore.FieldValue.increment(-1),
-      followingList: firebase.firestore.FieldValue.arrayRemove(targetUid)
-    });
-    batch.set(targetRef, { followersCount: firebase.firestore.FieldValue.increment(-1) }, { merge: true });
-  } else {
-    batch.set(myRef, {
-      followingCount: firebase.firestore.FieldValue.increment(1),
-      followingList: firebase.firestore.FieldValue.arrayUnion(targetUid)
-    }, { merge: true });
-    batch.set(targetRef, { followersCount: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-  }
-
-  batch.commit().then(() => alert(isFollowing ? `Unfollowed ${targetName}` : `🎉 You are now following ${targetName}!`));
-}
-
-function sendProfileLike(targetUid) {
-  if (!db || !targetUid) return;
-  db.collection("users").doc(targetUid).set({
-    likesCount: firebase.firestore.FieldValue.increment(1)
-  }, { merge: true }).then(() => triggerScreenEffect("❤️"));
-}
-
-function openLiveModeratorModal() {
-  openTikTokModal('live-moderators-modal');
-  const container = document.getElementById('live-moderators-list');
-  if (!container || !db) return;
-
-  db.collection("users").limit(30).get().then((snapshot) => {
-    container.innerHTML = '';
-    if (snapshot.empty) {
-      container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No subscribers found.</div>`;
-      return;
-    }
-    snapshot.forEach((doc) => {
-      const u = doc.data();
-      const div = document.createElement('div');
-      div.className = 'active-user-item';
-      div.innerHTML = `
-        <div>
-          <strong style="font-size:0.78rem; color:#fff;">👤 ${u.name || 'Subscriber'}</strong>
-        </div>
-        <button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="assignModerator('${u.name || 'Subscriber'}')">Assign Mod 🛡️</button>
-      `;
-      container.appendChild(div);
-    });
-  });
-}
-
-function assignModerator(modName) {
-  alert(`🛡️ ${modName} assigned as Live Moderator!`);
-  closeTikTokModal('live-moderators-modal');
 }
 
 function listenForIncomingCalls(myUid) {
@@ -2458,11 +2252,7 @@ function renderCoinStoreGrid() {
     { sku: 'vibepulse_coins_5', label: '5 +13', priceVnd: '₫13,000', amount: 18 },
     { sku: 'vibepulse_coins_70', label: '70 +47', priceVnd: '₫26,600', amount: 117 },
     { sku: 'vibepulse_coins_350', label: '350 +47', priceVnd: '₫133,000', amount: 397 },
-    { sku: 'vibepulse_coins_700', label: '700 +160', priceVnd: '₫266,000', amount: 860 },
-    { sku: 'vibepulse_coins_1400', label: '1400 +297', priceVnd: '₫532,000', amount: 1697 },
-    { sku: 'vibepulse_coins_3500', label: '3500 +272', priceVnd: '₫1,330,000', amount: 3772 },
-    { sku: 'vibepulse_coins_7000', label: '7000 +272', priceVnd: '₫2,660,000', amount: 7272 },
-    { sku: 'vibepulse_coins_17500', label: '17500 +272', priceVnd: '₫6,650,000', amount: 17772 }
+    { sku: 'vibepulse_coins_700', label: '700 +160', priceVnd: '₫266,000', amount: 860 }
   ];
 
   rawDisplayList.forEach((item, index) => {
@@ -2551,10 +2341,8 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* SYNTHESIZED MULTI-STAGE ECHO LAUGHTER AUDIO ENGINE */
 function triggerLaughEffect() {
   triggerScreenEffect("😂");
-
   const container = document.getElementById('laugh-container');
   const handle = localStorage.getItem('vibepulse_name') || "Guest";
 
@@ -2578,10 +2366,8 @@ function triggerLaughEffect() {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, now);
         osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + 0.12);
-        
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now);
@@ -2795,7 +2581,6 @@ function changeRadioStation(streamUrl) {
     playPromise.then(() => {
       if (btn) btn.innerText = "⏸ Pause";
     }).catch(err => {
-      console.warn("Radio autoplay blocked:", err);
       if (btn) btn.innerText = "▶ Play";
     });
   }
@@ -2941,10 +2726,6 @@ function playYouTubeTrack() {
   if (match && match[1]) {
     frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1" frameborder="0" allow="autoplay"></iframe>`;
   }
-}
-
-function requestFundWithdrawalStructured() {
-  alert("📥 Withdrawal request submitted!");
 }
 
 function executeAuthAction() {
