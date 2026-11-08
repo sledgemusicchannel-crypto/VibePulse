@@ -436,7 +436,8 @@ body {
   z-index: 500;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   pointer-events: auto;
 }
 
@@ -455,8 +456,21 @@ body {
   transition: transform 0.1s ease;
   touch-action: manipulation;
   pointer-events: auto !important;
+  color: white;
+  position: relative;
 }
 .floating-side-icon-btn:active { transform: scale(1.2); }
+
+.floating-side-icon-btn .count-badge {
+  font-size: 0.65rem;
+  font-weight: bold;
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+}
 
 .pk-split-container {
   width: 100%;
@@ -584,11 +598,18 @@ body {
   z-index: 850;
 }
 
-.chat-input {
+.chat-input-wrapper {
+  position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.chat-input {
+  width: 100%;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 7px 12px;
+  padding: 7px 38px 7px 12px;
   border-radius: 18px;
   color: white;
   font-size: 0.75rem;
@@ -597,6 +618,49 @@ body {
 }
 
 .chat-input::placeholder { color: #d4d4d8; }
+
+.emoji-picker-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 900;
+  pointer-events: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emoji-drawer {
+  display: none;
+  position: absolute;
+  bottom: 44px;
+  right: 0;
+  background: rgba(24, 24, 27, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 8px;
+  width: 260px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  z-index: 1100;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.85);
+  pointer-events: auto !important;
+}
+.emoji-drawer.active { display: grid !important; }
+.emoji-item {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  text-align: center;
+  padding: 3px;
+  border-radius: 6px;
+}
+.emoji-item:hover { background: rgba(255,255,255,0.2); }
 
 .chat-send-btn {
   background: var(--accent-pink);
@@ -975,8 +1039,12 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls -->
+<!-- Left-Side Floating Controls: Love Icon with Count Above Laughter -->
 <div class="left-side-floating-controls">
+  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">
+    ❤️
+    <span class="count-badge" id="left-love-counter-display">21</span>
+  </button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
@@ -1002,7 +1070,7 @@ body {
     <div class="left-header-group">
       <button class="back-nav-btn" onclick="handleBackNavigation()">◄ Back</button>
       
-      <!-- Moved Profile Avatar Ring to Top Left -->
+      <!-- Profile Avatar Ring Positioned Top Left -->
       <div class="avatar-ring-container" id="top-left-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
         <div class="avatar-ring-img" id="top-left-avatar-display">👤</div>
         <div class="online-dot-badge"></div>
@@ -1077,7 +1145,28 @@ body {
     </div>
 
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
-      <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
+      <div class="chat-input-wrapper">
+        <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
+        <!-- Emoji Picker Toggle Inside Chat Box -->
+        <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
+        
+        <div class="emoji-drawer" id="emoji-popup-drawer">
+          <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('😍')">😍</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('🔥')">🔥</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('👍')">👍</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('❤️')">❤️</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('🚀')">🚀</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('💎')">💎</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('🎉')">🎉</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('😎')">😎</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('✨')">✨</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('👏')">👏</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('🥳')">🥳</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('💯')">💯</button>
+          <button type="button" class="emoji-item" onclick="insertEmoji('⭐')">⭐</button>
+        </div>
+      </div>
       <button type="submit" class="chat-send-btn" id="send-btn">Send</button>
     </form>
   </div>
@@ -1461,6 +1550,7 @@ let usersUnsubscribe = null;
 let directUnsubscribe = null;
 let callsUnsubscribe = null;
 let feedUnsubscribe = null;
+let currentActivePostId = null;
 let myFollowingList = [];
 let allRegisteredUsers = [];
 let selectedCoinSku = null;
@@ -1469,6 +1559,7 @@ let myUserLevel = 1;
 let activeSpeechRecognition = null;
 let isRecordingActive = false;
 let currentShareUrl = "";
+let currentLoveCount = 21;
 let myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
 
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "idiot", "stupid", "toxic", "offensive"];
@@ -1678,12 +1769,10 @@ function loadUgcVideoFeed() {
               <div class="video-caption">${safeCaption}</div>
             </div>
             <div class="video-side-actions">
-              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
               <button class="video-action-btn" onclick="openDuetModal('${safeVideoUrl}')">👥<span>Duet</span></button>
-              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -1703,6 +1792,7 @@ function setupFeedScrollObserver() {
     entries.forEach(entry => {
       const vid = entry.target.querySelector('video');
       if (entry.isIntersecting) {
+        currentActivePostId = entry.target.dataset.postId || null;
         if (vid) {
           vid.muted = true;
           vid.play().catch(()=>{});
@@ -1959,10 +2049,10 @@ function renderSampleFeed(container) {
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
       <div class="video-side-actions">
-        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
+        <button class="video-action-btn" onclick="openDuetModal('${sampleUrl}')">👥<span>Duet</span></button>
       </div>
     </div>
   `;
@@ -2006,12 +2096,25 @@ function publishUgcVideoPost() {
 
 function likeUgcPost(postId) {
   if (!db) {
+    currentLoveCount++;
+    document.getElementById('left-love-counter-display').innerText = currentLoveCount;
     triggerScreenEffect("❤️");
     return;
   }
-  db.collection("ugc_videos").doc(postId).update({
-    likes: firebase.firestore.FieldValue.increment(1)
-  }).then(() => triggerScreenEffect("❤️"));
+  const targetId = postId || currentActivePostId;
+  if (targetId) {
+    db.collection("ugc_videos").doc(targetId).update({
+      likes: firebase.firestore.FieldValue.increment(1)
+    }).then(() => {
+      currentLoveCount++;
+      document.getElementById('left-love-counter-display').innerText = currentLoveCount;
+      triggerScreenEffect("❤️");
+    });
+  } else {
+    currentLoveCount++;
+    document.getElementById('left-love-counter-display').innerText = currentLoveCount;
+    triggerScreenEffect("❤️");
+  }
 }
 
 function switchTab(tabName) {
@@ -2411,6 +2514,13 @@ function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').
 function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
 function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
 function openAuthModal() { closeTikTokModal('profile-modal'); openTikTokModal('auth-modal'); }
+function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
+
+function insertEmoji(emoji) {
+  const chatBox = document.getElementById('chat-box');
+  chatBox.value += emoji;
+  document.getElementById('emoji-popup-drawer').classList.remove('active');
+}
 
 /* SYNTHESIZED MULTI-STAGE ECHO LAUGHTER AUDIO ENGINE */
 function triggerLaughEffect() {
@@ -2463,6 +2573,10 @@ function triggerLaughEffect() {
       }, i * 100);
     }
   }
+}
+
+function triggerLoveReaction() {
+  likeUgcPost(currentActivePostId);
 }
 
 function openVoiceTranslatorModal() { openTikTokModal('voice-translator-modal'); }
@@ -2566,6 +2680,7 @@ function sendChatMessage() {
 
   const msg = filterOffensiveWords(box.value.trim());
   box.value = '';
+  document.getElementById('emoji-popup-drawer').classList.remove('active');
 
   const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
   const chatContainer = document.getElementById('chat-messages-container');
