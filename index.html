@@ -427,7 +427,7 @@ body {
   pointer-events: auto !important;
 }
 
-/* Left-Side Floating Controls (Re-routed Duet & Reactions here) */
+/* Left-Side Floating Controls */
 .left-side-floating-controls {
   position: absolute;
   top: 85px;
@@ -498,7 +498,7 @@ body {
 
 .live-pk-toggle-btn {
   position: absolute;
-  bottom: 70px;
+  bottom: 125px; /* Moved up to avoid overlapping send button */
   right: 12px;
   background: linear-gradient(135deg, #fe2c55, #ff007f);
   color: white;
@@ -508,7 +508,7 @@ body {
   font-weight: bold;
   font-size: 0.75rem;
   cursor: pointer;
-  z-index: 45;
+  z-index: 950;
   box-shadow: 0 4px 12px rgba(254, 44, 85, 0.5);
   pointer-events: auto !important;
 }
@@ -1020,9 +1020,8 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls (Re-routed Duet & Reactions here) -->
+<!-- Left-Side Floating Controls (Love icon removed, only Laugh & Duet remain) -->
 <div class="left-side-floating-controls">
-  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
@@ -1083,7 +1082,6 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
-    <!-- LOCAL RADIO SECTION (FIXED STREAM ENGINE & CONTROLS) -->
     <div class="menu-radio-section">
       <div class="menu-radio-title">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
@@ -1751,7 +1749,6 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')" style="pointer-events: auto !important; z-index: 105;">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 105;">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')" style="pointer-events: auto !important; z-index: 105;">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')" style="pointer-events: auto !important; z-index: 105;">💬<span>Chat</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2490,25 +2487,8 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-function playAudioPopSound() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-    osc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
-  } catch(e) {}
-}
-
+/* SYNTHESIZED MULTI-STAGE ECHO "HA HA HA" LAUGHTER AUDIO ENGINE */
 function triggerLaughEffect() {
-  playAudioPopSound();
   triggerScreenEffect("😂");
 
   const container = document.getElementById('laugh-container');
@@ -2517,10 +2497,34 @@ function triggerLaughEffect() {
   if (db) {
     db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
       sender: handle,
-      text: "😂😂😂 (Laughing reaction)",
+      text: "😂😂😂 (Ha Ha Ha Laughter)",
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(()=>{});
   }
+
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [320, 290, 340, 310]; // Laugh pitch cadence
+    notes.forEach((freq, idx) => {
+      setTimeout(() => {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + 0.12);
+        
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }, idx * 140);
+    });
+  } catch(e) {}
 
   if (container) {
     for (let i = 0; i < 6; i++) {
@@ -2533,19 +2537,6 @@ function triggerLaughEffect() {
         setTimeout(() => el.remove(), 1800);
       }, i * 100);
     }
-  }
-}
-
-function triggerLoveReaction() {
-  playAudioPopSound();
-  triggerScreenEffect("❤️");
-  const handle = localStorage.getItem('vibepulse_name') || "Guest";
-  if (db) {
-    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-      sender: handle,
-      text: "❤️❤️❤️ (Love reaction)",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(()=>{});
   }
 }
 
@@ -2722,7 +2713,6 @@ function toggleLivePKBattle() {
   }
 }
 
-/* FIXED RADIO CONTROLLER ENGINE WITH AUTOPLAY EXCEPTION HANDLING */
 function changeRadioStation(streamUrl) {
   const audio = document.getElementById('radio-audio');
   const btn = document.getElementById('radio-play-btn');
