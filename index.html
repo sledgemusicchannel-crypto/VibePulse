@@ -139,7 +139,9 @@ body {
   align-items: center;
   gap: 2px;
   white-space: nowrap;
+  pointer-events: auto !important;
   z-index: 600;
+  touch-action: manipulation;
 }
 
 .right-header-group {
@@ -277,7 +279,6 @@ body {
   z-index: 10;
 }
 
-/* TikTok Vertical Video Feed */
 .video-feed-container {
   width: 100%;
   height: 100%;
@@ -298,7 +299,7 @@ body {
   align-items: center;
 }
 
-.video-feed-item video {
+.video-feed-item video, .video-feed-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -336,7 +337,6 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* RIGHT SIDE ACTIONS */
 .video-side-actions {
   position: absolute;
   bottom: 95px;
@@ -345,7 +345,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .video-action-btn {
@@ -367,7 +367,6 @@ body {
   font-weight: bold;
 }
 
-/* Avatar with TikTok Green Ring */
 .avatar-ring-container {
   position: relative;
   width: 46px;
@@ -408,28 +407,36 @@ body {
   border-radius: 50%;
 }
 
-/* LEFT-SIDE CONTROLS (😂 Laugh, ❤️ Love + Counter, 💬 Comments) */
+.video-delete-badge {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.85);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 30;
+  pointer-events: auto !important;
+}
+
 .left-side-floating-controls {
   position: absolute;
-  top: 110px;
+  top: 85px;
   left: 12px;
   z-index: 500;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   pointer-events: auto;
 }
 
-.floating-action-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
 .floating-side-icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   background: rgba(24, 24, 27, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
@@ -443,16 +450,78 @@ body {
   touch-action: manipulation;
   pointer-events: auto !important;
 }
-.floating-side-icon-btn:active { transform: scale(1.25); }
+.floating-side-icon-btn:active { transform: scale(1.2); }
 
-.floating-action-counter {
-  font-size: 0.68rem;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+.pk-split-container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #111;
+  position: relative;
 }
 
-/* Bottom Floating Area & Messaging */
+.pk-pane {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.pk-pane video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pk-label-tag {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  background: rgba(0,0,0,0.7);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--accent-cyan);
+  z-index: 10;
+}
+
+.live-pk-toggle-btn {
+  position: absolute;
+  bottom: 70px;
+  right: 12px;
+  background: linear-gradient(135deg, #fe2c55, #ff007f);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  cursor: pointer;
+  z-index: 45;
+  box-shadow: 0 4px 12px rgba(254, 44, 85, 0.5);
+  pointer-events: auto !important;
+}
+
+.media-placeholder {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  padding: 16px;
+  width: 92%;
+  max-width: 440px;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
 .bottom-overlay {
   position: absolute;
   bottom: 56px;
@@ -463,43 +532,39 @@ body {
   background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0) 100%);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   pointer-events: auto;
 }
 
 .chat-feed {
-  max-height: 90px;
+  max-height: 70px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-right: 6px;
+  gap: 3px;
+  padding-right: 10px;
   scrollbar-width: none;
 }
 .chat-feed::-webkit-scrollbar { display: none; }
 
 .chat-bubble {
-  background: rgba(18, 18, 20, 0.92);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: 0.78rem;
-  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #fff;
   width: fit-content;
   word-break: break-word;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
-
-.chat-bubble b { color: var(--accent-cyan); }
 
 .active-room-tag {
   align-self: flex-start;
-  background: rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(37, 244, 238, 0.3);
-  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 2px 6px;
   border-radius: 8px;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: bold;
   color: var(--accent-cyan);
 }
@@ -515,13 +580,12 @@ body {
 
 .chat-input {
   flex: 1;
-  background: rgba(0, 0, 0, 0.75) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  padding: 8px 42px 8px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 7px 42px 7px 10px;
   border-radius: 18px;
-  color: #ffffff !important;
-  font-size: 0.8rem;
-  font-weight: 600;
+  color: white;
+  font-size: 0.75rem;
   outline: none;
   pointer-events: auto !important;
 }
@@ -534,9 +598,9 @@ body {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 0.9rem;
+  width: 26px;
+  height: 26px;
+  font-size: 0.85rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -563,7 +627,6 @@ body {
   pointer-events: auto !important;
 }
 .emoji-drawer.active { display: grid !important; }
-
 .emoji-item {
   background: none;
   border: none;
@@ -579,16 +642,15 @@ body {
   background: var(--accent-pink);
   color: white;
   border: none;
-  padding: 8px 14px;
+  padding: 7px 12px;
   border-radius: 18px;
   font-weight: bold;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   cursor: pointer;
   pointer-events: auto !important;
   flex-shrink: 0;
 }
 
-/* Bottom Nav */
 .bottom-nav {
   height: 56px;
   background: #000000;
@@ -650,7 +712,144 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.1rem; }
 
-/* Modals */
+.call-fullscreen-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(180deg, #09090b 0%, #18181b 100%);
+  z-index: 3000;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 16px;
+  overflow: hidden;
+}
+
+.call-fullscreen-overlay.active { display: flex !important; }
+
+.call-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  z-index: 10;
+}
+
+.call-user-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 8px 24px rgba(254, 44, 85, 0.4);
+}
+
+.call-user-name { font-size: 1.3rem; font-weight: 700; color: #fff; }
+.call-status-label { font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; }
+
+.call-video-grid {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: none;
+  z-index: 5;
+}
+
+.call-remote-video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.call-local-video-thumb {
+  position: absolute;
+  top: 70px; right: 16px;
+  width: 110px; height: 160px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  object-fit: cover;
+  background: #222;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  z-index: 20;
+}
+
+.call-action-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  z-index: 30;
+  width: 100%;
+}
+
+.call-btn {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.4rem;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.call-btn:active { transform: scale(0.9); }
+.call-btn-accept { background: var(--accent-green); }
+.call-btn-decline { background: #ef4444; }
+.call-btn-action { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+.call-btn-action.muted { background: #ef4444; }
+
+.direct-call-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.direct-call-btn {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.social-stats-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 4px;
+  margin: 4px 0;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.stat-number { font-size: 0.95rem; font-weight: 800; color: #fff; }
+.stat-label { font-size: 0.65rem; color: var(--text-muted); }
+
 .tiktok-modal {
   display: none;
   position: fixed;
@@ -695,7 +894,44 @@ body {
 .btn { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 .btn-primary { background: var(--accent-pink); color: white; }
 .btn-secondary { background: #27272a; color: white; }
+.btn-danger { background: #ef4444; color: white; }
 .input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.85rem; }
+
+.room-grid-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.room-tab-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+}
+
+.active-users-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.active-user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
 
 .coin-grid-store {
   display: grid;
@@ -713,10 +949,28 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: all 0.2s ease;
 }
 
-.coin-card-title { font-size: 0.75rem; font-weight: bold; color: #fff; }
-.coin-card-price { font-size: 0.7rem; color: #a1a1aa; }
+.coin-card-item.selected {
+  border-color: var(--accent-pink);
+  background: rgba(254, 44, 85, 0.15);
+}
+
+.coin-card-title {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.coin-card-price {
+  font-size: 0.7rem;
+  color: #a1a1aa;
+}
 
 #effect-overlay {
   position: absolute;
@@ -761,21 +1015,26 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- LEFT-SIDE CONTROLS (😂 Laugh with Sound, ❤️ Love + Counter, 💬 Comments) -->
 <div class="left-side-floating-controls">
-  <div class="floating-action-wrapper">
-    <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
-  </div>
-  <div class="floating-action-wrapper">
-    <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
-    <span class="floating-action-counter" id="floating-love-count">0</span>
-  </div>
-  <div class="floating-action-wrapper">
-    <button class="floating-side-icon-btn" id="floating-live-comment-btn" onclick="openActiveFeedComments()" title="Open Comments 💬">💬</button>
-  </div>
+  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
+  <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
 </div>
 
-<!-- Main Viewport -->
+<div class="call-fullscreen-overlay" id="whatsapp-call-overlay">
+  <div class="call-video-grid" id="call-video-container">
+    <video id="remote-call-video" class="call-remote-video" autoplay playsinline></video>
+    <video id="local-call-video" class="call-local-video-thumb" autoplay playsinline muted></video>
+  </div>
+
+  <div class="call-header-info">
+    <div class="call-user-avatar" id="call-avatar-display">👤</div>
+    <div class="call-user-name" id="call-name-display">Alex_Vibe</div>
+    <div class="call-status-label" id="call-status-display">Ringing...</div>
+  </div>
+
+  <div class="call-action-controls" id="call-actions-container"></div>
+</div>
+
 <div class="app-viewport">
 
   <div class="top-overlay">
@@ -788,40 +1047,69 @@ body {
       <select id="target-lang-select" class="translator-select">
         <option value="en">English 🇬🇧</option>
         <option value="vi">Vietnamese 🇻🇳</option>
+        <option value="es">Spanish 🇪🇸</option>
+        <option value="fr">French 🇫🇷</option>
+        <option value="zh">Chinese 🇨🇳</option>
       </select>
-      <button type="button" class="mic-btn" id="mic-translate-btn" onclick="alert('Voice translation ready!')">🎤 Translate</button>
+      <button type="button" class="mic-btn" id="mic-translate-btn" onclick="openVoiceTranslatorModal()">🎤 Translate</button>
     </div>
 
     <div class="right-header-group">
-      <!-- TOP RIGHT PROFILE AVATAR CONTAINER (FULLY CLICKABLE) -->
-      <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openProfileDashboard()" title="My Profile Dashboard">
+      <div class="active-users-pill" onclick="openTikTokModal('active-users-modal')">
+        🟢 <span id="top-hud-count">0</span> Online
+      </div>
+
+      <!-- TOP RIGHT PROFILE AVATAR CONTAINER -->
+      <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
         <div class="avatar-ring-img" id="top-right-avatar-display">👤</div>
         <div class="online-dot-badge"></div>
       </div>
+
       <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
     </div>
   </div>
 
-  <!-- Feature Dropdown Menu -->
   <div class="feature-menu-panel" id="feature-dropdown-menu">
+    <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
+    <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
+    <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
+    <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
-    <button class="menu-item-btn" onclick="openProfileDashboard(); toggleFeatureMenu();">👤 Profile & Settings</button>
-  </div>
+    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
-  <!-- Main Video Container -->
-  <div class="media-container" id="preview-area">
-    <div class="video-feed-container" id="ugc-video-feed">
-      <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:0.85rem;">Loading Community Feed...</div>
+    <div class="menu-radio-section">
+      <div class="menu-radio-title">📻 Radio Station Controller</div>
+      <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
+        <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
+        <option value="https://stream.zeno.fm/f95a5yt254zuv">📻 90's Retro Hits</option>
+        <option value="https://stream.zeno.fm/0t3z2h05k9duv">🎤 Classic Hip-Hop</option>
+        <option value="https://stream.zeno.fm/3wy757f5g1duv">🎷 R&B Soul Grooves</option>
+        <option value="https://stream.zeno.fm/8xt7yp92k9duv">🎸 Rock Anthems</option>
+      </select>
+      <div class="radio-controls-row">
+        <button class="radio-control-btn" id="radio-play-btn" onclick="toggleRadio()">▶ Play</button>
+        <button class="radio-control-btn" onclick="stopRadio()">⏹ Stop</button>
+      </div>
     </div>
   </div>
 
-  <!-- Bottom Floating Area & Messaging -->
+  <audio id="radio-audio" crossorigin="anonymous" preload="none"></audio>
+
+  <div class="media-container" id="preview-area">
+    <div class="video-feed-container" id="ugc-video-feed">
+      <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:0.85rem;">Loading Community Videos...</div>
+    </div>
+  </div>
+
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <div class="active-room-tag" id="current-room-label">Feed: Community Videos</div>
+      <div class="direct-call-bar" id="direct-call-header-bar" style="display:none;">
+        <button class="direct-call-btn" onclick="initiateDirectCall('voice')" title="Voice Call 📞">📞</button>
+        <button class="direct-call-btn" onclick="initiateDirectCall('video')" title="Video Call 📹">📹</button>
+      </div>
     </div>
 
-    <!-- Live Visible Chat Feed -->
     <div class="chat-feed" id="chat-messages-container">
       <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, tap '+' to post your own video!</div>
     </div>
@@ -834,8 +1122,17 @@ body {
         <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('😍')">😍</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('🔥')">🔥</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('👍')">👍</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('❤️')">❤️</button>
         <button type="button" class="emoji-item" onclick="insertEmoji('🚀')">🚀</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('💎')">💎</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('🎉')">🎉</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('😎')">😎</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('✨')">✨</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('👏')">👏</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('🥳')">🥳</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('💯')">💯</button>
+        <button type="button" class="emoji-item" onclick="insertEmoji('⭐')">⭐</button>
       </div>
 
       <button type="submit" class="chat-send-btn" id="send-btn">Send</button>
@@ -844,104 +1141,236 @@ body {
 
 </div>
 
-<!-- Bottom Nav Bar -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="switchTab('feed')">🏠<span>Home</span></button>
   <button class="nav-item" onclick="openTikTokModal('shop-modal')">🪙<span>Store</span></button>
   <button class="btn-plus-tiktok" onclick="openTikTokModal('plus-modal')">
     <span class="btn-plus-icon">+</span>
   </button>
-  <button class="nav-item" onclick="openProfileDashboard()">👤<span>Profile</span></button>
+  <button class="nav-item" onclick="triggerAction('inbox')">💬<span>Inbox</span></button>
+  <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
 
-<!-- '+' MODAL -->
 <div class="tiktok-modal" id="plus-modal">
   <div class="modal-body-container">
     <div class="modal-header">
       <span>🎥 Create & Post Content</span>
       <span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span>
     </div>
-    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post</button>
+    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post (Unmuted Audio)</button>
+    <button class="btn btn-secondary" onclick="openHighlightStoryModal()">✨ Add Highlight Story (Channel Story)</button>
+    <button class="btn btn-secondary" onclick="startLiveCamera()">🔴 Go Live & PK Battle</button>
   </div>
 </div>
 
-<!-- UPLOAD VIDEO MODAL -->
+<div class="tiktok-modal" id="highlight-story-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>✨ Add Channel Highlight Story</span>
+      <span class="modal-close" onclick="closeTikTokModal('highlight-story-modal')">✕</span>
+    </div>
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Story Media / Image / Short Video:</label>
+    <input type="file" id="story-file-input" class="input-field" accept="video/*,image/*">
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Story Title / Tag:</label>
+    <input type="text" id="story-title-input" class="input-field" placeholder="e.g., Behind the Scenes 🎬">
+    <button class="btn btn-primary" onclick="publishHighlightStory()">🚀 Publish to Channel Highlights</button>
+  </div>
+</div>
+
 <div class="tiktok-modal" id="upload-video-modal">
   <div class="modal-body-container">
     <div class="modal-header">
       <span>📤 Share Video to VibePulse Feed</span>
       <span class="modal-close" onclick="closeTikTokModal('upload-video-modal')">✕</span>
     </div>
-    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Video File:</label>
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Video File (MP4/AAC Recommended):</label>
     <input type="file" id="upload-file-input" class="input-field" accept="video/*">
-    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Caption:</label>
-    <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a caption... #VibePulse"></textarea>
-    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post to Feed</button>
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Caption & Hashtags (#VibePulse):</label>
+    <textarea id="upload-caption-input" class="input-field" rows="3" placeholder="Write a catchy caption... #VibePulse #Trending"></textarea>
+
+    <div id="upload-progress-container" style="display:none; flex-direction:column; gap:4px; margin-top:6px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#a1a1aa;">
+        <span id="upload-status-text">Uploading...</span>
+        <span id="upload-percentage">0%</span>
+      </div>
+      <div style="width:100%; background:#27272a; height:8px; border-radius:4px; overflow:hidden;">
+        <div id="upload-progress-bar" style="width:0%; background:var(--accent-pink); height:100%; transition: width 0.2s ease;"></div>
+      </div>
+    </div>
+
+    <div id="upload-error-banner" style="display:none; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:8px; border-radius:8px; font-size:0.72rem; margin-top:4px;"></div>
+
+    <button class="btn btn-primary" id="publish-submit-btn" onclick="publishUgcVideoPost()">🚀 Post to Community Feed</button>
   </div>
 </div>
 
-<!-- COMMENTS MODAL -->
 <div class="tiktok-modal" id="comments-modal">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>💬 Video Comments</span>
+      <span>💬 Video Comments & Discussion</span>
       <span class="modal-close" onclick="closeTikTokModal('comments-modal')">✕</span>
     </div>
     <div id="video-comments-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;">
-      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No comments yet.</div>
+      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">Loading comments...</div>
     </div>
     <div style="display:flex; gap:6px; margin-top:4px;">
       <input type="text" id="video-comment-input" class="input-field" placeholder="Add a comment..." style="padding:8px; font-size:0.75rem;">
-      <button class="btn btn-primary" style="padding:8px 12px; font-size:0.75rem;" onclick="submitVideoComment()">Post</button>
+      <button class="btn btn-primary" style="padding:8px 12px; font-size:0.75rem; white-space:nowrap;" onclick="submitVideoComment()">Post</button>
     </div>
   </div>
 </div>
 
-<!-- CREATOR PROFILE MODAL -->
 <div class="tiktok-modal" id="user-profile-view-modal">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>👤 Creator Profile</span>
+      <span>👤 Creator Profile & Bio</span>
       <span class="modal-close" onclick="closeTikTokModal('user-profile-view-modal')">✕</span>
     </div>
+
     <div style="display:flex; flex-direction:column; gap:8px; background:#09090b; padding:12px; border-radius:10px; border:1px solid #27272a; text-align:center; align-items:center;">
       <div class="avatar-ring-container" style="width:70px; height:70px;">
-        <div class="avatar-ring-img" id="inspect-avatar-img">👤</div>
+        <div class="avatar-ring-img" id="inspect-avatar-display">👤</div>
         <div class="online-dot-badge"></div>
       </div>
+
       <strong style="color:#fff; font-size:1.05rem;" id="inspect-profile-name">Creator Name</strong>
       <div style="font-size:0.72rem; color:var(--accent-cyan);" id="inspect-profile-uid">ID: -</div>
+      
+      <div class="social-stats-row" style="width:100%;">
+        <div class="stat-box">
+          <span class="stat-number" id="inspect-stat-following">0</span>
+          <span class="stat-label">Following</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="inspect-stat-followers">0</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="inspect-stat-likes">0</span>
+          <span class="stat-label">Likes</span>
+        </div>
+      </div>
+
+      <div style="font-size:0.8rem; color:#fff;" id="inspect-profile-bio">Bio: VibePulse Creator</div>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-primary" style="flex:1;" id="inspect-follow-action-btn" onclick="toggleInspectFollow()">+ Follow</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeTikTokModal('user-profile-view-modal'); connectWithInspectTarget();">💬 Direct Chat</button>
     </div>
   </div>
 </div>
 
-<!-- SHARE MODAL -->
+<div class="tiktok-modal" id="live-moderators-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🛡️ Assign Live Stream Moderators</span>
+      <span class="modal-close" onclick="closeTikTokModal('live-moderators-modal')">✕</span>
+    </div>
+    <div style="font-size:0.75rem; color:#a1a1aa;">Pick any subscriber to moderate your live stream:</div>
+    <div id="live-moderators-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px; margin-top:4px;">
+      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">Loading subscribers...</div>
+    </div>
+  </div>
+</div>
+
 <div class="tiktok-modal" id="share-modal">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>🔗 Share Video</span>
+      <span>🔗 Share or Download Video</span>
       <span class="modal-close" onclick="closeTikTokModal('share-modal')">✕</span>
     </div>
-    <button class="btn btn-secondary" onclick="shareToPlatform('copy')">📋 Copy Link</button>
-    <a id="download-video-anchor" class="btn btn-primary" style="text-align:center; text-decoration:none;" download="vibepulse_video.mp4">📥 Download Video File</a>
+    <div style="font-size:0.8rem; color:#a1a1aa;">Choose an option to share or download:</div>
+    
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:6px;">
+      <button class="btn btn-secondary" onclick="shareToPlatform('facebook')">📘 Share to Facebook</button>
+      <button class="btn btn-secondary" onclick="shareToPlatform('twitter')">🐦 Share to X / Twitter</button>
+      <button class="btn btn-secondary" onclick="shareToPlatform('whatsapp')">💬 Share to WhatsApp</button>
+      <button class="btn btn-secondary" onclick="shareToPlatform('copy')">📋 Copy Video Link</button>
+    </div>
+
+    <a id="download-video-anchor" class="btn btn-primary" style="text-align:center; text-decoration:none; margin-top:6px;" download="vibepulse_video.mp4">📥 Download Video File</a>
   </div>
 </div>
 
-<!-- DUET MODAL -->
 <div class="tiktok-modal" id="duet-modal">
   <div class="modal-body-container">
     <div class="modal-header">
       <span>👥 Record Duet Video</span>
       <span class="modal-close" onclick="closeTikTokModal('duet-modal')">✕</span>
     </div>
+    <div style="font-size:0.75rem; color:#a1a1aa;">Record your reaction side-by-side!</div>
     <div style="width:100%; height:200px; background:#000; border-radius:8px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
       <video id="duet-preview-cam" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
     </div>
-    <button class="btn btn-primary" onclick="publishDuetPost()">🚀 Publish Duet</button>
+    <button class="btn btn-primary" onclick="publishDuetPost()">🚀 Publish Duet Post</button>
   </div>
 </div>
 
-<!-- PROFILE DASHBOARD MODAL -->
+<div class="tiktok-modal" id="voice-translator-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🌐 Multi-Language Voice Translator</span>
+      <span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span>
+    </div>
+    <div style="font-size: 0.75rem; color: #a1a1aa;">Record speech and translate instantly:</div>
+    
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-top:4px;">Input Text / Speech:</label>
+    <textarea id="translator-input-text" class="input-field" rows="3" placeholder="Type text here or record with mic..."></textarea>
+    
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Live Translated Result:</label>
+    <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:10px; border-radius:8px; font-size:0.85rem; color:#25f4ee; min-height:40px;">[Translation will appear here]</div>
+
+    <div style="display:flex; gap:6px; margin-top:4px;">
+      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Start Recording</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Translate & Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="tiktok-modal" id="active-users-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>🟢 Active Online Users</span>
+      <span class="modal-close" onclick="closeTikTokModal('active-users-modal')">✕</span>
+    </div>
+    <div class="active-users-list-container" id="modal-active-users-list">
+      <div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:10px;">Checking active members...</div>
+    </div>
+  </div>
+</div>
+
+<div class="tiktok-modal" id="chatrooms-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span>💬 Choose a Chatroom</span>
+      <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
+    </div>
+    <div class="room-grid-list">
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Retro Beats')">📻 Retro Beats</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('App Creators')">💻 App Creators</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Singles (18-35)')">❤️ Singles (18-35)</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Divorce Support')">🥀 Divorce Support</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBTQ+ Lounge')">🏳️‍🌈 LGBTQ+ Lounge</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Lo-Fi Chill Hop')">🎧 Lo-Fi Chill Hop</button>
+    </div>
+  </div>
+</div>
+
+<div class="tiktok-modal" id="auth-modal">
+  <div class="modal-body-container">
+    <div class="modal-header">
+      <span id="auth-modal-title">Sign In or Register Subscriber</span>
+      <span class="modal-close" onclick="closeTikTokModal('auth-modal')">✕</span>
+    </div>
+    <input type="text" class="input-field" id="auth-username" placeholder="Display Handle (e.g., Alex_Vibe)">
+    <input type="email" class="input-field" id="auth-email" placeholder="Email Address">
+    <input type="password" class="input-field" id="auth-password" placeholder="Password (Min 6 chars)">
+    <button class="btn btn-primary" id="auth-submit-btn" onclick="executeAuthAction()">Sign In / Register 🚀</button>
+  </div>
+</div>
+
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
     <div class="modal-header">
@@ -960,26 +1389,109 @@ body {
         <input type="file" id="profile-avatar-file-input" accept="image/*" style="display:none;" onchange="uploadProfileAvatarPhoto(this)">
       </label>
 
-      <strong style="color:var(--accent-cyan);" id="profile-card-name">Guest User</strong>
+      <div style="display:flex; justify-content:center; align-items:center; gap:6px; width:100%;">
+        <strong style="color:var(--accent-cyan);" id="profile-card-name">Guest User</strong>
+        <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" onclick="copyMyUserId()">📋 Copy ID</button>
+      </div>
       <div style="font-size:0.75rem; color:#a1a1aa;" id="profile-card-uid">ID: Loading...</div>
+      
+      <div class="social-stats-row" style="width:100%;">
+        <div class="stat-box">
+          <span class="stat-number" id="profile-stat-following">0</span>
+          <span class="stat-label">Following</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="profile-stat-followers">0</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="profile-stat-likes">0</span>
+          <span class="stat-label">Likes</span>
+        </div>
+      </div>
+
+      <div style="font-size:0.8rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1 (Unlocks Gifts 1-100)</div>
+      <div style="font-size:0.8rem; color:#fff;" id="profile-card-bio">Bio: Streaming & Chatting live on VibePulse!</div>
+      <div style="font-size:0.75rem; color:#25f4ee;" id="profile-card-status">🟢 Status: Active Online</div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
+      <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">✨ Channel Highlight Stories:</span>
+      <div id="my-profile-stories-list" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;">
+        <div style="font-size:0.7rem; color:#a1a1aa;">No highlights yet.</div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
+      <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📺 My Channel Uploads:</span>
+      <div id="my-profile-videos-list" style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto;">
+        <div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">Loading your uploads...</div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:6px; background:#09090b; padding:10px; border-radius:10px; border:1px solid #27272a;">
+      <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">📇 Address Book — Connect by User ID:</label>
+      <div style="display:flex; gap:6px;">
+        <input type="text" id="profile-add-id-input" class="input-field" placeholder="Search handle or User ID..." style="padding:6px 10px; font-size:0.75rem;">
+        <button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="addFriendFromProfile()">Search / Add</button>
+      </div>
     </div>
 
     <label style="font-size:0.75rem; color:#a1a1aa;">Update Display Name:</label>
     <input type="text" class="input-field" id="edit-name" placeholder="New Display Name">
 
+    <label style="font-size:0.75rem; color:#a1a1aa;">Update Bio Quote:</label>
+    <input type="text" class="input-field" id="edit-bio" placeholder="Update Status / Bio">
+
     <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Updates</button>
+    <div id="auth-action-buttons" style="display:flex; gap:6px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="openAuthModal()">🔑 Sign In / Sign Up</button>
+      <button class="btn btn-danger" id="signout-btn" style="flex:1; display:none;" onclick="executeSignOut()">🚪 Sign Out</button>
+    </div>
   </div>
 </div>
 
-<!-- COIN RECHARGE STORE -->
 <div class="tiktok-modal" id="shop-modal">
-  <div class="modal-body-container">
+  <div class="modal-body-container" style="background:#121214;">
     <div class="modal-header">
       <span style="font-size:1.05rem; font-weight:bold;">Get Coins</span>
       <span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span>
     </div>
+
+    <div style="background: #1c1c1e; padding: 10px 12px; border-radius: 10px; display:flex; justify-content:space-between; align-items:center; border: 1px solid #2c2c2e;">
+      <div>
+        <div style="font-size: 0.7rem; color: #a1a1aa;">Your Coin Balance</div>
+        <div style="font-size: 1.1rem; font-weight: bold; color: #facc15;" id="wallet-coins-count">🪙 0 Coins</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size: 0.7rem; color: #a1a1aa;">Creator Earnings</div>
+        <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-cyan);" id="wallet-earned-count">🪙 0 Earned</div>
+      </div>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #4c1d95, #831843); border-radius: 10px; padding: 10px; font-size: 0.72rem; color: #fbcfe8; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);">
+      <strong style="color:#fff;">🔥 Bonus Roses & Coins on First Recharge</strong>
+      <div>Get Rose x3 in your backpack — Rose x1 ready to be sent instantly!</div>
+    </div>
+
     <div class="coin-grid-store" id="coin-packages-grid"></div>
-    <button class="btn btn-primary" onclick="executeCoinRecharge()">Recharge</button>
+
+    <button class="btn btn-primary" id="recharge-action-btn" style="background: var(--accent-pink); border-radius: 24px; padding: 12px; font-weight:bold; font-size:0.95rem; margin-top:4px;" onclick="executeCoinRecharge()">Recharge</button>
+
+    <div style="background: #1c1c1e; padding: 10px; border-radius: 10px; border: 1px solid #2c2c2e; display: flex; flex-direction: column; gap: 6px; margin-top:6px;">
+      <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold;">💰 Convert Earnings to Bank Payout</span>
+      <select id="withdrawal-bank-name" class="input-field" style="padding:6px; font-size:0.75rem;">
+        <option value="" disabled selected>Select Bank / E-Wallet...</option>
+        <option value="Vietcombank">Vietcombank</option>
+        <option value="Techcombank">Techcombank</option>
+        <option value="MB Bank">MB Bank</option>
+        <option value="ACB">ACB</option>
+        <option value="MoMo E-Wallet">MoMo E-Wallet</option>
+      </select>
+      <input type="text" id="withdrawal-account-number" class="input-field" placeholder="Account Number" style="padding:6px 8px; font-size:0.75rem;">
+      <input type="text" id="withdrawal-full-name" class="input-field" placeholder="Full Name on Account" style="padding:6px 8px; font-size:0.75rem;">
+      <button class="btn btn-secondary" style="padding:6px; font-size:0.75rem;" onclick="requestFundWithdrawalStructured()">📥 Request Payout</button>
+    </div>
   </div>
 </div>
 
@@ -996,14 +1508,76 @@ const firebaseConfig = {
 let auth = null;
 let db = null;
 let currentUser = null;
-let currentActiveVideoId = null;
+let activeRoom = "Global Lounge";
+let activeDirectTarget = null;
 let activeCommentVideoId = null;
+let inspectTargetUser = null;
+let roomUnsubscribe = null;
+let usersUnsubscribe = null;
+let directUnsubscribe = null;
+let callsUnsubscribe = null;
+let feedUnsubscribe = null;
+let myFollowingList = [];
+let allRegisteredUsers = [];
+let selectedCoinSku = null;
+let selectedCoinAmount = 0;
+let myUserLevel = 1;
+let activeSpeechRecognition = null;
+let isRecordingActive = false;
+let currentShareUrl = "";
 let myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
 
+const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "idiot", "stupid", "toxic", "offensive"];
+
+function filterOffensiveWords(text) {
+  if (!text) return "";
+  let filtered = text;
+  offensiveWordsList.forEach(word => {
+    const regex = new RegExp(word, "gi");
+    filtered = filtered.replace(regex, "****");
+  });
+  return filtered;
+}
+
+let peerConnection = null;
+let localMediaStream = null;
+let currentCallDocId = null;
+let activeCallType = 'voice';
+let callTimerInterval = null;
+let callDurationSeconds = 0;
+let ringtoneInterval = null;
+let isMicMuted = false;
+let isVideoDisabled = false;
+
+const rtcIceServers = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ]
+};
+
 const coinPackages = [
-  { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
+  { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', usd: 0.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', usd: 1.05, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', usd: 5.25, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_700', coins: 860, priceVnd: '₫266,000', usd: 10.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_1400', coins: 1697, priceVnd: '₫532,000', usd: 21.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_3500', coins: 3772, priceVnd: '₫1,330,000', usd: 52.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_7000', coins: 7272, priceVnd: '₫2,660,000', usd: 105.00, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_17500', coins: 17772, priceVnd: '₫6,650,000', usd: 262.50, link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' }
 ];
+
+const levelGifts100 = [];
+const emojisList = ['🌹', '⭐', '💍', '🚀', '👑', '🪐', '💎', '🔥', '💖', '🎉', '⚡', '🎁', '🍀', '🏆', '🍔', '🍕', '🚗', '🎸', '⚽', '🌟'];
+for (let i = 1; i <= 100; i++) {
+  const cost = i <= 10 ? i * 15 : 150 + (i - 10) * 120;
+  const emoji = emojisList[(i - 1) % emojisList.length];
+  levelGifts100.push({ level: i, name: `Lvl ${i} Gift`, cost: cost, icon: emoji, effect: emoji });
+}
+
+const currentSessionStartTime = (typeof firebase !== 'undefined' && firebase.firestore)
+  ? firebase.firestore.Timestamp.now()
+  : { seconds: Math.floor(Date.now() / 1000) };
 
 function getDeviceUser() {
   let localId = localStorage.getItem('vibepulse_uid');
@@ -1029,6 +1603,7 @@ try {
 
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
       auth.onAuthStateChanged((user) => {
+        const signoutBtn = document.getElementById('signout-btn');
         let activeUid = myDevice.uid;
         let activeName = myDevice.name;
 
@@ -1038,12 +1613,41 @@ try {
           activeName = user.displayName || user.email.split('@')[0];
           localStorage.setItem('vibepulse_uid', activeUid);
           localStorage.setItem('vibepulse_name', activeName);
+          if (signoutBtn) signoutBtn.style.display = "block";
+        } else {
+          currentUser = null;
+          if (signoutBtn) signoutBtn.style.display = "none";
         }
 
         document.getElementById('profile-card-name').innerText = activeName;
         document.getElementById('profile-card-uid').innerText = "ID: " + activeUid;
+
         renderAllAvatars();
+        updatePresence(activeUid, activeName);
         loadUgcVideoFeed();
+        loadMyProfileVideos(activeUid);
+        loadMyProfileStories(activeUid);
+        startGlobalHudSync();
+        listenForIncomingCalls(activeUid);
+
+        if (db) {
+          db.collection("users").doc(activeUid).onSnapshot((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              const balance = data.coins || data.diamonds || 0;
+              const earned = data.earnedCoins || data.earnedDiamonds || 0;
+              myUserLevel = data.level || 1;
+
+              document.getElementById('wallet-coins-count').innerText = `🪙 ${balance} Coins`;
+              document.getElementById('wallet-earned-count').innerText = `🪙 ${earned} Earned`;
+              document.getElementById('profile-card-level').innerText = `⭐ Level: ${myUserLevel} (Unlocks Gifts 1-100)`;
+              document.getElementById('profile-stat-followers').innerText = data.followersCount || 0;
+              document.getElementById('profile-stat-following').innerText = data.followingCount || 0;
+              document.getElementById('profile-stat-likes').innerText = data.likesCount || 0;
+              myFollowingList = data.followingList || [];
+            }
+          });
+        }
       });
     });
   }
@@ -1053,9 +1657,16 @@ window.addEventListener('DOMContentLoaded', () => {
   renderCoinStoreGrid();
   renderAllAvatars();
   loadUgcVideoFeed();
+  const activeUid = currentUser ? currentUser.uid : myDevice.uid;
+  loadMyProfileVideos(activeUid);
+  loadMyProfileStories(activeUid);
+
+  const transInput = document.getElementById('translator-input-text');
+  if (transInput) transInput.addEventListener('input', updateLiveTranslationPreview);
+  const langSel = document.getElementById('target-lang-select');
+  if (langSel) langSel.addEventListener('change', updateLiveTranslationPreview);
 });
 
-/* SYNCHRONIZED REAL-TIME AVATAR RENDERING */
 function renderAllAvatars() {
   const topContainer = document.getElementById('top-right-avatar-display');
   const modalContainer = document.getElementById('my-profile-avatar-display');
@@ -1077,10 +1688,808 @@ function uploadProfileAvatarPhoto(input) {
   myAvatarPhotoUrl = photoUrl;
   localStorage.setItem('vibepulse_avatar', photoUrl);
   renderAllAvatars();
-  alert("📷 Profile photo updated and synced globally!");
+  alert("📷 Profile photo updated and synced across VibePulse!");
 }
 
-/* WEB AUDIO API SOUND EFFECT FOR LAUGHTER/LOVE */
+function loadUgcVideoFeed() {
+  const feedContainer = document.getElementById('ugc-video-feed');
+  if (!feedContainer) return;
+
+  if (feedUnsubscribe) feedUnsubscribe();
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+
+  if (db) {
+    feedUnsubscribe = db.collection("ugc_videos")
+      .orderBy("timestamp", "desc")
+      .limit(30)
+      .onSnapshot((snapshot) => {
+        feedContainer.innerHTML = '';
+        if (snapshot.empty) {
+          renderSampleFeed(feedContainer);
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data();
+          const postId = docSnap.id;
+          
+          if (!post.videoUrl || (!post.videoUrl.startsWith("blob:") && !post.videoUrl.startsWith("http"))) {
+            db.collection("ugc_videos").doc(postId).delete().catch(()=>{});
+            return;
+          }
+
+          const item = document.createElement('div');
+          item.className = 'video-feed-item';
+          item.dataset.postId = postId;
+
+          let deleteBtnHtml = '';
+          if (post.authorUid === myUid) {
+            deleteBtnHtml = `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>`;
+          }
+
+          const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
+          const authorAvatarHtml = post.authorAvatar 
+            ? `<img src="${post.authorAvatar}" class="avatar-ring-img">` 
+            : `<div class="avatar-ring-img">${(post.authorName || 'C').charAt(0).toUpperCase()}</div>`;
+
+          item.innerHTML = `
+            ${deleteBtnHtml}
+            <video src="${post.videoUrl}" autoplay loop playsinline preload="auto"></video>
+            <div class="video-overlay-info">
+              <div class="video-author-name">@${post.authorName || 'Creator'}</div>
+              <div class="video-caption">${safeCaption}</div>
+            </div>
+            <div class="video-side-actions">
+              <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${safeCaption}', '${post.authorAvatar || ''}')" title="Creator Profile">
+                ${authorAvatarHtml}
+                <div class="online-dot-badge"></div>
+              </div>
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
+              <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
+              <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
+              <button class="video-action-btn" onclick="connectWithUser('${post.authorName}', '${post.authorUid}')">💬<span>Chat</span></button>
+            </div>
+          `;
+          feedContainer.appendChild(item);
+        });
+        setupFeedScrollObserver();
+      }, () => renderSampleFeed(feedContainer));
+  } else {
+    renderSampleFeed(feedContainer);
+  }
+}
+
+function setupFeedScrollObserver() {
+  const items = document.querySelectorAll('.video-feed-item');
+  if (items.length === 0) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const vid = entry.target.querySelector('video');
+      if (entry.isIntersecting) {
+        if (vid) {
+          vid.muted = true;
+          vid.play().catch(()=>{});
+        }
+      } else {
+        if (vid) vid.pause();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  items.forEach(item => observer.observe(item));
+}
+
+function openUserProfileView(uid, name, bio, avatarUrl) {
+  inspectTargetUser = { uid: uid, name: name };
+  const avatarImg = document.getElementById('inspect-avatar-display');
+
+  if (avatarUrl) {
+    avatarImg.innerHTML = `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+  } else {
+    avatarImg.innerText = (name || 'C').charAt(0).toUpperCase();
+  }
+
+  document.getElementById('inspect-profile-name').innerText = name;
+  document.getElementById('inspect-profile-uid').innerText = "ID: " + uid;
+  document.getElementById('inspect-profile-bio').innerText = "Bio: " + (bio || "VibePulse Creator & Streamer");
+
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const isFollowing = myFollowingList.includes(uid);
+  const followBtn = document.getElementById('inspect-follow-action-btn');
+  followBtn.innerText = isFollowing ? 'Following' : '+ Follow';
+  followBtn.className = `btn ${isFollowing ? 'btn-secondary' : 'btn-primary'}`;
+
+  if (db) {
+    db.collection("users").doc(uid).get().then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById('inspect-stat-followers').innerText = data.followersCount || 0;
+        document.getElementById('inspect-stat-following').innerText = data.followingCount || 0;
+        document.getElementById('inspect-stat-likes').innerText = data.likesCount || 0;
+        if (data.bio) document.getElementById('inspect-profile-bio').innerText = "Bio: " + filterOffensiveWords(data.bio);
+      }
+    });
+  }
+  openTikTokModal('user-profile-view-modal');
+}
+
+function toggleInspectFollow() {
+  if (!inspectTargetUser) return;
+  toggleFollowUser(inspectTargetUser.uid, inspectTargetUser.name);
+  setTimeout(() => {
+    openUserProfileView(inspectTargetUser.uid, inspectTargetUser.name, document.getElementById('inspect-profile-bio').innerText);
+  }, 400);
+}
+
+function connectWithInspectTarget() {
+  if (!inspectTargetUser) return;
+  connectWithUser(inspectTargetUser.name, inspectTargetUser.uid);
+}
+
+function openCommentsModal(postId) {
+  activeCommentVideoId = postId;
+  openTikTokModal('comments-modal');
+  loadVideoComments(postId);
+}
+
+function loadVideoComments(postId) {
+  const container = document.getElementById('video-comments-list');
+  if (!container || !db) return;
+
+  db.collection("ugc_videos").doc(postId).collection("comments")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snapshot) => {
+      container.innerHTML = '';
+      if (snapshot.empty) {
+        container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No comments yet.</div>`;
+        return;
+      }
+      snapshot.forEach((doc) => {
+        const com = doc.data();
+        const safeText = filterOffensiveWords(com.text);
+        const div = document.createElement('div');
+        div.style.cssText = "background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; font-size:0.75rem; color:#fff;";
+        div.innerHTML = `<b>@${com.sender}:</b> ${safeText}`;
+        container.appendChild(div);
+      });
+      container.scrollTop = container.scrollHeight;
+    });
+}
+
+function submitVideoComment() {
+  const input = document.getElementById('video-comment-input');
+  if (!input || !input.value.trim() || !activeCommentVideoId || !db) return;
+  const rawText = input.value.trim();
+  const safeText = filterOffensiveWords(rawText);
+  const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
+
+  db.collection("ugc_videos").doc(activeCommentVideoId).collection("comments").add({
+    sender: myHandle,
+    text: safeText,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => { input.value = ''; });
+}
+
+function loadMyProfileVideos(myUid) {
+  const profileList = document.getElementById('my-profile-videos-list');
+  if (!profileList || !db) return;
+
+  db.collection("ugc_videos")
+    .where("authorUid", "==", myUid)
+    .get()
+    .then((snapshot) => {
+      profileList.innerHTML = '';
+      if (snapshot.empty) {
+        profileList.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:6px;">You haven't uploaded any videos yet.</div>`;
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        const post = docSnap.data();
+        const postId = docSnap.id;
+        const row = document.createElement('div');
+        row.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);";
+        row.innerHTML = `
+          <div style="font-size:0.72rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">🎥 ${filterOffensiveWords(post.caption || 'Video Post')}</div>
+          <button class="btn btn-danger" style="padding:2px 6px; font-size:0.65rem;" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>
+        `;
+        profileList.appendChild(row);
+      });
+    });
+}
+
+function loadMyProfileStories(myUid) {
+  const storiesList = document.getElementById('my-profile-stories-list');
+  if (!storiesList || !db) return;
+
+  db.collection("highlight_stories")
+    .where("authorUid", "==", myUid)
+    .get()
+    .then((snapshot) => {
+      storiesList.innerHTML = '';
+      if (snapshot.empty) {
+        storiesList.innerHTML = `<div style="font-size:0.7rem; color:#a1a1aa;">No highlights yet. Tap '+' to add story.</div>`;
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        const story = docSnap.data();
+        const storyId = docSnap.id;
+        const pill = document.createElement('div');
+        pill.style.cssText = "min-width:60px; height:70px; background:linear-gradient(135deg,var(--accent-pink),var(--accent-cyan)); border-radius:12px; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; cursor:pointer; position:relative; overflow:hidden;";
+        pill.innerHTML = `
+          <div style="background:rgba(0,0,0,0.8); width:100%; font-size:0.55rem; text-align:center; padding:2px; color:#fff; border-bottom-left-radius:10px; border-bottom-right-radius:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${filterOffensiveWords(story.title || 'Story')}</div>
+          <button onclick="deleteStory('${storyId}')" style="position:absolute; top:2px; right:2px; background:rgba(239,68,68,0.9); color:#fff; border:none; border-radius:50%; width:16px; height:16px; font-size:0.5rem; cursor:pointer;">✕</button>
+        `;
+        storiesList.appendChild(pill);
+      });
+    });
+}
+
+function openHighlightStoryModal() {
+  closeTikTokModal('plus-modal');
+  openTikTokModal('highlight-story-modal');
+}
+
+function publishHighlightStory() {
+  const fileInput = document.getElementById('story-file-input');
+  const titleInput = document.getElementById('story-title-input');
+  if (!fileInput.files || fileInput.files.length === 0) return;
+
+  const file = fileInput.files[0];
+  const title = filterOffensiveWords(titleInput ? titleInput.value.trim() : "My Story");
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const fileUrl = URL.createObjectURL(file);
+
+  if (db) {
+    db.collection("highlight_stories").add({
+      authorUid: myUid,
+      mediaUrl: fileUrl,
+      title: title,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert("✨ Highlight story published successfully!");
+      closeTikTokModal('highlight-story-modal');
+      loadMyProfileStories(myUid);
+      fileInput.value = '';
+      titleInput.value = '';
+    });
+  }
+}
+
+function deleteStory(storyId) {
+  if (!confirm("Delete this highlight story?")) return;
+  if (!db) return;
+  db.collection("highlight_stories").doc(storyId).delete().then(() => {
+    loadMyProfileStories(currentUser ? currentUser.uid : myDevice.uid);
+  });
+}
+
+function openShareModal(videoUrl) {
+  currentShareUrl = videoUrl;
+  const downloadAnchor = document.getElementById('download-video-anchor');
+  if (downloadAnchor) downloadAnchor.href = videoUrl;
+  openTikTokModal('share-modal');
+}
+
+function shareToPlatform(platform) {
+  if (platform === 'copy') {
+    navigator.clipboard.writeText(currentShareUrl || window.location.href);
+    alert("📋 Video link copied to clipboard!");
+    closeTikTokModal('share-modal');
+    return;
+  }
+  const encodedUrl = encodeURIComponent(currentShareUrl || window.location.href);
+  let shareLink = "";
+  if (platform === 'facebook') shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+  if (platform === 'twitter') shareLink = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=Check%20out%20this%20video!`;
+  if (platform === 'whatsapp') shareLink = `https://api.whatsapp.com/send?text=Check%20out%20this%20video:%20${encodedUrl}`;
+  if (shareLink) window.open(shareLink, '_blank');
+}
+
+function openDuetModal(videoUrl) {
+  openTikTokModal('duet-modal');
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+      const cam = document.getElementById('duet-preview-cam');
+      if (cam) cam.srcObject = stream;
+    }).catch(()=>{});
+}
+
+function publishDuetPost() {
+  alert("🎉 Duet video published!");
+  closeTikTokModal('duet-modal');
+  loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+}
+
+function deleteUgcPost(postId) {
+  if (!confirm("Are you sure you want to delete this video?")) return;
+  if (!db) return;
+
+  db.collection("ugc_videos").doc(postId).delete().then(() => {
+    loadUgcVideoFeed();
+    loadMyProfileVideos(currentUser ? currentUser.uid : myDevice.uid);
+  });
+}
+
+function renderSampleFeed(container) {
+  container.innerHTML = `
+    <div class="video-feed-item" data-post-id="sample_1">
+      <video src="https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4" autoplay loop playsinline muted></video>
+      <div class="video-overlay-info">
+        <div class="video-author-name">@VibePulse_Official</div>
+        <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
+      </div>
+      <div class="video-side-actions">
+        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')">
+          <div class="avatar-ring-img">⚡</div>
+          <div class="online-dot-badge"></div>
+        </div>
+        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
+        <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
+        <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
+        <button class="video-action-btn" onclick="openDuetModal('')">👥<span>Duet</span></button>
+      </div>
+    </div>
+  `;
+  setupFeedScrollObserver();
+}
+
+function openUploadVideoModal() {
+  closeTikTokModal('plus-modal');
+  openTikTokModal('upload-video-modal');
+}
+
+function publishUgcVideoPost() {
+  const fileInput = document.getElementById('upload-file-input');
+  const captionInput = document.getElementById('upload-caption-input');
+  if (!fileInput.files || fileInput.files.length === 0) return;
+
+  const file = fileInput.files[0];
+  const caption = filterOffensiveWords(captionInput ? captionInput.value.trim() : "#VibePulse");
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const myName = localStorage.getItem('vibepulse_name') || "Creator";
+  const fileUrl = URL.createObjectURL(file);
+
+  if (db) {
+    db.collection("ugc_videos").add({
+      authorUid: myUid,
+      authorName: myName,
+      authorAvatar: myAvatarPhotoUrl,
+      videoUrl: fileUrl,
+      caption: caption,
+      likes: 0,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      closeTikTokModal('upload-video-modal');
+      fileInput.value = '';
+      captionInput.value = '';
+      loadUgcVideoFeed();
+      loadMyProfileVideos(myUid);
+    });
+  }
+}
+
+function likeUgcPost(postId) {
+  if (!db) {
+    triggerScreenEffect("❤️");
+    return;
+  }
+  db.collection("ugc_videos").doc(postId).update({
+    likes: firebase.firestore.FieldValue.increment(1)
+  }).then(() => triggerScreenEffect("❤️"));
+}
+
+function switchTab(tabName) {
+  const preview = document.getElementById('preview-area');
+  document.getElementById('direct-call-header-bar').style.display = 'none';
+  if (tabName === 'feed') {
+    document.getElementById('current-room-label').innerText = `Feed: Community Videos`;
+    preview.innerHTML = `<div class="video-feed-container" id="ugc-video-feed"></div>`;
+    loadUgcVideoFeed();
+  }
+}
+
+function toggleFollowUser(targetUid, targetName) {
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  if (!db || !myUid || targetUid === myUid) return;
+
+  const isFollowing = myFollowingList.includes(targetUid);
+  const myRef = db.collection("users").doc(myUid);
+  const targetRef = db.collection("users").doc(targetUid);
+  const batch = db.batch();
+
+  if (isFollowing) {
+    batch.update(myRef, {
+      followingCount: firebase.firestore.FieldValue.increment(-1),
+      followingList: firebase.firestore.FieldValue.arrayRemove(targetUid)
+    });
+    batch.set(targetRef, { followersCount: firebase.firestore.FieldValue.increment(-1) }, { merge: true });
+  } else {
+    batch.set(myRef, {
+      followingCount: firebase.firestore.FieldValue.increment(1),
+      followingList: firebase.firestore.FieldValue.arrayUnion(targetUid)
+    }, { merge: true });
+    batch.set(targetRef, { followersCount: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+  }
+
+  batch.commit().then(() => alert(isFollowing ? `Unfollowed ${targetName}` : `🎉 You are now following ${targetName}!`));
+}
+
+function sendProfileLike(targetUid) {
+  if (!db || !targetUid) return;
+  db.collection("users").doc(targetUid).set({
+    likesCount: firebase.firestore.FieldValue.increment(1)
+  }, { merge: true }).then(() => triggerScreenEffect("❤️"));
+}
+
+function openLiveModeratorModal() {
+  openTikTokModal('live-moderators-modal');
+  const container = document.getElementById('live-moderators-list');
+  if (!container || !db) return;
+
+  db.collection("users").limit(30).get().then((snapshot) => {
+    container.innerHTML = '';
+    if (snapshot.empty) {
+      container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No subscribers found.</div>`;
+      return;
+    }
+    snapshot.forEach((doc) => {
+      const u = doc.data();
+      const div = document.createElement('div');
+      div.className = 'active-user-item';
+      div.innerHTML = `
+        <div>
+          <strong style="font-size:0.78rem; color:#fff;">👤 ${u.name || 'Subscriber'}</strong>
+        </div>
+        <button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="assignModerator('${u.name || 'Subscriber'}')">Assign Mod 🛡️</button>
+      `;
+      container.appendChild(div);
+    });
+  });
+}
+
+function assignModerator(modName) {
+  alert(`🛡️ ${modName} assigned as Live Moderator!`);
+  closeTikTokModal('live-moderators-modal');
+}
+
+function listenForIncomingCalls(myUid) {
+  if (!db) return;
+  if (callsUnsubscribe) callsUnsubscribe();
+
+  callsUnsubscribe = db.collection("call_signals")
+    .where("targetUid", "==", myUid)
+    .where("status", "==", "ringing")
+    .onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const callData = change.doc.data();
+          currentCallDocId = change.doc.id;
+          activeCallType = callData.type || 'voice';
+          showIncomingCallScreen(callData.callerName, activeCallType);
+        }
+      });
+    });
+}
+
+function playWhatsAppRingtone() {
+  stopWhatsAppRingtone();
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    ringtoneInterval = setInterval(() => {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(880, now + 0.1);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }, 1200);
+  } catch(e) {}
+}
+
+function stopWhatsAppRingtone() {
+  if (ringtoneInterval) {
+    clearInterval(ringtoneInterval);
+    ringtoneInterval = null;
+  }
+}
+
+function showIncomingCallScreen(callerName, callType) {
+  playWhatsAppRingtone();
+  const overlay = document.getElementById('whatsapp-call-overlay');
+  const avatar = document.getElementById('call-avatar-display');
+  const nameEl = document.getElementById('call-name-display');
+  const statusEl = document.getElementById('call-status-display');
+  const actionsEl = document.getElementById('call-actions-container');
+
+  avatar.innerText = callerName.charAt(0).toUpperCase();
+  nameEl.innerText = callerName;
+  statusEl.innerText = `Incoming ${callType.toUpperCase()} Call...`;
+
+  actionsEl.innerHTML = `
+    <button class="call-btn call-btn-decline" onclick="declineIncomingCall()">❌</button>
+    <button class="call-btn call-btn-accept" onclick="acceptIncomingCall()">📞</button>
+  `;
+  overlay.classList.add('active');
+}
+
+function initiateDirectCall(callType) {
+  if (!activeDirectTarget) return;
+  activeCallType = callType;
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const myName = localStorage.getItem('vibepulse_name') || "Guest";
+
+  currentCallDocId = myUid + "_" + activeDirectTarget.uid + "_" + Date.now();
+  const overlay = document.getElementById('whatsapp-call-overlay');
+
+  document.getElementById('call-avatar-display').innerText = activeDirectTarget.name.charAt(0).toUpperCase();
+  document.getElementById('call-name-display').innerText = activeDirectTarget.name;
+  document.getElementById('call-status-display').innerText = `Calling (${callType.toUpperCase()})...`;
+
+  document.getElementById('call-actions-container').innerHTML = `
+    <button class="call-btn call-btn-decline" onclick="endCurrentCall()">❌</button>
+  `;
+
+  overlay.classList.add('active');
+  playWhatsAppRingtone();
+
+  if (db) {
+    db.collection("call_signals").doc(currentCallDocId).set({
+      callerUid: myUid,
+      callerName: myName,
+      targetUid: activeDirectTarget.uid,
+      targetName: activeDirectTarget.name,
+      type: callType,
+      status: "ringing",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    db.collection("call_signals").doc(currentCallDocId).onSnapshot(async (doc) => {
+      if (!doc.exists) return;
+      const data = doc.data();
+      if (data.status === "accepted" && !peerConnection) {
+        stopWhatsAppRingtone();
+        await setupWebRTCMediaConnection(true);
+      } else if (data.status === "declined" || data.status === "ended") {
+        cleanupCallSession();
+      } else if (data.answer && peerConnection && !peerConnection.currentRemoteDescription) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+      }
+    });
+  }
+}
+
+async function acceptIncomingCall() {
+  stopWhatsAppRingtone();
+  if (!db || !currentCallDocId) return;
+
+  db.collection("call_signals").doc(currentCallDocId).update({ status: "accepted" });
+  await setupWebRTCMediaConnection(false);
+
+  db.collection("call_signals").doc(currentCallDocId).onSnapshot(async (doc) => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    if (data.status === "ended") {
+      cleanupCallSession();
+    } else if (data.offer && peerConnection && !peerConnection.currentRemoteDescription) {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      db.collection("call_signals").doc(currentCallDocId).update({ answer: { type: answer.type, sdp: answer.sdp } });
+    }
+  });
+}
+
+function declineIncomingCall() {
+  stopWhatsAppRingtone();
+  if (db && currentCallDocId) {
+    db.collection("call_signals").doc(currentCallDocId).update({ status: "declined" });
+  }
+  cleanupCallSession();
+}
+
+async function setupWebRTCMediaConnection(isCaller) {
+  try {
+    const isVideo = (activeCallType === 'video');
+    localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+
+    const localVid = document.getElementById('local-call-video');
+    const remoteVid = document.getElementById('remote-call-video');
+    const videoGrid = document.getElementById('call-video-container');
+
+    if (isVideo) {
+      videoGrid.style.display = 'block';
+      localVid.srcObject = localMediaStream;
+    }
+
+    peerConnection = new RTCPeerConnection(rtcIceServers);
+    localMediaStream.getTracks().forEach(track => peerConnection.addTrack(track, localMediaStream));
+
+    peerConnection.ontrack = (event) => {
+      if (remoteVid && event.streams[0]) remoteVid.srcObject = event.streams[0];
+    };
+
+    if (isCaller) {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      db.collection("call_signals").doc(currentCallDocId).update({ offer: { type: offer.type, sdp: offer.sdp } });
+    }
+
+    startCallTimer();
+    renderActiveCallControls();
+  } catch(err) {
+    endCurrentCall();
+  }
+}
+
+function renderActiveCallControls() {
+  document.getElementById('call-actions-container').innerHTML = `
+    <button class="call-btn call-btn-action" id="mute-mic-btn" onclick="toggleMuteMic()">🎤</button>
+    <button class="call-btn call-btn-action" id="toggle-video-btn" onclick="toggleCallVideo()">📹</button>
+    <button class="call-btn call-btn-decline" onclick="endCurrentCall()">❌</button>
+  `;
+}
+
+function toggleMuteMic() {
+  if (localMediaStream) {
+    isMicMuted = !isMicMuted;
+    localMediaStream.getAudioTracks().forEach(track => track.enabled = !isMicMuted);
+    document.getElementById('mute-mic-btn').classList.toggle('muted', isMicMuted);
+  }
+}
+
+function toggleCallVideo() {
+  if (localMediaStream && localMediaStream.getVideoTracks().length > 0) {
+    isVideoDisabled = !isVideoDisabled;
+    localMediaStream.getVideoTracks().forEach(track => track.enabled = !isVideoDisabled);
+    document.getElementById('toggle-video-btn').classList.toggle('muted', isVideoDisabled);
+  }
+}
+
+function startCallTimer() {
+  callDurationSeconds = 0;
+  if (callTimerInterval) clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(() => {
+    callDurationSeconds++;
+    const mins = String(Math.floor(callDurationSeconds / 60)).padStart(2, '0');
+    const secs = String(callDurationSeconds % 60).padStart(2, '0');
+    document.getElementById('call-status-display').innerText = `${mins}:${secs}`;
+  }, 1000);
+}
+
+function endCurrentCall() {
+  if (db && currentCallDocId) {
+    db.collection("call_signals").doc(currentCallDocId).update({ status: "ended" }).catch(()=>{});
+  }
+  cleanupCallSession();
+}
+
+function cleanupCallSession() {
+  stopWhatsAppRingtone();
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+  if (peerConnection) { peerConnection.close(); peerConnection = null; }
+  if (localMediaStream) {
+    localMediaStream.getTracks().forEach(t => t.stop());
+    localMediaStream = null;
+  }
+  currentCallDocId = null;
+  document.getElementById('whatsapp-call-overlay').classList.remove('active');
+}
+
+function renderCoinStoreGrid() {
+  const grid = document.getElementById('coin-packages-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const rawDisplayList = [
+    { sku: 'vibepulse_coins_5', label: '5 +13', priceVnd: '₫13,000', amount: 18 },
+    { sku: 'vibepulse_coins_70', label: '70 +47', priceVnd: '₫26,600', amount: 117 },
+    { sku: 'vibepulse_coins_350', label: '350 +47', priceVnd: '₫133,000', amount: 397 },
+    { sku: 'vibepulse_coins_700', label: '700 +160', priceVnd: '₫266,000', amount: 860 },
+    { sku: 'vibepulse_coins_1400', label: '1400 +297', priceVnd: '₫532,000', amount: 1697 },
+    { sku: 'vibepulse_coins_3500', label: '3500 +272', priceVnd: '₫1,330,000', amount: 3772 },
+    { sku: 'vibepulse_coins_7000', label: '7000 +272', priceVnd: '₫2,660,000', amount: 7272 },
+    { sku: 'vibepulse_coins_17500', label: '17500 +272', priceVnd: '₫6,650,000', amount: 17772 }
+  ];
+
+  rawDisplayList.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = `coin-card-item ${index === 0 ? 'selected' : ''}`;
+    if (index === 0) {
+      selectedCoinSku = item.sku;
+      selectedCoinAmount = item.amount;
+    }
+    card.onclick = () => {
+      document.querySelectorAll('.coin-card-item').forEach(el => el.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedCoinSku = item.sku;
+      selectedCoinAmount = item.amount;
+    };
+    card.innerHTML = `
+      <div class="coin-card-title">🪙 ${item.label}</div>
+      <div class="coin-card-price">${item.priceVnd}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function executeCoinRecharge() {
+  if (!selectedCoinSku) return;
+  const pkg = coinPackages.find(p => p.sku === selectedCoinSku);
+  if (!pkg) return;
+  const activeUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+  const checkoutUrl = `${pkg.link}?checkout[custom][user_id]=${activeUid}`;
+  window.open(checkoutUrl, '_blank');
+}
+
+function updatePresence(uid, name) {
+  if (!db) return;
+  const userRef = db.collection("users").doc(uid);
+  const sendHeartbeat = () => {
+    userRef.set({
+      uid: uid,
+      name: name,
+      level: myUserLevel,
+      lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+      online: true
+    }, { merge: true }).catch(()=>{});
+  };
+  sendHeartbeat();
+  setInterval(sendHeartbeat, 10000);
+}
+
+function startGlobalHudSync() {
+  if (!db) return;
+  db.collection("users").limit(50).onSnapshot((snapshot) => {
+    const modalList = document.getElementById('modal-active-users-list');
+    const topCount = document.getElementById('top-hud-count');
+    if (modalList) modalList.innerHTML = '';
+
+    let activeCount = 0;
+    const nowSec = Date.now() / 1000;
+
+    snapshot.forEach((doc) => {
+      const u = doc.data();
+      const diff = nowSec - (u.lastActive ? u.lastActive.seconds : 0);
+      if (diff < 60) {
+        activeCount++;
+        if (modalList) {
+          const userItem = document.createElement('div');
+          userItem.className = 'active-user-item';
+          userItem.innerHTML = `<div><strong style="font-size:0.8rem; color:#fff;">🟢 ${u.name || 'User'}</strong></div><button class="btn btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="closeTikTokModal('active-users-modal'); connectWithUser('${u.name || 'User'}', '${u.uid}');">Chat Direct 💬</button>`;
+          modalList.appendChild(userItem);
+        }
+      }
+    });
+
+    if (topCount) topCount.innerText = activeCount;
+  });
+}
+
+function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').classList.toggle('active'); }
+function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
+function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
+function openAuthModal() { closeTikTokModal('profile-modal'); openTikTokModal('auth-modal'); }
+function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
+
+function insertEmoji(emoji) {
+  const chatBox = document.getElementById('chat-box');
+  chatBox.value += emoji;
+  document.getElementById('emoji-popup-drawer').classList.remove('active');
+}
+
+/* AUDIO SYNTHESIZER FOR LAUGHTER/REACTIONS */
 function playAudioPopSound() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1101,14 +2510,25 @@ function playAudioPopSound() {
 function triggerLaughEffect() {
   playAudioPopSound();
   triggerScreenEffect("😂");
+
   const container = document.getElementById('laugh-container');
+  const handle = localStorage.getItem('vibepulse_name') || "Guest";
+
+  if (db) {
+    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+      sender: handle,
+      text: "😂😂😂 (Laughing reaction)",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+  }
+
   if (container) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
       setTimeout(() => {
         const el = document.createElement('div');
         el.className = 'floating-laugh';
         el.innerText = '😂';
-        el.style.left = (Math.random() * 50 - 25) + 'px';
+        el.style.left = (Math.random() * 60 - 30) + 'px';
         container.appendChild(el);
         setTimeout(() => el.remove(), 1800);
       }, i * 100);
@@ -1119,194 +2539,259 @@ function triggerLaughEffect() {
 function triggerLoveReaction() {
   playAudioPopSound();
   triggerScreenEffect("❤️");
-  const countEl = document.getElementById('floating-love-count');
-  if (countEl) countEl.innerText = parseInt(countEl.innerText || "0", 10) + 1;
+  const handle = localStorage.getItem('vibepulse_name') || "Guest";
+  if (db) {
+    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+      sender: handle,
+      text: "❤️❤️❤️ (Love reaction)",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+  }
 }
 
-/* UGC FEED & CLICKABLE RIGHT-SIDE ACTIONS */
-function loadUgcVideoFeed() {
-  const feedContainer = document.getElementById('ugc-video-feed');
-  if (!feedContainer) return;
+function openVoiceTranslatorModal() { openTikTokModal('voice-translator-modal'); }
+
+function updateLiveTranslationPreview() {
+  const input = document.getElementById('translator-input-text');
+  const preview = document.getElementById('translator-output-preview');
+  if (input && preview) preview.innerText = input.value ? `[Translated] ${input.value}` : '[Translation will appear here]';
+}
+
+function toggleInteractiveMicRecording() {
+  const micBtn = document.getElementById('mic-record-action-btn');
+  const input = document.getElementById('translator-input-text');
+
+  if (isRecordingActive) {
+    isRecordingActive = false;
+    micBtn.innerText = "🎙️ Start Recording";
+    return;
+  }
+  isRecordingActive = true;
+  micBtn.innerText = "⏹️ Stop Recording";
+  setTimeout(() => {
+    input.value = "Hello world";
+    updateLiveTranslationPreview();
+    isRecordingActive = false;
+    micBtn.innerText = "🎙️ Start Recording";
+  }, 2000);
+}
+
+function submitVoiceTranslation() {
+  const input = document.getElementById('translator-input-text');
+  if (!input || !input.value.trim()) return;
+  document.getElementById('chat-box').value = input.value.trim();
+  closeTikTokModal('voice-translator-modal');
+  sendChatMessage();
+}
+
+function handleBackNavigation() { switchTab('feed'); }
+function selectRoomFromModal(roomName) { closeTikTokModal('chatrooms-modal'); switchRoom(roomName); }
+
+function switchRoom(roomName) {
+  activeRoom = roomName;
+  document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
+  subscribeToActiveRoom(roomName);
+}
+
+function subscribeToActiveRoom(roomName) {
+  const chatContainer = document.getElementById('chat-messages-container');
+  if (!chatContainer) return;
+  if (roomUnsubscribe) roomUnsubscribe();
 
   if (db) {
-    db.collection("ugc_videos").orderBy("timestamp", "desc").limit(30).onSnapshot((snapshot) => {
-      feedContainer.innerHTML = '';
-      if (snapshot.empty) {
-        renderSampleFeed(feedContainer);
-        return;
-      }
-      snapshot.forEach((docSnap) => {
-        const post = docSnap.data();
-        const postId = docSnap.id;
-        const item = document.createElement('div');
-        item.className = 'video-feed-item';
-        item.dataset.postId = postId;
-
-        const authorAvatarHtml = post.authorAvatar ? `<img src="${post.authorAvatar}" class="avatar-ring-img">` : `<div class="avatar-ring-img">${(post.authorName || 'C').charAt(0).toUpperCase()}</div>`;
-
-        item.innerHTML = `
-          <video src="${post.videoUrl}" autoplay loop playsinline preload="auto"></video>
-          <div class="video-overlay-info">
-            <div class="video-author-name">@${post.authorName || 'Creator'}</div>
-            <div class="video-caption">${post.caption || '#VibePulse'}</div>
-          </div>
-          
-          <!-- RIGHT SIDE ACTIONS (CLICKABLE PROFILE, GIFT, SHARE, DUET) -->
-          <div class="video-side-actions">
-            <div class="avatar-ring-container" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${post.caption || ''}', '${post.authorAvatar || ''}')" title="Creator Profile">
-              ${authorAvatarHtml}
-              <div class="online-dot-badge"></div>
-            </div>
-            <button class="video-action-btn" onclick="openTikTokModal('shop-modal')">🎁<span>Gift</span></button>
-            <button class="video-action-btn" onclick="openShareModal('${post.videoUrl}')">🔗<span>Share</span></button>
-            <button class="video-action-btn" onclick="openDuetModal('${post.videoUrl}')">👥<span>Duet</span></button>
-          </div>
-        `;
-        feedContainer.appendChild(item);
+    roomUnsubscribe = db.collection("chat_rooms")
+      .doc(roomName)
+      .collection("messages")
+      .orderBy('timestamp', 'asc')
+      .limit(50)
+      .onSnapshot((snapshot) => {
+        chatContainer.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Connected to ${roomName}</div>`;
+        snapshot.forEach((doc) => {
+          const m = doc.data();
+          const bubble = document.createElement('div');
+          bubble.className = 'chat-bubble';
+          bubble.innerHTML = `🟢 <b>${m.sender}:</b> ${filterOffensiveWords(m.text)}`;
+          chatContainer.appendChild(bubble);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
       });
-      setupFeedScrollObserver();
-    }, () => renderSampleFeed(feedContainer));
-  } else {
-    renderSampleFeed(feedContainer);
   }
 }
 
-function setupFeedScrollObserver() {
-  const items = document.querySelectorAll('.video-feed-item');
-  if (items.length === 0) return;
+function connectWithUser(targetName, targetUid) {
+  activeDirectTarget = { name: targetName, uid: targetUid };
+  document.getElementById('current-room-label').innerText = `Direct Chat: ${targetName}`;
+  document.getElementById('direct-call-header-bar').style.display = 'flex';
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const vid = entry.target.querySelector('video');
-      if (entry.isIntersecting) {
-        currentActiveVideoId = entry.target.dataset.postId;
-        if (vid) {
-          vid.muted = true;
-          vid.play().catch(()=>{});
-        }
-      } else {
-        if (vid) vid.pause();
-      }
+  const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+  const threadId = [myUid, targetUid].sort().join("_");
+
+  const chatContainer = document.getElementById('chat-messages-container');
+  if (directUnsubscribe) directUnsubscribe();
+
+  if (db) {
+    directUnsubscribe = db.collection("direct_chats").doc(threadId).collection("messages").limit(50).onSnapshot((snapshot) => {
+      chatContainer.innerHTML = `<div class="chat-bubble">💬 <b>Direct Message Thread with ${targetName}</b></div>`;
+      snapshot.forEach((doc) => {
+        const m = doc.data();
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        bubble.innerHTML = `<b>${m.sender}:</b> ${filterOffensiveWords(m.text)}`;
+        chatContainer.appendChild(bubble);
+      });
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     });
-  }, { threshold: 0.5 });
-
-  items.forEach(item => observer.observe(item));
-}
-
-function openUserProfileView(uid, name, bio, avatarUrl) {
-  const avatarImg = document.getElementById('inspect-avatar-img');
-  if (avatarUrl) {
-    avatarImg.innerHTML = `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-  } else {
-    avatarImg.innerText = (name || 'C').charAt(0).toUpperCase();
   }
-  document.getElementById('inspect-profile-name').innerText = name || 'Creator';
-  document.getElementById('inspect-profile-uid').innerText = "ID: " + (uid || 'usr_101');
-  openTikTokModal('user-profile-view-modal');
-}
-
-function openShareModal(videoUrl) {
-  const downloadAnchor = document.getElementById('download-video-anchor');
-  if (downloadAnchor) downloadAnchor.href = videoUrl;
-  openTikTokModal('share-modal');
-}
-
-function shareToPlatform(platform) {
-  if (platform === 'copy') {
-    navigator.clipboard.writeText(window.location.href);
-    alert("📋 Video link copied!");
-    closeTikTokModal('share-modal');
-  }
-}
-
-function openDuetModal(videoUrl) {
-  openTikTokModal('duet-modal');
-  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then((stream) => {
-      const cam = document.getElementById('duet-preview-cam');
-      if (cam) cam.srcObject = stream;
-    }).catch(()=>{});
-}
-
-function publishDuetPost() {
-  alert("🎉 Duet video published successfully!");
-  closeTikTokModal('duet-modal');
-}
-
-function renderSampleFeed(container) {
-  container.innerHTML = `
-    <div class="video-feed-item" data-post-id="sample_1">
-      <video src="https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4" autoplay loop playsinline muted></video>
-      <div class="video-overlay-info">
-        <div class="video-author-name">@VibePulse_Official</div>
-        <div class="video-caption">Welcome to VibePulse! Tap '+' below to share videos. #VibePulse</div>
-      </div>
-      <div class="video-side-actions">
-        <div class="avatar-ring-container" onclick="openUserProfileView('official_1', 'VibePulse_Official', 'Official Channel', '')">
-          <div class="avatar-ring-img">⚡</div>
-          <div class="online-dot-badge"></div>
-        </div>
-        <button class="video-action-btn" onclick="openTikTokModal('shop-modal')">🎁<span>Gift</span></button>
-        <button class="video-action-btn" onclick="openShareModal('https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('')">👥<span>Duet</span></button>
-      </div>
-    </div>
-  `;
-  setupFeedScrollObserver();
 }
 
 function sendChatMessage() {
   const box = document.getElementById('chat-box');
   if (!box || !box.value.trim()) return;
 
-  const msgText = box.value.trim();
+  const msg = filterOffensiveWords(box.value.trim());
   box.value = '';
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 
   const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
   const chatContainer = document.getElementById('chat-messages-container');
 
-  const bubble = document.createElement('div');
-  bubble.className = 'chat-bubble';
-  bubble.innerHTML = `🟢 <b>${myHandle}:</b> ${msgText}`;
-  chatContainer.appendChild(bubble);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  if (chatContainer) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.innerHTML = `🟢 <b>${myHandle}:</b> ${msg}`;
+    chatContainer.appendChild(bubble);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  if (activeDirectTarget && db) {
+    const myUid = (currentUser && currentUser.uid) ? currentUser.uid : myDevice.uid;
+    const threadId = [myUid, activeDirectTarget.uid].sort().join("_");
+
+    db.collection("direct_chats").doc(threadId).collection("messages").add({
+      sender: myHandle,
+      text: msg,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } else if (db) {
+    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+      sender: myHandle,
+      text: msg,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
 }
 
-function renderCoinStoreGrid() {
-  const grid = document.getElementById('coin-packages-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  coinPackages.forEach((item) => {
-    const card = document.createElement('div');
-    card.className = 'coin-card-item';
-    card.innerHTML = `<div class="coin-card-title">🪙 ${item.coins} Coins</div><div class="coin-card-price">${item.priceVnd}</div>`;
-    grid.appendChild(card);
-  });
+function startLiveCamera() {
+  closeTikTokModal('plus-modal');
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+      const preview = document.getElementById('preview-area');
+      preview.innerHTML = `
+        <div id="pk-split-view" class="pk-split-container">
+          <div class="pk-pane">
+            <div class="pk-label-tag">🔴 You (Live)</div>
+            <video id="local-live-video" autoplay playsinline muted></video>
+          </div>
+          <div class="pk-pane" id="opponent-pane" style="display:none; background:#1e1e24;">
+            <div class="pk-label-tag">⚔️ Opponent PK</div>
+            <video id="opponent-live-video" autoplay playsinline></video>
+          </div>
+        </div>
+        <button id="pk-toggle-btn" class="live-pk-toggle-btn" onclick="toggleLivePKBattle()">⚔️ Activate PK Battle</button>
+      `;
+      document.getElementById('local-live-video').srcObject = stream;
+    });
 }
 
-function executeCoinRecharge() {
-  window.open(coinPackages[0].link, '_blank');
+let isPkActive = false;
+function toggleLivePKBattle() {
+  const opponentPane = document.getElementById('opponent-pane');
+  const opponentVideo = document.getElementById('opponent-live-video');
+  const pkBtn = document.getElementById('pk-toggle-btn');
+  isPkActive = !isPkActive;
+
+  if (isPkActive) {
+    if (opponentPane) opponentPane.style.display = 'flex';
+    const localVideo = document.getElementById('local-live-video');
+    if (localVideo && localVideo.srcObject) opponentVideo.srcObject = localVideo.srcObject;
+    pkBtn.innerText = '⏹ End PK Battle';
+  } else {
+    if (opponentPane) opponentPane.style.display = 'none';
+    if (opponentVideo) opponentVideo.srcObject = null;
+    pkBtn.innerText = '⚔️ Activate PK Battle';
+  }
 }
 
-function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
-function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
-function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').classList.toggle('active'); }
-function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
-
-function insertEmoji(emoji) {
-  const box = document.getElementById('chat-box');
-  box.value += emoji;
-  document.getElementById('emoji-popup-drawer').classList.remove('active');
+function changeRadioStation(streamUrl) {
+  const audio = document.getElementById('radio-audio');
+  audio.pause();
+  audio.src = streamUrl;
+  audio.load();
+  audio.play();
 }
 
-function switchTab(tabName) {
-  if (tabName === 'feed') loadUgcVideoFeed();
+function toggleRadio() {
+  const audio = document.getElementById('radio-audio');
+  if (audio.paused) audio.play(); else audio.pause();
 }
 
-function openProfileDashboard() {
+function stopRadio() {
+  const audio = document.getElementById('radio-audio');
+  audio.pause();
+  audio.currentTime = 0;
+}
+
+function triggerAction(action) {
+  const preview = document.getElementById('preview-area');
+  if (action === 'gifts') openTikTokModal('shop-modal');
+  if (action === 'jukebox') {
+    preview.innerHTML = `<div class="media-placeholder">🎵 <b>Live YouTube Jukebox</b><br><br><input type="text" id="song-link-input" class="chat-input" placeholder="Paste YouTube link..."><button class="btn btn-primary" style="margin-top:8px;" onclick="playYouTubeTrack()">Play Track ▶</button><div id="youtube-player-frame" style="margin-top:10px; width:100%; height:170px; background:#000;"></div></div>`;
+  }
+}
+
+function playYouTubeTrack() {
+  const rawUrl = document.getElementById('song-link-input').value.trim();
+  const frame = document.getElementById('youtube-player-frame');
+  const match = rawUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+  if (match && match[1]) {
+    frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1" frameborder="0" allow="autoplay"></iframe>`;
+  }
+}
+
+function requestFundWithdrawalStructured() {
+  alert("📥 Withdrawal request submitted!");
+}
+
+function executeAuthAction() {
+  const username = document.getElementById('auth-username').value.trim() || "Subscriber";
+  localStorage.setItem('vibepulse_name', username);
+  document.getElementById('profile-card-name').innerText = username;
+  closeTikTokModal('auth-modal');
   renderAllAvatars();
-  openTikTokModal('profile-modal');
+}
+
+function executeSignOut() {
+  if (auth) auth.signOut();
+  closeTikTokModal('profile-modal');
+}
+
+function saveProfileDetails() {
+  const name = document.getElementById('edit-name').value.trim();
+  const bio = document.getElementById('edit-bio').value.trim();
+  if (name) {
+    localStorage.setItem('vibepulse_name', name);
+    document.getElementById('profile-card-name').innerText = name;
+  }
+  if (bio) document.getElementById('profile-card-bio').innerText = "Bio: " + bio;
+  renderAllAvatars();
+  closeTikTokModal('profile-modal');
+  alert("Profile updated!");
+}
+
+function copyMyUserId() {
+  const uidText = currentUser ? currentUser.uid : myDevice.uid;
+  navigator.clipboard.writeText(uidText);
+  alert("Copied User ID: " + uidText);
 }
 
 function triggerScreenEffect(emoji) {
@@ -1316,67 +2801,6 @@ function triggerScreenEffect(emoji) {
   overlay.style.transform = "scale(3)";
   overlay.style.opacity = "1";
   setTimeout(() => { overlay.style.transform = "scale(1)"; overlay.style.opacity = "0"; overlay.innerText = ""; }, 1200);
-}
-
-function saveProfileDetails() {
-  const name = document.getElementById('edit-name').value.trim();
-  if (name) {
-    localStorage.setItem('vibepulse_name', name);
-    document.getElementById('profile-card-name').innerText = name;
-  }
-  renderAllAvatars();
-  closeTikTokModal('profile-modal');
-  alert("Profile updated successfully!");
-}
-
-function openUploadVideoModal() {
-  closeTikTokModal('plus-modal');
-  openTikTokModal('upload-video-modal');
-}
-
-function publishUgcVideoPost() {
-  const fileInput = document.getElementById('upload-file-input');
-  const captionInput = document.getElementById('upload-caption-input');
-  if (!fileInput.files || fileInput.files.length === 0) return;
-
-  const file = fileInput.files[0];
-  const caption = captionInput.value.trim() || "#VibePulse";
-  const myUid = currentUser ? currentUser.uid : myDevice.uid;
-  const myName = localStorage.getItem('vibepulse_name') || "Creator";
-  const fileUrl = URL.createObjectURL(file);
-
-  if (db) {
-    db.collection("ugc_videos").add({
-      authorUid: myUid,
-      authorName: myName,
-      authorAvatar: myAvatarPhotoUrl,
-      videoUrl: fileUrl,
-      caption: caption,
-      likes: 0,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      closeTikTokModal('upload-video-modal');
-      fileInput.value = '';
-      captionInput.value = '';
-      loadUgcVideoFeed();
-    });
-  }
-}
-
-function openActiveFeedComments() {
-  openTikTokModal('comments-modal');
-}
-
-function submitVideoComment() {
-  const input = document.getElementById('video-comment-input');
-  if (!input || !input.value.trim()) return;
-  const text = input.value.trim();
-  input.value = '';
-  const container = document.getElementById('video-comments-list');
-  const div = document.createElement('div');
-  div.style.cssText = "background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; font-size:0.75rem; color:#fff;";
-  div.innerHTML = `<b>@You:</b> ${text}`;
-  container.appendChild(div);
 }
 </script>
 </body>
