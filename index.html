@@ -1039,13 +1039,13 @@ body {
 <div id="effect-overlay"></div>
 <div id="laugh-container"></div>
 
-<!-- Left-Side Floating Controls: Love Icon with Count Above Laughter -->
+<!-- Left-Side Floating Controls: Love, Laugh, and Duet -->
 <div class="left-side-floating-controls">
   <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">
     ❤️
     <span class="count-badge" id="left-love-counter-display">21</span>
   </button>
-  <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
+  <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Echo Laughter & Crowd Cheers 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
 
@@ -1772,7 +1772,6 @@ function loadUgcVideoFeed() {
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
               <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
-              <button class="video-action-btn" onclick="openDuetModal('${safeVideoUrl}')">👥<span>Duet</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2052,7 +2051,6 @@ function renderSampleFeed(container) {
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
-        <button class="video-action-btn" onclick="openDuetModal('${sampleUrl}')">👥<span>Duet</span></button>
       </div>
     </div>
   `;
@@ -2522,7 +2520,7 @@ function insertEmoji(emoji) {
   document.getElementById('emoji-popup-drawer').classList.remove('active');
 }
 
-/* SYNTHESIZED MULTI-STAGE ECHO LAUGHTER AUDIO ENGINE */
+/* SYNTHESIZED ECHO LAUGHTER & CROWD CHEERING AUDIO ENGINE */
 function triggerLaughEffect() {
   triggerScreenEffect("😂");
 
@@ -2532,45 +2530,81 @@ function triggerLaughEffect() {
   if (db) {
     db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
       sender: handle,
-      text: "😂😂😂 (Ha Ha Ha Laughter)",
+      text: "😂😂😂 (Echo Laughter & Crowd Cheers)",
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(()=>{});
   }
 
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [320, 290, 340, 310]; 
-    notes.forEach((freq, idx) => {
+    
+    // Echo laugh bursts
+    const laughNotes = [330, 290, 350, 310, 340, 280];
+    laughNotes.forEach((freq, idx) => {
       setTimeout(() => {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const now = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
+        
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.75, now + 0.13);
         
         gain.gain.setValueAtTime(0.25, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now);
-        osc.stop(now + 0.15);
-      }, idx * 140);
+        osc.stop(now + 0.16);
+      }, idx * 130);
     });
+
+    // Simulated crowd cheering noise buffer / applause wave overlay
+    setTimeout(() => {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const bufferSize = audioCtx.sampleRate * 0.8;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.35;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1000, now);
+      filter.Q.setValueAtTime(1.2, now);
+
+      const cheerGain = audioCtx.createGain();
+      cheerGain.gain.setValueAtTime(0.01, now);
+      cheerGain.gain.linearRampToValueAtTime(0.18, now + 0.2);
+      cheerGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+      noise.connect(filter);
+      filter.connect(cheerGain);
+      cheerGain.connect(audioCtx.destination);
+
+      noise.start(now);
+      noise.stop(now + 0.8);
+    }, 400);
+
   } catch(e) {}
 
   if (container) {
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 7; i++) {
       setTimeout(() => {
         const el = document.createElement('div');
         el.className = 'floating-laugh';
-        el.innerText = '😂';
+        el.innerText = i % 2 === 0 ? '😂' : '👏';
         el.style.left = (Math.random() * 60 - 30) + 'px';
         container.appendChild(el);
         setTimeout(() => el.remove(), 1800);
-      }, i * 100);
+      }, i * 90);
     }
   }
 }
@@ -2961,4 +2995,3 @@ function triggerScreenEffect(emoji) {
 </script>
 </body>
 </html>
-
