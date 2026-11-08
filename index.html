@@ -101,6 +101,48 @@ body {
   font-weight: bold;
 }
 
+/* Glowing Green Status Ring & Avatar Container (Positioned Top Left) */
+.avatar-ring-container {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #22c55e, #25f4ee);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  cursor: pointer;
+  pointer-events: auto !important;
+  z-index: 600 !important;
+}
+
+.avatar-ring-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #18181b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.online-dot-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border: 2px solid #000;
+  border-radius: 50%;
+}
+
 /* Voice Translator Header Bar */
 .translator-top-bar {
   display: flex;
@@ -163,48 +205,6 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-/* Glowing Green Status Ring & Avatar Container */
-.avatar-ring-container {
-  position: relative;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(135deg, #22c55e, #25f4ee);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
-  cursor: pointer;
-  pointer-events: auto !important;
-  z-index: 600 !important;
-}
-
-.avatar-ring-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #18181b;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: #fff;
-}
-
-.online-dot-badge {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 9px;
-  height: 9px;
-  background: #22c55e;
-  border: 2px solid #000;
-  border-radius: 50%;
 }
 
 .menu-dropdown-btn {
@@ -497,7 +497,6 @@ body {
   z-index: 10;
 }
 
-/* Adjusted PK Activation Button Position & Z-Index Layer */
 .live-pk-toggle-btn {
   position: absolute;
   bottom: 125px;
@@ -589,7 +588,7 @@ body {
   flex: 1;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 7px 42px 7px 10px;
+  padding: 7px 12px;
   border-radius: 18px;
   color: white;
   font-size: 0.75rem;
@@ -599,57 +598,11 @@ body {
 
 .chat-input::placeholder { color: #d4d4d8; }
 
-.emoji-picker-toggle {
-  position: absolute;
-  right: 62px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 0.85rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 900;
-  pointer-events: auto !important;
-}
-
-.emoji-drawer {
-  display: none;
-  position: absolute;
-  bottom: 44px;
-  left: 0;
-  background: rgba(24, 24, 27, 0.96);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 8px;
-  width: 260px;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  z-index: 1100;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.85);
-  pointer-events: auto !important;
-}
-.emoji-drawer.active { display: grid !important; }
-.emoji-item {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  text-align: center;
-  padding: 3px;
-  border-radius: 6px;
-}
-.emoji-item:hover { background: rgba(255,255,255,0.2); }
-
 .chat-send-btn {
   background: var(--accent-pink);
   color: white;
   border: none;
-  padding: 7px 12px;
+  padding: 7px 14px;
   border-radius: 18px;
   font-weight: bold;
   font-size: 0.75rem;
@@ -1024,7 +977,6 @@ body {
 
 <!-- Left-Side Floating Controls -->
 <div class="left-side-floating-controls">
-  <button class="floating-side-icon-btn" id="floating-live-love-btn" onclick="triggerLoveReaction()" title="Love Reaction ❤️">❤️</button>
   <button class="floating-side-icon-btn" id="floating-live-laugh-btn" onclick="triggerLaughEffect()" title="Laugh Reaction 😂">😂</button>
   <button class="floating-side-icon-btn" id="floating-live-duet-btn" onclick="openDuetModal('')" title="Record Duet 👥">👥</button>
 </div>
@@ -1049,6 +1001,13 @@ body {
   <div class="top-overlay">
     <div class="left-header-group">
       <button class="back-nav-btn" onclick="handleBackNavigation()">◄ Back</button>
+      
+      <!-- Moved Profile Avatar Ring to Top Left -->
+      <div class="avatar-ring-container" id="top-left-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
+        <div class="avatar-ring-img" id="top-left-avatar-display">👤</div>
+        <div class="online-dot-badge"></div>
+      </div>
+
       <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
     </div>
 
@@ -1066,12 +1025,6 @@ body {
     <div class="right-header-group">
       <div class="active-users-pill" onclick="openTikTokModal('active-users-modal')">
         🟢 <span id="top-hud-count">0</span> Online
-      </div>
-
-      <!-- Top Profile Button with Glowing Green Ring & Online Status Badge -->
-      <div class="avatar-ring-container" id="top-right-profile-btn" onclick="openTikTokModal('profile-modal')" title="My Profile Dashboard">
-        <div class="avatar-ring-img" id="top-right-avatar-display">👤</div>
-        <div class="online-dot-badge"></div>
       </div>
 
       <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
@@ -1125,25 +1078,6 @@ body {
 
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
       <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
-      <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()" title="Chat Emojis 😊">😊</button>
-
-      <div class="emoji-drawer" id="emoji-popup-drawer">
-        <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('😍')">😍</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('🔥')">🔥</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('👍')">👍</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('❤️')">❤️</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('🚀')">🚀</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('💎')">💎</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('🎉')">🎉</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('😎')">😎</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('✨')">✨</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('👏')">👏</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('🥳')">🥳</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('💯')">💯</button>
-        <button type="button" class="emoji-item" onclick="insertEmoji('⭐')">⭐</button>
-      </div>
-
       <button type="submit" class="chat-send-btn" id="send-btn">Send</button>
     </form>
   </div>
@@ -1674,15 +1608,15 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function renderAllAvatars() {
-  const topContainer = document.getElementById('top-right-avatar-display');
+  const topLeftContainer = document.getElementById('top-left-avatar-display');
   const modalContainer = document.getElementById('my-profile-avatar-display');
 
   if (myAvatarPhotoUrl) {
-    if (topContainer) topContainer.innerHTML = `<img src="${myAvatarPhotoUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    if (topLeftContainer) topLeftContainer.innerHTML = `<img src="${myAvatarPhotoUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
     if (modalContainer) modalContainer.innerHTML = `<img src="${myAvatarPhotoUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
   } else {
     const initial = (localStorage.getItem('vibepulse_name') || 'U').charAt(0).toUpperCase();
-    if (topContainer) topContainer.innerHTML = initial;
+    if (topLeftContainer) topLeftContainer.innerHTML = initial;
     if (modalContainer) modalContainer.innerHTML = initial;
   }
 }
@@ -1744,7 +1678,6 @@ function loadUgcVideoFeed() {
               <div class="video-caption">${safeCaption}</div>
             </div>
             <div class="video-side-actions">
-              <button class="video-action-btn" onclick="openUserProfileView('${post.authorUid}', '${post.authorName || 'Creator'}', '${post.caption || ''}', '${post.authorAvatar || ''}')">👤<span>Bio</span></button>
               <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
               <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
               <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
@@ -2478,15 +2411,8 @@ function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').
 function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
 function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
 function openAuthModal() { closeTikTokModal('profile-modal'); openTikTokModal('auth-modal'); }
-function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
 
-function insertEmoji(emoji) {
-  const chatBox = document.getElementById('chat-box');
-  chatBox.value += emoji;
-  document.getElementById('emoji-popup-drawer').classList.remove('active');
-}
-
-/* SYNTHESIZED MULTI-STAGE ECHO "HA HA HA" LAUGHTER AUDIO ENGINE */
+/* SYNTHESIZED MULTI-STAGE ECHO LAUGHTER AUDIO ENGINE */
 function triggerLaughEffect() {
   triggerScreenEffect("😂");
 
@@ -2536,18 +2462,6 @@ function triggerLaughEffect() {
         setTimeout(() => el.remove(), 1800);
       }, i * 100);
     }
-  }
-}
-
-function triggerLoveReaction() {
-  triggerScreenEffect("❤️");
-  const handle = localStorage.getItem('vibepulse_name') || "Guest";
-  if (db) {
-    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-      sender: handle,
-      text: "❤️❤️❤️ (Love reaction)",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(()=>{});
   }
 }
 
@@ -2652,7 +2566,6 @@ function sendChatMessage() {
 
   const msg = filterOffensiveWords(box.value.trim());
   box.value = '';
-  document.getElementById('emoji-popup-drawer').classList.remove('active');
 
   const myHandle = localStorage.getItem('vibepulse_name') || "Guest";
   const chatContainer = document.getElementById('chat-messages-container');
