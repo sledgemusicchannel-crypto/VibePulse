@@ -341,7 +341,7 @@ body {
   position: absolute;
   bottom: 95px;
   right: 12px;
-  z-index: 9999 !important;
+  z-index: 99999 !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -361,13 +361,15 @@ body {
   font-size: 1.4rem;
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
   pointer-events: auto !important;
-  z-index: 10000 !important;
+  z-index: 100000 !important;
   position: relative;
+  touch-action: manipulation;
 }
 
 .video-action-btn span {
   font-size: 0.68rem;
   font-weight: bold;
+  pointer-events: none;
 }
 
 /* Glowing Green Status Ring & Avatar */
@@ -1741,11 +1743,11 @@ function loadUgcVideoFeed() {
               <div class="video-author-name">@${post.authorName || 'Creator'}</div>
               <div class="video-caption">${safeCaption}</div>
             </div>
-            <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
-              <button class="video-action-btn" onclick="likeUgcPost('${postId}')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>${post.likes || 0}</span></button>
-              <button class="video-action-btn" onclick="openCommentsModal('${postId}')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
-              <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
-              <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
+            <div class="video-side-actions" style="pointer-events: auto !important; z-index: 99999;">
+              <button class="video-action-btn" onclick="likeUgcPost('${postId}')">❤️<span>${post.likes || 0}</span></button>
+              <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
+              <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+              <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
             </div>
           `;
           feedContainer.appendChild(item);
@@ -2020,11 +2022,11 @@ function renderSampleFeed(container) {
         <div class="video-author-name">@VibePulse_Official</div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
-      <div class="video-side-actions" style="pointer-events: auto !important; z-index: 9999;">
-        <button class="video-action-btn" onclick="likeUgcPost('sample_1')" style="pointer-events: auto !important; z-index: 10000;">❤️<span>128</span></button>
-        <button class="video-action-btn" onclick="openCommentsModal('sample_1')" style="pointer-events: auto !important; z-index: 10000;">💬<span>Comments</span></button>
-        <button class="video-action-btn" onclick="triggerAction('gifts')" style="pointer-events: auto !important; z-index: 10000;">🎁<span>Gift</span></button>
-        <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')" style="pointer-events: auto !important; z-index: 10000;">🔗<span>Share</span></button>
+      <div class="video-side-actions" style="pointer-events: auto !important; z-index: 99999;">
+        <button class="video-action-btn" onclick="likeUgcPost('sample_1')">❤️<span>128</span></button>
+        <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
+        <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+        <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
       </div>
     </div>
   `;
