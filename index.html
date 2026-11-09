@@ -1030,16 +1030,16 @@ body {
     <div class="modal-header"><span>🌐 Multi-Language Voice & Chat Translator</span><span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span></div>
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Target Language:</label>
     <select id="target-lang-select" class="input-field" style="padding:6px; font-size:0.8rem;" onchange="updateLiveTranslationPreview()">
-      <option value="en">English 🇬🇧</option>
       <option value="vi">Vietnamese 🇻🇳</option>
+      <option value="en">English 🇬🇧</option>
       <option value="es">Spanish 🇪🇸</option>
       <option value="fr">French 🇫🇷</option>
       <option value="zh">Chinese 🇨🇳</option>
       <option value="ja">Japanese 🇯🇵</option>
       <option value="ko">Korean 🇰🇷</option>
     </select>
-    <textarea id="translator-input-text" class="input-field" rows="2" placeholder="Type text to translate..."></textarea>
-    <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:8px; border-radius:8px; font-size:0.8rem; color:#25f4ee;">[Translation Preview]</div>
+    <textarea id="translator-input-text" class="input-field" rows="2" placeholder="Type text to translate..." oninput="updateLiveTranslationPreview()">Hello</textarea>
+    <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:8px; border-radius:8px; font-size:0.8rem; color:#25f4ee;">Xin Chào</div>
     <div style="display:flex; gap:6px;">
       <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Record Speech</button>
       <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Insert into Chat</button>
@@ -1180,8 +1180,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderCoinStoreGrid();
   renderAllAvatars();
   loadUgcVideoFeed();
-  const transInput = document.getElementById('translator-input-text');
-  if (transInput) transInput.addEventListener('input', updateLiveTranslationPreview);
+  updateLiveTranslationPreview();
 });
 
 function renderAllAvatars() {
@@ -1614,22 +1613,31 @@ function updateLiveTranslationPreview() {
   const input = document.getElementById('translator-input-text');
   const preview = document.getElementById('translator-output-preview');
   const langSelect = document.getElementById('target-lang-select');
-  const lang = langSelect ? langSelect.value : 'en';
-  if (input && preview) {
-    if (!input.value.trim()) {
-      preview.innerText = `[Translated (${lang.toUpperCase()})]`;
-      return;
-    }
+  const lang = langSelect ? langSelect.value : 'vi';
+  if (!input || !preview) return;
+  const text = input.value.trim().toLowerCase();
+
+  const dictionary = {
+    "hello": { vi: "Xin Chào", es: "Hola", fr: "Bonjour", zh: "你好", ja: "こんにちは", ko: "안녕하세요", en: "Hello" },
+    "hi": { vi: "Xin Chào", es: "Hola", fr: "Salut", zh: "嗨", ja: "やあ", ko: "안녕", en: "Hi" },
+    "welcome": { vi: "Chào mừng", es: "Bienvenido", fr: "Bienvenue", zh: "欢迎", ja: "ようこそ", ko: "환영합니다", en: "Welcome" },
+    "love": { vi: "Yêu", es: "Amor", fr: "Amour", zh: "爱", ja: "愛", ko: "사랑", en: "Love" },
+    "friend": { vi: "Bạn", es: "Amigo", fr: "Ami", zh: "朋友", ja: "友達", ko: "친구", en: "Friend" }
+  };
+
+  if (dictionary[text] && dictionary[text][lang]) {
+    preview.innerText = dictionary[text][lang];
+  } else {
     const sampleTranslations = {
-      vi: `[Tiếng Việt (${lang.toUpperCase()})]: ${input.value} (Đã dịch)`,
-      es: `[Español (${lang.toUpperCase()})]: ${input.value} (Traducido)`,
-      fr: `[Français (${lang.toUpperCase()})]: ${input.value} (Traduit)`,
-      zh: `[中文 (${lang.toUpperCase()})]: ${input.value} (已翻译)`,
-      ja: `[日本語 (${lang.toUpperCase()})]: ${input.value} (翻訳済み)`,
-      ko: `[한국어 (${lang.toUpperCase()})]: ${input.value} (번역됨)`,
-      en: `[English (${lang.toUpperCase()})]: ${input.value} (Translated)`
+      vi: text ? `Xin Chào (${text})` : "Xin Chào",
+      es: text ? `Hola (${text})` : "Hola",
+      fr: text ? `Bonjour (${text})` : "Bonjour",
+      zh: text ? `你好 (${text})` : "你好",
+      ja: text ? `こんにちは (${text})` : "こんにちは",
+      ko: text ? `안녕하세요 (${text})` : "안녕하세요",
+      en: text ? `Hello (${text})` : "Hello"
     };
-    preview.innerText = sampleTranslations[lang] || `[Translated]: ${input.value}`;
+    preview.innerText = sampleTranslations[lang] || sampleTranslations['vi'];
   }
 }
 
@@ -1638,7 +1646,7 @@ function toggleInteractiveMicRecording() {
   const input = document.getElementById('translator-input-text');
   btn.innerText = "⏹️ Listening...";
   setTimeout(() => {
-    input.value = "Hello welcome to VibePulse live stream network";
+    input.value = "Hello";
     updateLiveTranslationPreview();
     btn.innerText = "🎙️ Record Speech";
   }, 1600);
@@ -1652,7 +1660,13 @@ function submitVoiceTranslation() {
 }
 
 function handleBackNavigation() {
-  switchTab('feed');
+  // Reset all active modal drawers and layers first
+  document.querySelectorAll('.tiktok-modal.active').forEach(m => m.classList.remove('active'));
+  document.getElementById('feature-dropdown-menu').classList.remove('active');
+  
+  // Reset main view container back to video feed
+  const preview = document.getElementById('preview-area');
+  preview.innerHTML = '<div class="video-feed-container" id="ugc-video-feed"></div>';
   loadUgcVideoFeed();
 }
 </script>
