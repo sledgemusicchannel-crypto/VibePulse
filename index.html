@@ -797,7 +797,7 @@ body {
     </div>
 
     <div class="right-header-group">
-      <div class="active-users-pill" onclick="openTikTokModal('chatrooms-modal')">🟢 <span id="top-hud-count">0</span> Online</div>
+      <div class="active-users-pill" onclick="openTikTokModal('chatrooms-modal')">🟢 <span id="top-hud-count">30</span> Online</div>
     </div>
   </div>
 
@@ -958,7 +958,13 @@ body {
 
 <div class="tiktok-modal" id="chatrooms-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>💬 Chatrooms & Real-Time Search</span><span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span></div>
+    <div class="modal-header">
+      <span>💬 Chatrooms & Real-Time Search</span>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button class="btn btn-primary" style="padding:3px 8px; font-size:0.65rem;" onclick="document.getElementById('member-search-input').focus()">🔍 Search Members</button>
+        <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
+      </div>
+    </div>
     <div class="room-grid-list">
       <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('Single Lounge')">💛 Single Lounge</button>
@@ -1056,7 +1062,11 @@ const coinPackages = [
   { sku: 'vibepulse_coins_18', coins: 18, priceVnd: '₫13,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
   { sku: 'vibepulse_coins_117', coins: 117, priceVnd: '₫26,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
   { sku: 'vibepulse_coins_397', coins: 397, priceVnd: '₫133,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_860', coins: 860, priceVnd: '₫266,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' }
+  { sku: 'vibepulse_coins_860', coins: 860, priceVnd: '₫266,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_1697', coins: 1697, priceVnd: '₫532,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_3772', coins: 3772, priceVnd: '₫1,330,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_7272', coins: 7272, priceVnd: '₫2,660,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_17772', coins: 17772, priceVnd: '₫6,650,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' }
 ];
 
 const levelGifts100 = [];
