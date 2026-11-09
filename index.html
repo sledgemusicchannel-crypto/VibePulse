@@ -1037,7 +1037,7 @@ body {
 
     <!-- My Channel Videos Section -->
     <div style="border-top: 1px solid #27272a; padding-top: 6px;">
-      <div style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 4px;">📺 My Channel Videos</div>
+      <div style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 4px;">📺 My Channel Videos (Tap to Play with Audio)</div>
       <div id="my-channel-videos-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; background: #000; padding: 4px; border-radius: 6px;">
         <div style="grid-column: span 3; font-size: 0.68rem; color: #a1a1aa; text-align: center;">Loading your channel videos...</div>
       </div>
@@ -1308,12 +1308,38 @@ function loadMyChannelVideos() {
       snapshot.forEach(docSnap => {
         const post = docSnap.data();
         const card = document.createElement('div');
-        card.style.cssText = "width: 100%; height: 90px; background: #000; border-radius: 4px; overflow: hidden; position: relative;";
-        card.innerHTML = `<video src="${post.videoUrl}" style="width: 100%; height: 100%; object-fit: cover;" preload="metadata"></video>`;
+        card.style.cssText = "width: 100%; height: 90px; background: #000; border-radius: 4px; overflow: hidden; position: relative; cursor: pointer;";
+        card.innerHTML = `
+          <video src="${post.videoUrl}" style="width: 100%; height: 100%; object-fit: cover;" preload="metadata" muted></video>
+          <div style="position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px;">▶ Play</div>
+        `;
+        card.onclick = () => playChannelVideo(post.videoUrl, post.title);
         grid.appendChild(card);
       });
     }, () => {
       grid.innerHTML = `<div style="grid-column: span 3; font-size: 0.68rem; color: #a1a1aa; text-align: center; padding: 10px;">Channel feed synchronized locally.</div>`;
+    });
+  }
+}
+
+function playChannelVideo(videoUrl, title) {
+  closeTikTokModal('profile-modal');
+  const preview = document.getElementById('preview-area');
+  
+  preview.innerHTML = `
+    <div style="width:100%; height:100%; position:relative; background:#000; display:flex; justify-content:center; align-items:center;">
+      <video id="active-channel-player" src="${videoUrl}" autoplay controls playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+      <div style="position:absolute; top:60px; left:12px; color:#fff; font-weight:bold; font-size:0.8rem; text-shadow:0 2px 4px rgba(0,0,0,0.9); z-index:100; pointer-events:none;">
+        📺 ${title || 'Channel Video'}
+      </div>
+    </div>
+  `;
+
+  const activeVideo = document.getElementById('active-channel-player');
+  if (activeVideo) {
+    activeVideo.muted = false;
+    activeVideo.play().catch(err => {
+      console.log("Autoplay unmuted blocked by browser, controls enabled:", err);
     });
   }
 }
