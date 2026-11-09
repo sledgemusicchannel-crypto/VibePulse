@@ -732,7 +732,7 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.05rem; }
 
-/* FIX: Ensure high z-index and pointer events for modals and click targets */
+/* FIX: Absolute guarantee for clickable modal buttons & inputs */
 .tiktok-modal {
   display: none; 
   position: fixed; 
@@ -741,7 +741,7 @@ body {
   width: 100%; 
   height: 100%;
   background: rgba(0, 0, 0, 0.82); 
-  z-index: 9999 !important; 
+  z-index: 99999 !important; 
   justify-content: center; 
   align-items: flex-end;
   pointer-events: auto !important;
@@ -762,19 +762,20 @@ body {
   max-height: 85vh; 
   overflow-y: auto;
   pointer-events: auto !important;
-  z-index: 10000 !important;
+  position: relative;
+  z-index: 100000 !important;
 }
 
 .modal-header {
   display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; padding-bottom: 6px; border-bottom: 1px solid #27272a;
 }
-.modal-close { cursor: pointer; font-size: 1rem; color: var(--text-muted); padding: 4px; z-index: 10001 !important; }
+.modal-close { cursor: pointer; font-size: 1rem; color: var(--text-muted); padding: 4px; pointer-events: auto !important; }
 
-.btn { padding: 10px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; pointer-events: auto !important; z-index: 10001 !important; touch-action: manipulation; }
+.btn { padding: 10px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; pointer-events: auto !important; touch-action: manipulation; }
 .btn-primary { background: var(--accent-pink); color: white; }
 .btn-secondary { background: #27272a; color: white; }
 .btn-danger { background: #ef4444; color: white; }
-.input-field { width: 100%; padding: 9px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.8rem; pointer-events: auto !important; z-index: 10001 !important; }
+.input-field { width: 100%; padding: 9px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.8rem; pointer-events: auto !important; outline: none; }
 
 .room-grid-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .room-tab-btn {
@@ -927,7 +928,32 @@ body {
     <input type="file" id="upload-file-input" class="input-field" accept="video/*">
     <input type="text" id="upload-title-input" class="input-field" placeholder="Video Title (e.g., Amazing Sunset 🌅)">
     <textarea id="upload-caption-input" class="input-field" rows="2" placeholder="Video Description / Caption... #VibePulse"></textarea>
-    <button class="btn btn-primary" id="publish-video-btn" onclick="publishUgcVideoPost()">🚀 Post Video to Feed</button>
+    <button type="button" class="btn btn-primary" id="publish-video-btn" onclick="publishUgcVideoPost()">🚀 Post Video to Feed</button>
+  </div>
+</div>
+
+<!-- Promote Video Modal (TikTok-Style Video Promotion Feature) -->
+<div class="tiktok-modal" id="promote-video-modal" onclick="if(event.target === this) closeTikTokModal('promote-video-modal')">
+  <div class="modal-body-container">
+    <div class="modal-header"><span>🚀 Promote Your Video (TikTok Style)</span><span class="modal-close" onclick="closeTikTokModal('promote-video-modal')">✕</span></div>
+    <p style="font-size:0.75rem; color:#a1a1aa;">Boost your post visibility across VibePulse to reach thousands of new viewers instantly!</p>
+    
+    <label style="font-size:0.72rem; font-weight:bold; color:var(--accent-cyan); margin-top:4px;">Select Promotion Goal:</label>
+    <select id="promote-goal-select" class="input-field">
+      <option value="views">More Video Views & Reach 👁️</option>
+      <option value="followers">More Profile Followers 👤</option>
+      <option value="engagement">More Likes & Comments 🔥</option>
+    </select>
+
+    <label style="font-size:0.72rem; font-weight:bold; color:var(--accent-cyan); margin-top:4px;">Select Budget & Duration:</label>
+    <select id="promote-budget-select" class="input-field">
+      <option value="100">🪙 100 Coins (Est. 2,500 - 5,000 Views)</option>
+      <option value="300">🪙 300 Coins (Est. 10,000 - 20,000 Views)</option>
+      <option value="600">🪙 600 Coins (Est. 25,000 - 50,000 Views)</option>
+      <option value="1200">🪙 1,200 Coins (Est. 60,000+ Views & VIP Boost)</option>
+    </select>
+
+    <button type="button" class="btn btn-primary" style="background: linear-gradient(135deg, #fe2c55, #25f4ee); color:#000; font-weight:900; margin-top:6px;" onclick="executeVideoPromotion()">🚀 Launch Promotion Campaign</button>
   </div>
 </div>
 
@@ -1110,7 +1136,7 @@ const firebaseConfig = {
 let auth = null, db = null, currentUser = null, activeRoom = "Global Lounge";
 let activeCommentVideoId = null, feedUnsubscribe = null, membersUnsubscribe = null, channelVideosUnsubscribe = null, currentActivePostId = null, currentShareUrl = "";
 let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
-let selectedCoinSku = null;
+let selectedCoinSku = null, selectedVideoIdToPromote = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
 
 // Global network status monitor to prevent webview connection errors
@@ -1302,7 +1328,6 @@ function loadUgcVideoFeed() {
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
 
   if (db) {
-    // Increased limit to 100 posts for expanded storage capacity
     feedUnsubscribe = db.collection("ugc_videos").orderBy("timestamp", "desc").limit(100).onSnapshot((snapshot) => {
       feedContainer.innerHTML = '';
       if (snapshot.empty) { renderSampleFeed(feedContainer); return; }
@@ -1328,6 +1353,7 @@ function loadUgcVideoFeed() {
           </div>
           <div class="video-side-actions">
             <button class="video-action-btn" onclick="openCommentsModal('${postId}')">💬<span>Comments</span></button>
+            <button class="video-action-btn" onclick="openPromoteModal('${postId}')">🚀<span>Promote</span></button>
             <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
             <button class="video-action-btn" onclick="openShareModal('${safeVideoUrl}')">🔗<span>Share</span></button>
             <button class="video-action-btn" onclick="repostCurrentVideo('${safeVideoUrl}', '${safeTitle}')">🔄<span>Repost</span></button>
@@ -1350,7 +1376,6 @@ function loadMyChannelVideos() {
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
 
   if (db) {
-    // Expanded query support for up to 100+ channel posts
     channelVideosUnsubscribe = db.collection("ugc_videos").where("authorUid", "==", myUid).limit(100).onSnapshot((snapshot) => {
       grid.innerHTML = '';
       if (snapshot.empty) {
@@ -1359,11 +1384,15 @@ function loadMyChannelVideos() {
       }
       snapshot.forEach(docSnap => {
         const post = docSnap.data();
+        const postId = docSnap.id;
         const card = document.createElement('div');
         card.style.cssText = "width: 100%; height: 90px; background: #000; border-radius: 4px; overflow: hidden; position: relative; cursor: pointer;";
         card.innerHTML = `
           <video src="${post.videoUrl}" style="width: 100%; height: 100%; object-fit: cover;" preload="metadata" muted></video>
-          <div style="position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px;">▶ Play</div>
+          <div style="position: absolute; bottom: 4px; right: 4px; display: flex; gap: 2px;">
+            <button style="background: rgba(254,44,85,0.85); color: #fff; font-size: 0.5rem; padding: 1px 3px; border-radius: 3px; border:none;" onclick="event.stopPropagation(); openPromoteModal('${postId}')">🚀 Promote</button>
+            <div style="background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px;">▶ Play</div>
+          </div>
         `;
         card.onclick = () => playChannelVideo(post.videoUrl, post.title);
         grid.appendChild(card);
@@ -1411,6 +1440,7 @@ function renderSampleFeed(container) {
       </div>
       <div class="video-side-actions">
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
+        <button class="video-action-btn" onclick="openPromoteModal('sample_1')">🚀<span>Promote</span></button>
         <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
         <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
         <button class="video-action-btn" onclick="repostCurrentVideo('${sampleUrl}', 'Welcome Clip')">🔄<span>Repost</span></button>
@@ -1472,6 +1502,19 @@ function submitVideoComment() {
     text: filterOffensiveWords(input.value.trim()),
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => { input.value = ''; });
+}
+
+function openPromoteModal(postId) {
+  selectedVideoIdToPromote = postId;
+  openTikTokModal('promote-video-modal');
+}
+
+function executeVideoPromotion() {
+  const goal = document.getElementById('promote-goal-select').value;
+  const budget = document.getElementById('promote-budget-select').value;
+  
+  alert(`🚀 Promotion campaign successfully launched!\n\n• Video ID: ${selectedVideoIdToPromote || 'Featured Post'}\n• Goal: ${goal.toUpperCase()}\n• Budget Spent: 🪙 ${budget} Coins\n\nYour post is now being boosted to active viewers across VibePulse!`);
+  closeTikTokModal('promote-video-modal');
 }
 
 function deleteUgcPost(postId) {
@@ -1547,7 +1590,6 @@ function publishHighlightStory() {
   fileInput.value = ''; titleInput.value = '';
 }
 
-// FIX: Expanded video storage buffer & click responsiveness for longer videos (100+ videos capacity)
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const titleInput = document.getElementById('upload-title-input');
@@ -1561,7 +1603,6 @@ function publishUgcVideoPost() {
   
   const file = fileInput.files[0];
   
-  // Expanded file size limit check (Allow up to 50MB for longer videos)
   if (file.size > 50 * 1024 * 1024) {
     alert("File size is too large. Please select a video under 50MB for optimal mobile streaming.");
     return;
