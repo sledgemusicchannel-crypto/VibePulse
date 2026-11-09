@@ -216,7 +216,7 @@ body {
   border-radius: 14px;
   padding: 10px;
   width: 260px;
-  z-index: 2000;
+  z-index: 4000;
   box-shadow: 0 10px 30px rgba(0,0,0,0.85);
   flex-direction: column;
   gap: 6px;
@@ -368,7 +368,7 @@ body {
   position: absolute;
   bottom: 100px;
   right: 10px;
-  z-index: 9999 !important;
+  z-index: 400 !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -388,7 +388,7 @@ body {
   font-size: 1.25rem;
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
   pointer-events: auto !important;
-  z-index: 10000 !important;
+  z-index: 401 !important;
   position: relative;
 }
 
@@ -406,7 +406,7 @@ body {
   font-size: 0.68rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 10005 !important;
+  z-index: 405 !important;
   pointer-events: auto !important;
 }
 
@@ -497,7 +497,7 @@ body {
   font-weight: bold;
   font-size: 0.85rem;
   cursor: pointer;
-  z-index: 99999 !important;
+  z-index: 500 !important;
   box-shadow: 0 6px 20px rgba(254, 44, 85, 0.8);
   pointer-events: auto !important;
   touch-action: manipulation;
@@ -523,7 +523,7 @@ body {
   left: 0;
   right: 0;
   padding: 6px 10px 4px 10px;
-  z-index: 800;
+  z-index: 300;
   background: linear-gradient(0deg, var(--bg-dark) 0%, rgba(5,5,5,0.7) 70%, rgba(5,5,5,0) 100%);
   display: flex;
   flex-direction: column;
@@ -570,7 +570,7 @@ body {
   gap: 5px;
   width: 100%;
   position: relative;
-  z-index: 850;
+  z-index: 310;
 }
 
 .chat-translate-btn {
@@ -616,7 +616,7 @@ body {
   border: none;
   font-size: 0.95rem;
   cursor: pointer;
-  z-index: 900;
+  z-index: 320;
   pointer-events: auto !important;
 }
 
@@ -633,7 +633,7 @@ body {
   width: 250px;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  z-index: 1100;
+  z-index: 330;
   box-shadow: 0 10px 25px rgba(0,0,0,0.85);
   pointer-events: auto !important;
 }
@@ -675,7 +675,7 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  z-index: 900;
+  z-index: 500;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.6);
 }
 
@@ -732,28 +732,49 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.05rem; }
 
+/* FIX: Ensure high z-index and pointer events for modals and click targets */
 .tiktok-modal {
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.75); z-index: 3000; justify-content: center; align-items: flex-end;
+  display: none; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  background: rgba(0, 0, 0, 0.82); 
+  z-index: 9999 !important; 
+  justify-content: center; 
+  align-items: flex-end;
+  pointer-events: auto !important;
 }
 .tiktok-modal.active { display: flex !important; }
 
 .modal-body-container {
-  width: 100%; max-width: 480px; background: #18181b; color: #fff;
-  border-top-left-radius: 16px; border-top-right-radius: 16px;
-  padding: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto;
+  width: 100%; 
+  max-width: 480px; 
+  background: #18181b; 
+  color: #fff;
+  border-top-left-radius: 16px; 
+  border-top-right-radius: 16px;
+  padding: 16px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  max-height: 85vh; 
+  overflow-y: auto;
+  pointer-events: auto !important;
+  z-index: 10000 !important;
 }
 
 .modal-header {
   display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; padding-bottom: 6px; border-bottom: 1px solid #27272a;
 }
-.modal-close { cursor: pointer; font-size: 1rem; color: var(--text-muted); }
+.modal-close { cursor: pointer; font-size: 1rem; color: var(--text-muted); padding: 4px; z-index: 10001 !important; }
 
-.btn { padding: 8px 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+.btn { padding: 10px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; pointer-events: auto !important; z-index: 10001 !important; touch-action: manipulation; }
 .btn-primary { background: var(--accent-pink); color: white; }
 .btn-secondary { background: #27272a; color: white; }
 .btn-danger { background: #ef4444; color: white; }
-.input-field { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.8rem; }
+.input-field { width: 100%; padding: 9px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.8rem; pointer-events: auto !important; z-index: 10001 !important; }
 
 .room-grid-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .room-tab-btn {
@@ -882,7 +903,7 @@ body {
 </nav>
 
 <!-- MODALS -->
-<div class="tiktok-modal" id="plus-modal">
+<div class="tiktok-modal" id="plus-modal" onclick="if(event.target === this) closeTikTokModal('plus-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>🎥 Create & Post Content</span><span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span></div>
     <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video with Title & Description</button>
@@ -891,7 +912,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="highlight-story-modal">
+<div class="tiktok-modal" id="highlight-story-modal" onclick="if(event.target === this) closeTikTokModal('highlight-story-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>✨ Add Channel Highlight Story</span><span class="modal-close" onclick="closeTikTokModal('highlight-story-modal')">✕</span></div>
     <input type="file" id="story-file-input" class="input-field" accept="video/*,image/*">
@@ -900,17 +921,17 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="upload-video-modal">
+<div class="tiktok-modal" id="upload-video-modal" onclick="if(event.target === this) closeTikTokModal('upload-video-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>📤 Share Video to Feed & Channel</span><span class="modal-close" onclick="closeTikTokModal('upload-video-modal')">✕</span></div>
     <input type="file" id="upload-file-input" class="input-field" accept="video/*">
     <input type="text" id="upload-title-input" class="input-field" placeholder="Video Title (e.g., Amazing Sunset 🌅)">
     <textarea id="upload-caption-input" class="input-field" rows="2" placeholder="Video Description / Caption... #VibePulse"></textarea>
-    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post Video to Feed</button>
+    <button class="btn btn-primary" id="publish-video-btn" onclick="publishUgcVideoPost()">🚀 Post Video to Feed</button>
   </div>
 </div>
 
-<div class="tiktok-modal" id="comments-modal">
+<div class="tiktok-modal" id="comments-modal" onclick="if(event.target === this) closeTikTokModal('comments-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>💬 Video Comments</span><span class="modal-close" onclick="closeTikTokModal('comments-modal')">✕</span></div>
     <div id="video-comments-list" style="display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;"></div>
@@ -921,7 +942,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="share-modal">
+<div class="tiktok-modal" id="share-modal" onclick="if(event.target === this) closeTikTokModal('share-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>🔗 Share, Repost or Download</span><span class="modal-close" onclick="closeTikTokModal('share-modal')">✕</span></div>
     <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
@@ -935,7 +956,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="social-import-modal">
+<div class="tiktok-modal" id="social-import-modal" onclick="if(event.target === this) closeTikTokModal('social-import-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>🌐 Connect Instagram, FB & TikTok</span><span class="modal-close" onclick="closeTikTokModal('social-import-modal')">✕</span></div>
     <p style="font-size:0.75rem; color:#a1a1aa;">Fetch real online users and friends directly from social platforms:</p>
@@ -946,7 +967,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="duet-modal">
+<div class="tiktok-modal" id="duet-modal" onclick="if(event.target === this) closeTikTokModal('duet-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>👥 Record Duet</span><span class="modal-close" onclick="closeTikTokModal('duet-modal')">✕</span></div>
     <div style="width:100%; height:180px; background:#000; border-radius:8px; overflow:hidden;">
@@ -956,7 +977,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="voice-translator-modal">
+<div class="tiktok-modal" id="voice-translator-modal" onclick="if(event.target === this) closeTikTokModal('voice-translator-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>🌐 Multi-Language Voice & Chat Translator</span><span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span></div>
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Target Language:</label>
@@ -978,7 +999,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="chatrooms-modal">
+<div class="tiktok-modal" id="chatrooms-modal" onclick="if(event.target === this) closeTikTokModal('chatrooms-modal')">
   <div class="modal-body-container">
     <div class="modal-header">
       <span>💬 Chatrooms & Real-Time Search</span>
@@ -1014,7 +1035,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="profile-modal">
+<div class="tiktok-modal" id="profile-modal" onclick="if(event.target === this) closeTikTokModal('profile-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>👤 Creator Profile Dashboard & Channel</span><span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span></div>
     
@@ -1035,10 +1056,10 @@ body {
       </div>
     </div>
 
-    <!-- My Channel Videos Section -->
+    <!-- My Channel Videos Section (Expanded capacity for 100+ videos) -->
     <div style="border-top: 1px solid #27272a; padding-top: 6px;">
-      <div style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 4px;">📺 My Channel Videos (Tap to Play with Audio)</div>
-      <div id="my-channel-videos-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; background: #000; padding: 4px; border-radius: 6px;">
+      <div style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 4px;">📺 My Channel Videos (100+ Capacity Scrollable)</div>
+      <div id="my-channel-videos-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-height: 220px; overflow-y: auto; background: #000; padding: 4px; border-radius: 6px;">
         <div style="grid-column: span 3; font-size: 0.68rem; color: #a1a1aa; text-align: center;">Loading your channel videos...</div>
       </div>
     </div>
@@ -1064,7 +1085,7 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="shop-modal">
+<div class="tiktok-modal" id="shop-modal" onclick="if(event.target === this) closeTikTokModal('shop-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>🪙 Coin Recharge Store</span><span class="modal-close" onclick="closeTikTokModal('shop-modal')">✕</span></div>
     <div style="background:#1c1c1e; padding:10px; border-radius:8px; display:flex; justify-content:space-between;">
@@ -1092,7 +1113,7 @@ let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_av
 let selectedCoinSku = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
 
-// Global network status monitor to prevent webview ERR_NAME_NOT_RESOLVED screens
+// Global network status monitor to prevent webview connection errors
 window.addEventListener('offline', () => showOfflineFallbackScreen());
 window.addEventListener('online', () => loadUgcVideoFeed());
 
@@ -1281,7 +1302,8 @@ function loadUgcVideoFeed() {
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
 
   if (db) {
-    feedUnsubscribe = db.collection("ugc_videos").orderBy("timestamp", "desc").limit(30).onSnapshot((snapshot) => {
+    // Increased limit to 100 posts for expanded storage capacity
+    feedUnsubscribe = db.collection("ugc_videos").orderBy("timestamp", "desc").limit(100).onSnapshot((snapshot) => {
       feedContainer.innerHTML = '';
       if (snapshot.empty) { renderSampleFeed(feedContainer); return; }
       snapshot.forEach((docSnap) => {
@@ -1328,7 +1350,8 @@ function loadMyChannelVideos() {
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
 
   if (db) {
-    channelVideosUnsubscribe = db.collection("ugc_videos").where("authorUid", "==", myUid).onSnapshot((snapshot) => {
+    // Expanded query support for up to 100+ channel posts
+    channelVideosUnsubscribe = db.collection("ugc_videos").where("authorUid", "==", myUid).limit(100).onSnapshot((snapshot) => {
       grid.innerHTML = '';
       if (snapshot.empty) {
         grid.innerHTML = `<div style="grid-column: span 3; font-size: 0.68rem; color: #a1a1aa; text-align: center; padding: 10px;">No videos uploaded yet.</div>`;
@@ -1524,13 +1547,31 @@ function publishHighlightStory() {
   fileInput.value = ''; titleInput.value = '';
 }
 
+// FIX: Expanded video storage buffer & click responsiveness for longer videos (100+ videos capacity)
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const titleInput = document.getElementById('upload-title-input');
   const captionInput = document.getElementById('upload-caption-input');
-  if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a video file."); return; }
+  const postBtn = document.getElementById('publish-video-btn');
+
+  if (!fileInput.files || fileInput.files.length === 0) { 
+    alert("Please select a video file."); 
+    return; 
+  }
   
   const file = fileInput.files[0];
+  
+  // Expanded file size limit check (Allow up to 50MB for longer videos)
+  if (file.size > 50 * 1024 * 1024) {
+    alert("File size is too large. Please select a video under 50MB for optimal mobile streaming.");
+    return;
+  }
+
+  if (postBtn) {
+    postBtn.innerText = "⏳ Processing & Uploading...";
+    postBtn.disabled = true;
+  }
+
   const reader = new FileReader();
 
   reader.onload = function(e) {
@@ -1547,18 +1588,40 @@ function publishUgcVideoPost() {
         caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
+        if (postBtn) {
+          postBtn.innerText = "🚀 Post Video to Feed";
+          postBtn.disabled = false;
+        }
         closeTikTokModal('upload-video-modal');
         fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
         alert("Video posted successfully and indexed to your channel!");
         loadUgcVideoFeed();
         loadMyChannelVideos();
-      }).catch(err => alert("Error posting video: " + err.message));
+      }).catch(err => {
+        if (postBtn) {
+          postBtn.innerText = "🚀 Post Video to Feed";
+          postBtn.disabled = false;
+        }
+        alert("Error posting video: " + err.message);
+      });
     } else {
+      if (postBtn) {
+        postBtn.innerText = "🚀 Post Video to Feed";
+        postBtn.disabled = false;
+      }
       alert("Video posted locally!");
       closeTikTokModal('upload-video-modal');
       loadUgcVideoFeed();
       loadMyChannelVideos();
     }
+  };
+
+  reader.onerror = function() {
+    if (postBtn) {
+      postBtn.innerText = "🚀 Post Video to Feed";
+      postBtn.disabled = false;
+    }
+    alert("Error reading video file. Please try a different format or smaller file.");
   };
 
   reader.readAsDataURL(file);
@@ -1838,7 +1901,7 @@ function executeCoinRecharge() {
 
 function startGlobalHudSync() {
   if (!db) return;
-  db.collection("users").limit(30).onSnapshot((snapshot) => {
+  db.collection("users").limit(100).onSnapshot((snapshot) => {
     document.getElementById('top-hud-count').innerText = Math.max(snapshot.size, 30);
   });
 }
@@ -1953,4 +2016,3 @@ function handleBackNavigation() {
 </script>
 </body>
 </html>
-
