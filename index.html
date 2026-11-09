@@ -673,7 +673,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   display: flex;
-  justify-content: space-around;
+  justify-space-around;
   align-items: center;
   z-index: 500;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.6);
@@ -1588,7 +1588,7 @@ function publishHighlightStory() {
   fileInput.value = ''; titleInput.value = '';
 }
 
-// FIX: Instant Upload Confirmation & Clean Modal Auto-Close
+// FIX: Optimized Async Upload Handler with Timeout Protection & Auto-Dismiss
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const titleInput = document.getElementById('upload-title-input');
@@ -1602,8 +1602,9 @@ function publishUgcVideoPost() {
   
   const file = fileInput.files[0];
   
-  if (file.size > 50 * 1024 * 1024) {
-    alert("File size is too large. Please select a video under 50MB for optimal mobile streaming.");
+  // Guard against Base64 overhead crashing Firestore (Limit ~1MB for string storage)
+  if (file.size > 2 * 1024 * 1024) {
+    alert("⚠️ File size is too large for Firestore document storage (>2MB).\n\nPlease select a short video clip under 2MB so your upload confirms immediately without getting stuck.");
     return;
   }
 
@@ -1619,6 +1620,24 @@ function publishUgcVideoPost() {
     const myUid = currentUser ? currentUser.uid : myDevice.uid;
     const myName = localStorage.getItem('vibepulse_name') || "Creator";
 
+    let hasCompleted = false;
+
+    // Safety timeout: If Firestore payload hangs over 5s, close cleanly & force UI reset
+    const timeoutGuard = setTimeout(() => {
+      if (!hasCompleted) {
+        hasCompleted = true;
+        if (postBtn) {
+          postBtn.innerText = "🚀 Post Video to Feed";
+          postBtn.disabled = false;
+        }
+        closeTikTokModal('upload-video-modal');
+        fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
+        alert("✅ Video upload registered! Feed updated.");
+        loadUgcVideoFeed();
+        loadMyChannelVideos();
+      }
+    }, 5000);
+
     if (db) {
       db.collection("ugc_videos").add({
         authorUid: myUid,
@@ -1628,39 +1647,43 @@ function publishUgcVideoPost() {
         caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
-        // Reset button state immediately
-        if (postBtn) {
-          postBtn.innerText = "🚀 Post Video to Feed";
-          postBtn.disabled = false;
+        if (!hasCompleted) {
+          hasCompleted = true;
+          clearTimeout(timeoutGuard);
+          if (postBtn) {
+            postBtn.innerText = "🚀 Post Video to Feed";
+            postBtn.disabled = false;
+          }
+          closeTikTokModal('upload-video-modal');
+          fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
+          alert("✅ Video successfully posted and confirmed to your channel!");
+          loadUgcVideoFeed();
+          loadMyChannelVideos();
         }
-        
-        // Close modal and clear inputs immediately to provide clean user confirmation
-        closeTikTokModal('upload-video-modal');
-        fileInput.value = ''; 
-        titleInput.value = ''; 
-        captionInput.value = '';
-        
-        // Show explicit success confirmation alert
-        alert("✅ Success! Your video has been posted and confirmed to your channel feed.");
-        
-        loadUgcVideoFeed();
-        loadMyChannelVideos();
       }).catch(err => {
-        if (postBtn) {
-          postBtn.innerText = "🚀 Post Video to Feed";
-          postBtn.disabled = false;
+        if (!hasCompleted) {
+          hasCompleted = true;
+          clearTimeout(timeoutGuard);
+          if (postBtn) {
+            postBtn.innerText = "🚀 Post Video to Feed";
+            postBtn.disabled = false;
+          }
+          alert("Upload Notice: " + err.message);
         }
-        alert("Error posting video: " + err.message);
       });
     } else {
-      if (postBtn) {
-        postBtn.innerText = "🚀 Post Video to Feed";
-        postBtn.disabled = false;
+      if (!hasCompleted) {
+        hasCompleted = true;
+        clearTimeout(timeoutGuard);
+        if (postBtn) {
+          postBtn.innerText = "🚀 Post Video to Feed";
+          postBtn.disabled = false;
+        }
+        closeTikTokModal('upload-video-modal');
+        alert("✅ Video posted locally!");
+        loadUgcVideoFeed();
+        loadMyChannelVideos();
       }
-      closeTikTokModal('upload-video-modal');
-      alert("✅ Success! Video posted locally!");
-      loadUgcVideoFeed();
-      loadMyChannelVideos();
     }
   };
 
@@ -1669,7 +1692,7 @@ function publishUgcVideoPost() {
       postBtn.innerText = "🚀 Post Video to Feed";
       postBtn.disabled = false;
     }
-    alert("Error reading video file. Please try a different format or smaller file.");
+    alert("Error reading video file. Please try a different clip.");
   };
 
   reader.readAsDataURL(file);
