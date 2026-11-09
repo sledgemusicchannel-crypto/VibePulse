@@ -54,26 +54,25 @@ body {
   width: 100%;
 }
 
-/* Top Bar Overlay - Menu Button moved to front position, Online status & Menu optimized */
+/* Top Bar Overlay */
 .top-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  padding: max(6px, env(safe-area-inset-top)) 8px 6px 8px;
+  padding: max(6px, env(safe-area-inset-top)) 10px 6px 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 500;
   background: linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.8) 70%, rgba(5,5,5,0) 100%);
   gap: 6px;
-  flex-wrap: nowrap;
 }
 
 .left-header-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -82,9 +81,9 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 4px 6px;
+  padding: 5px 8px;
   border-radius: 10px;
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   font-weight: bold;
   cursor: pointer;
   flex-shrink: 0;
@@ -92,17 +91,17 @@ body {
 }
 
 .brand-logo {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   white-space: nowrap;
 }
 
 .brand-badge {
   background: var(--accent-pink);
-  font-size: 0.4rem;
+  font-size: 0.42rem;
   padding: 1px 3px;
   border-radius: 4px;
   font-weight: bold;
@@ -110,8 +109,8 @@ body {
 
 .avatar-ring-container {
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   padding: 2px;
   background: linear-gradient(135deg, #22c55e, #25f4ee);
@@ -134,7 +133,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: bold;
   color: #fff;
 }
@@ -197,7 +196,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   padding: 10px;
-  width: 250px;
+  width: 240px;
   z-index: 2000;
   box-shadow: 0 10px 30px rgba(0,0,0,0.85);
   flex-direction: column;
@@ -222,22 +221,6 @@ body {
   gap: 8px;
   cursor: pointer;
   pointer-events: auto !important;
-}
-
-.menu-translator-section {
-  background: rgba(37, 244, 238, 0.08);
-  border: 1px solid rgba(37, 244, 238, 0.3);
-  padding: 8px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.menu-section-title {
-  font-size: 0.68rem;
-  font-weight: bold;
-  color: var(--accent-cyan);
 }
 
 .menu-radio-section {
@@ -276,7 +259,6 @@ body {
   text-align: center;
 }
 
-/* Media Container Fixed Properly Behind Overlays */
 .media-container {
   width: 100%;
   height: 100%;
@@ -320,7 +302,7 @@ body {
 
 .video-overlay-info {
   position: absolute;
-  bottom: 85px;
+  bottom: 95px;
   left: 12px;
   right: 75px;
   z-index: 20;
@@ -345,10 +327,9 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* Side Action Buttons */
 .video-side-actions {
   position: absolute;
-  bottom: 95px;
+  bottom: 100px;
   right: 10px;
   z-index: 9999 !important;
   display: flex;
@@ -392,7 +373,6 @@ body {
   pointer-events: auto !important;
 }
 
-/* Left-Side Floating Controls */
 .left-side-floating-controls {
   position: absolute;
   top: 75px;
@@ -468,10 +448,9 @@ body {
   z-index: 10;
 }
 
-/* High Z-Index & Generous Touch Area for PK Battle Toggle Button */
 .live-pk-toggle-btn {
   position: absolute;
-  bottom: 125px;
+  bottom: 130px;
   right: 12px;
   background: linear-gradient(135deg, #fe2c55, #ff007f);
   color: white;
@@ -503,7 +482,7 @@ body {
 
 .bottom-overlay {
   position: absolute;
-  bottom: 58px;
+  bottom: 60px;
   left: 0;
   right: 0;
   padding: 6px 10px 4px 10px;
@@ -511,12 +490,12 @@ body {
   background: linear-gradient(0deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.8) 70%, rgba(5,5,5,0) 100%);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   pointer-events: auto;
 }
 
 .chat-feed {
-  max-height: 58px;
+  max-height: 56px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -548,13 +527,31 @@ body {
   color: var(--accent-cyan);
 }
 
+/* Chat Input Row with In-Chat Translator Action Button */
 .chat-input-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   width: 100%;
   position: relative;
   z-index: 850;
+}
+
+.chat-translate-btn {
+  background: rgba(37, 244, 238, 0.2);
+  border: 1px solid rgba(37, 244, 238, 0.5);
+  color: var(--accent-cyan);
+  padding: 6px 8px;
+  border-radius: 16px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+  pointer-events: auto !important;
+  flex-shrink: 0;
 }
 
 .chat-input-wrapper {
@@ -629,10 +626,10 @@ body {
   flex-shrink: 0;
 }
 
-/* Raised Bottom Navigation Bar for Universal Compatibility & Clearance */
+/* Elevated Floating Bottom Bar */
 .bottom-nav {
   position: absolute;
-  bottom: 4px;
+  bottom: 6px;
   left: 6px;
   right: 6px;
   height: 52px;
@@ -888,22 +885,8 @@ body {
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
     <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
 
-    <div class="menu-translator-section">
-      <div class="menu-section-title">🌐 Multi-Language Voice Translator</div>
-      <div style="display:flex; gap:4px;">
-        <select id="target-lang-select" class="radio-select-menu" style="flex:1;">
-          <option value="en">English 🇬🇧</option>
-          <option value="vi">Vietnamese 🇻🇳</option>
-          <option value="es">Spanish 🇪🇸</option>
-          <option value="fr">French 🇫🇷</option>
-          <option value="zh">Chinese 🇨🇳</option>
-        </select>
-        <button type="button" class="btn btn-primary" style="padding:4px 8px; font-size:0.65rem;" onclick="openVoiceTranslatorModal()">🎤 Translate</button>
-      </div>
-    </div>
-
     <div class="menu-radio-section">
-      <div class="menu-section-title">📻 Radio Station Controller</div>
+      <div style="font-size:0.68rem; font-weight:bold; color:var(--accent-cyan);">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
         <option value="https://stream.zeno.fm/f95a5yt254zuv">📻 90's Retro Hits</option>
@@ -937,7 +920,10 @@ body {
       <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, tap '+' to post your own video!</div>
     </div>
 
+    <!-- Chat Input Row with In-Chat Voice & Text Translator Button -->
     <form class="chat-input-row" onsubmit="sendChatMessage(); return false;">
+      <button type="button" class="chat-translate-btn" onclick="openVoiceTranslatorModal()" title="Voice & Text Translator">🎤 Translate</button>
+      
       <div class="chat-input-wrapper">
         <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
         <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
@@ -1028,12 +1014,20 @@ body {
 
 <div class="tiktok-modal" id="voice-translator-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>🌐 Voice Translator</span><span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span></div>
+    <div class="modal-header"><span>🌐 Multi-Language Voice & Chat Translator</span><span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span></div>
+    <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Target Language:</label>
+    <select id="target-lang-select" class="input-field" style="padding:6px; font-size:0.8rem;">
+      <option value="en">English 🇬🇧</option>
+      <option value="vi">Vietnamese 🇻🇳</option>
+      <option value="es">Spanish 🇪🇸</option>
+      <option value="fr">French 🇫🇷</option>
+      <option value="zh">Chinese 🇨🇳</option>
+    </select>
     <textarea id="translator-input-text" class="input-field" rows="2" placeholder="Type or record speech..."></textarea>
     <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:8px; border-radius:8px; font-size:0.8rem; color:#25f4ee;">[Translation]</div>
     <div style="display:flex; gap:6px;">
-      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Record</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Send</button>
+      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Record Voice</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Insert & Send</button>
     </div>
   </div>
 </div>
@@ -1516,7 +1510,7 @@ function toggleInteractiveMicRecording() {
   setTimeout(() => {
     input.value = "Hello world";
     updateLiveTranslationPreview();
-    btn.innerText = "🎙️ Record";
+    btn.innerText = "🎙️ Record Voice";
   }, 1500);
 }
 
@@ -1525,7 +1519,6 @@ function submitVoiceTranslation() {
   if (!input || !input.value.trim()) return;
   document.getElementById('chat-box').value = input.value.trim();
   closeTikTokModal('voice-translator-modal');
-  sendChatMessage();
 }
 
 function handleBackNavigation() { switchTab('feed'); }
