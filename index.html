@@ -732,7 +732,6 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.05rem; }
 
-/* FIX: Absolute guarantee for clickable modal buttons & inputs */
 .tiktok-modal {
   display: none; 
   position: fixed; 
@@ -932,7 +931,7 @@ body {
   </div>
 </div>
 
-<!-- Promote Video Modal (TikTok-Style Video Promotion Feature) -->
+<!-- Promote Video Modal -->
 <div class="tiktok-modal" id="promote-video-modal" onclick="if(event.target === this) closeTikTokModal('promote-video-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>🚀 Promote Your Video (TikTok Style)</span><span class="modal-close" onclick="closeTikTokModal('promote-video-modal')">✕</span></div>
@@ -1082,7 +1081,7 @@ body {
       </div>
     </div>
 
-    <!-- My Channel Videos Section (Expanded capacity for 100+ videos) -->
+    <!-- My Channel Videos Section -->
     <div style="border-top: 1px solid #27272a; padding-top: 6px;">
       <div style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 4px;">📺 My Channel Videos (100+ Capacity Scrollable)</div>
       <div id="my-channel-videos-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-height: 220px; overflow-y: auto; background: #000; padding: 4px; border-radius: 6px;">
@@ -1139,7 +1138,6 @@ let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_av
 let selectedCoinSku = null, selectedVideoIdToPromote = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
 
-// Global network status monitor to prevent webview connection errors
 window.addEventListener('offline', () => showOfflineFallbackScreen());
 window.addEventListener('online', () => loadUgcVideoFeed());
 
@@ -1590,6 +1588,7 @@ function publishHighlightStory() {
   fileInput.value = ''; titleInput.value = '';
 }
 
+// FIX: Instant Upload Confirmation & Clean Modal Auto-Close
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const titleInput = document.getElementById('upload-title-input');
@@ -1629,13 +1628,21 @@ function publishUgcVideoPost() {
         caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
+        // Reset button state immediately
         if (postBtn) {
           postBtn.innerText = "🚀 Post Video to Feed";
           postBtn.disabled = false;
         }
+        
+        // Close modal and clear inputs immediately to provide clean user confirmation
         closeTikTokModal('upload-video-modal');
-        fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
-        alert("Video posted successfully and indexed to your channel!");
+        fileInput.value = ''; 
+        titleInput.value = ''; 
+        captionInput.value = '';
+        
+        // Show explicit success confirmation alert
+        alert("✅ Success! Your video has been posted and confirmed to your channel feed.");
+        
         loadUgcVideoFeed();
         loadMyChannelVideos();
       }).catch(err => {
@@ -1650,8 +1657,8 @@ function publishUgcVideoPost() {
         postBtn.innerText = "🚀 Post Video to Feed";
         postBtn.disabled = false;
       }
-      alert("Video posted locally!");
       closeTikTokModal('upload-video-modal');
+      alert("✅ Success! Video posted locally!");
       loadUgcVideoFeed();
       loadMyChannelVideos();
     }
