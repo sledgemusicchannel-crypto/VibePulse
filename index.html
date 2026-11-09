@@ -1246,8 +1246,16 @@ function handleUserSignOut() {
 }
 
 function loadUgcVideoFeed() {
+  const preview = document.getElementById('preview-area');
+  if (!preview) return;
+
+  if (!document.getElementById('ugc-video-feed')) {
+    preview.innerHTML = '<div class="video-feed-container" id="ugc-video-feed"></div>';
+  }
+
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
+
   if (feedUnsubscribe) feedUnsubscribe();
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
 
@@ -1325,6 +1333,7 @@ function loadMyChannelVideos() {
 function playChannelVideo(videoUrl, title) {
   closeTikTokModal('profile-modal');
   const preview = document.getElementById('preview-area');
+  if (!preview) return;
   
   preview.innerHTML = `
     <div style="width:100%; height:100%; position:relative; background:#000; display:flex; justify-content:center; align-items:center;">
@@ -1339,7 +1348,7 @@ function playChannelVideo(videoUrl, title) {
   if (activeVideo) {
     activeVideo.muted = false;
     activeVideo.play().catch(err => {
-      console.log("Autoplay unmuted blocked by browser, controls enabled:", err);
+      console.log("Playback failed or unmuted autoplay blocked:", err);
     });
   }
 }
@@ -1499,28 +1508,39 @@ function publishUgcVideoPost() {
   const titleInput = document.getElementById('upload-title-input');
   const captionInput = document.getElementById('upload-caption-input');
   if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a video file."); return; }
-  const fileUrl = URL.createObjectURL(fileInput.files[0]);
-  const myUid = currentUser ? currentUser.uid : myDevice.uid;
-  const myName = localStorage.getItem('vibepulse_name') || "Creator";
-  if (db) {
-    db.collection("ugc_videos").add({
-      authorUid: myUid, authorName: myName, videoUrl: fileUrl,
-      title: filterOffensiveWords(titleInput.value || ''),
-      caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
+  
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const fileDataUrl = e.target.result;
+    const myUid = currentUser ? currentUser.uid : myDevice.uid;
+    const myName = localStorage.getItem('vibepulse_name') || "Creator";
+
+    if (db) {
+      db.collection("ugc_videos").add({
+        authorUid: myUid,
+        authorName: myName,
+        videoUrl: fileDataUrl,
+        title: filterOffensiveWords(titleInput.value || ''),
+        caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        closeTikTokModal('upload-video-modal');
+        fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
+        alert("Video posted successfully and indexed to your channel!");
+        loadUgcVideoFeed();
+        loadMyChannelVideos();
+      }).catch(err => alert("Error posting video: " + err.message));
+    } else {
+      alert("Video posted locally!");
       closeTikTokModal('upload-video-modal');
-      fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
-      alert("Video posted successfully and indexed to your channel!");
       loadUgcVideoFeed();
       loadMyChannelVideos();
-    }).catch(err => alert("Error posting video: " + err.message));
-  } else {
-    alert("Video posted locally!");
-    closeTikTokModal('upload-video-modal');
-    loadUgcVideoFeed();
-    loadMyChannelVideos();
-  }
+    }
+  };
+
+  reader.readAsDataURL(file);
 }
 
 function likeUgcPost() {
@@ -1904,8 +1924,10 @@ function handleBackNavigation() {
   document.querySelectorAll('.tiktok-modal.active').forEach(m => m.classList.remove('active'));
   document.getElementById('feature-dropdown-menu').classList.remove('active');
   const preview = document.getElementById('preview-area');
-  preview.innerHTML = '<div class="video-feed-container" id="ugc-video-feed"></div>';
-  loadUgcVideoFeed();
+  if (preview) {
+    preview.innerHTML = '<div class="video-feed-container" id="ugc-video-feed"></div>';
+    loadUgcVideoFeed();
+  }
 }
 </script>
 </body>
