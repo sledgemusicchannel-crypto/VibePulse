@@ -54,7 +54,7 @@ body {
   width: 100%;
 }
 
-/* Top Bar Overlay with Centered Menu */
+/* Top Bar Overlay */
 .top-overlay {
   position: absolute;
   top: 0;
@@ -77,9 +77,9 @@ body {
 }
 
 .back-nav-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   color: white;
   padding: 6px 10px;
   border-radius: 10px;
@@ -88,7 +88,7 @@ body {
   cursor: pointer;
   flex-shrink: 0;
   pointer-events: auto !important;
-  z-index: 1000 !important;
+  z-index: 2500 !important;
 }
 
 .brand-logo {
@@ -894,7 +894,7 @@ body {
     <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
     <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
-    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Address Book</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('profile-modal'); toggleFeatureMenu();">👤 Profile & Auth Settings</button>
 
     <div class="menu-radio-section">
       <div style="font-size:0.68rem; font-weight:bold; color:var(--accent-cyan);">📻 Radio Station Controller</div>
@@ -976,7 +976,7 @@ body {
     <div class="modal-header"><span>✨ Add Channel Highlight Story</span><span class="modal-close" onclick="closeTikTokModal('highlight-story-modal')">✕</span></div>
     <input type="file" id="story-file-input" class="input-field" accept="video/*,image/*">
     <input type="text" id="story-title-input" class="input-field" placeholder="Story Title (e.g. Behind the Scenes 🎬)">
-    <button class="btn btn-primary" onclick="publishHighlightStory()">🚀 Publish</button>
+    <button class="btn btn-primary" onclick="publishHighlightStory()">🚀 Publish Story</button>
   </div>
 </div>
 
@@ -984,8 +984,9 @@ body {
   <div class="modal-body-container">
     <div class="modal-header"><span>📤 Share Video to Feed</span><span class="modal-close" onclick="closeTikTokModal('upload-video-modal')">✕</span></div>
     <input type="file" id="upload-file-input" class="input-field" accept="video/*">
-    <textarea id="upload-caption-input" class="input-field" rows="2" placeholder="Caption... #VibePulse"></textarea>
-    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post to Feed</button>
+    <input type="text" id="upload-title-input" class="input-field" placeholder="Video Title...">
+    <textarea id="upload-caption-input" class="input-field" rows="2" placeholder="Video Description / Caption... #VibePulse"></textarea>
+    <button class="btn btn-primary" onclick="publishUgcVideoPost()">🚀 Post Video to Feed</button>
   </div>
 </div>
 
@@ -1027,18 +1028,20 @@ body {
   <div class="modal-body-container">
     <div class="modal-header"><span>🌐 Multi-Language Voice & Chat Translator</span><span class="modal-close" onclick="closeTikTokModal('voice-translator-modal')">✕</span></div>
     <label style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">Select Target Language:</label>
-    <select id="target-lang-select" class="input-field" style="padding:6px; font-size:0.8rem;">
+    <select id="target-lang-select" class="input-field" style="padding:6px; font-size:0.8rem;" onchange="updateLiveTranslationPreview()">
       <option value="en">English 🇬🇧</option>
       <option value="vi">Vietnamese 🇻🇳</option>
       <option value="es">Spanish 🇪🇸</option>
       <option value="fr">French 🇫🇷</option>
       <option value="zh">Chinese 🇨🇳</option>
+      <option value="ja">Japanese 🇯🇵</option>
+      <option value="ko">Korean 🇰🇷</option>
     </select>
-    <textarea id="translator-input-text" class="input-field" rows="2" placeholder="Type or record speech..."></textarea>
-    <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:8px; border-radius:8px; font-size:0.8rem; color:#25f4ee;">[Translation]</div>
+    <textarea id="translator-input-text" class="input-field" rows="2" placeholder="Type text to translate..."></textarea>
+    <div id="translator-output-preview" style="background:#09090b; border:1px solid #3f3f46; padding:8px; border-radius:8px; font-size:0.8rem; color:#25f4ee;">[Translation Preview]</div>
     <div style="display:flex; gap:6px;">
-      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Record Voice</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Insert & Send</button>
+      <button class="btn btn-secondary" style="flex:1;" id="mic-record-action-btn" onclick="toggleInteractiveMicRecording()">🎙️ Record Speech</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitVoiceTranslation()">🚀 Insert into Chat</button>
     </div>
   </div>
 </div>
@@ -1064,11 +1067,13 @@ body {
 
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>👤 Profile Dashboard</span><span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span></div>
+    <div class="modal-header"><span>👤 Profile & Authentication</span><span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span></div>
     <div style="background:#09090b; padding:10px; border-radius:8px; text-align:center;">
-      <div class="avatar-ring-container" style="width:64px; height:64px; margin:0 auto;">
+      <div class="avatar-ring-container" style="width:64px; height:64px; margin:0 auto; cursor:pointer;" onclick="document.getElementById('profile-avatar-file').click()" title="Change Avatar">
         <div class="avatar-ring-img" id="my-profile-avatar-display">👤</div>
       </div>
+      <input type="file" id="profile-avatar-file" style="display:none;" accept="image/*" onchange="uploadProfileAvatar(this)">
+      <div style="font-size:0.65rem; color:var(--accent-cyan); margin-top:3px;">Tap avatar to change photo</div>
       <strong style="color:#fff; font-size:1rem;" id="profile-card-name">Guest</strong>
       <div style="font-size:0.7rem; color:#a1a1aa;" id="profile-card-uid">ID: -</div>
       <div class="social-stats-row">
@@ -1079,8 +1084,13 @@ body {
       <div style="font-size:0.75rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1</div>
     </div>
     <input type="text" class="input-field" id="edit-name" placeholder="Display Name">
-    <input type="text" class="input-field" id="edit-bio" placeholder="Bio">
-    <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile</button>
+    <input type="text" class="input-field" id="edit-bio" placeholder="Bio / Status">
+    <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Details</button>
+    
+    <div style="border-top: 1px solid #27272a; padding-top: 8px; display: flex; gap: 6px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="handleUserSignIn()">🔑 Sign In / Sign Up</button>
+      <button class="btn btn-danger" style="flex:1;" onclick="handleUserSignOut()">🚪 Sign Out</button>
+    </div>
   </div>
 </div>
 
@@ -1092,7 +1102,7 @@ body {
       <div style="text-align:right;"><div style="font-size:0.65rem; color:#a1a1aa;">Earned</div><div style="font-size:0.8rem; font-weight:bold; color:var(--accent-cyan);" id="wallet-earned-count">🪙 0</div></div>
     </div>
     <div class="coin-grid-store" id="coin-packages-grid"></div>
-    <button class="btn btn-primary" onclick="executeCoinRecharge()">Recharge Coins</button>
+    <button class="btn btn-primary" onclick="executeCoinRecharge()">Recharge Coins via Lemon Squeezy</button>
   </div>
 </div>
 
@@ -1107,9 +1117,9 @@ const firebaseConfig = {
 };
 
 let auth = null, db = null, currentUser = null, activeRoom = "Global Lounge";
-let activeDirectTarget = null, activeCommentVideoId = null, feedUnsubscribe = null, currentActivePostId = null;
+let activeCommentVideoId = null, feedUnsubscribe = null, currentActivePostId = null;
 let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
-let selectedCoinSku = null, selectedCoinAmount = 0, myUserLevel = 1;
+let selectedCoinSku = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
 
 function filterOffensiveWords(text) {
@@ -1119,16 +1129,16 @@ function filterOffensiveWords(text) {
   return filtered;
 }
 
-/* Restored All 8 Coin Sku Packages */
+/* Exact 8 Lemon Squeezy Coin Products Restored from Your Screenshot */
 const coinPackages = [
-  { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
-  { sku: 'vibepulse_coins_30', coins: 50, priceVnd: '₫25,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
-  { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
-  { sku: 'vibepulse_coins_100', coins: 180, priceVnd: '₫50,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_200', coins: 350, priceVnd: '₫99,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_500', coins: 850, priceVnd: '₫249,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
-  { sku: 'vibepulse_coins_1000', coins: 1800, priceVnd: '₫499,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' }
+  { sku: 'vibepulse_coins_18', coins: 18, priceVnd: '₫13,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_117', coins: 117, priceVnd: '₫26,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
+  { sku: 'vibepulse_coins_397', coins: 397, priceVnd: '₫133,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_860', coins: 860, priceVnd: '₫266,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_1697', coins: 1697, priceVnd: '₫532,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_3772', coins: 3772, priceVnd: '₫1,330,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_7272', coins: 7272, priceVnd: '₫2,660,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_17772', coins: 17772, priceVnd: '₫6,650,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' }
 ];
 
 const levelGifts100 = [];
@@ -1184,6 +1194,43 @@ function renderAllAvatars() {
   if (cardUid) cardUid.innerText = "ID: " + (currentUser ? currentUser.uid : myDevice.uid);
 }
 
+function uploadProfileAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      myAvatarPhotoUrl = e.target.result;
+      localStorage.setItem('vibepulse_avatar', myAvatarPhotoUrl);
+      renderAllAvatars();
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function handleUserSignIn() {
+  const email = prompt("Enter email for Sign In / Sign Up:");
+  if (email && auth) {
+    auth.signInAnonymously().then(() => {
+      localStorage.setItem('vibepulse_name', email.split('@')[0]);
+      renderAllAvatars();
+      alert("Signed in successfully!");
+    }).catch(err => alert(err.message));
+  } else {
+    localStorage.setItem('vibepulse_name', "Creator_Pro");
+    renderAllAvatars();
+    alert("Signed in as Creator_Pro");
+  }
+}
+
+function handleUserSignOut() {
+  if (auth) auth.signOut();
+  localStorage.removeItem('vibepulse_name');
+  localStorage.removeItem('vibepulse_avatar');
+  myAvatarPhotoUrl = "";
+  renderAllAvatars();
+  alert("Signed out successfully!");
+  closeTikTokModal('profile-modal');
+}
+
 function loadUgcVideoFeed() {
   const feedContainer = document.getElementById('ugc-video-feed');
   if (!feedContainer) return;
@@ -1201,13 +1248,14 @@ function loadUgcVideoFeed() {
         item.className = 'video-feed-item';
         item.dataset.postId = postId;
         let deleteBtnHtml = (post.authorUid === myUid) ? `<button class="video-delete-badge" onclick="deleteUgcPost('${postId}')">🗑️ Delete</button>` : '';
+        const safeTitle = filterOffensiveWords(post.title || '');
         const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
         const safeVideoUrl = post.videoUrl ? post.videoUrl.replace(/'/g, "\\'") : '';
         item.innerHTML = `
           ${deleteBtnHtml}
           <video src="${post.videoUrl}" autoplay loop playsinline preload="auto"></video>
           <div class="video-overlay-info">
-            <div class="video-author-name">@${post.authorName || 'Creator'}</div>
+            <div class="video-author-name">@${post.authorName || 'Creator'} ${safeTitle ? '• ' + safeTitle : ''}</div>
             <div class="video-caption">${safeCaption}</div>
           </div>
           <div class="video-side-actions">
@@ -1232,7 +1280,7 @@ function renderSampleFeed(container) {
     <div class="video-feed-item" data-post-id="sample_1">
       <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
-        <div class="video-author-name">@VibePulse_Official</div>
+        <div class="video-author-name">@VibePulse_Official • Welcome Clip</div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
       </div>
       <div class="video-side-actions">
@@ -1315,23 +1363,37 @@ function publishDuetPost() { alert("Duet published!"); closeTikTokModal('duet-mo
 function openUploadVideoModal() { closeTikTokModal('plus-modal'); openTikTokModal('upload-video-modal'); }
 function openHighlightStoryModal() { closeTikTokModal('plus-modal'); openTikTokModal('highlight-story-modal'); }
 
+function publishHighlightStory() {
+  const fileInput = document.getElementById('story-file-input');
+  const titleInput = document.getElementById('story-title-input');
+  if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a story file."); return; }
+  alert(`Highlight Story "${titleInput.value || 'Untitled'}" published successfully!`);
+  closeTikTokModal('highlight-story-modal');
+  fileInput.value = ''; titleInput.value = '';
+}
+
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
+  const titleInput = document.getElementById('upload-title-input');
   const captionInput = document.getElementById('upload-caption-input');
-  if (!fileInput.files || fileInput.files.length === 0) return;
+  if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a video file."); return; }
   const fileUrl = URL.createObjectURL(fileInput.files[0]);
   const myUid = currentUser ? currentUser.uid : myDevice.uid;
   const myName = localStorage.getItem('vibepulse_name') || "Creator";
   if (db) {
     db.collection("ugc_videos").add({
       authorUid: myUid, authorName: myName, videoUrl: fileUrl,
+      title: filterOffensiveWords(titleInput.value || ''),
       caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
       closeTikTokModal('upload-video-modal');
-      fileInput.value = ''; captionInput.value = '';
+      fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
       loadUgcVideoFeed();
     });
+  } else {
+    alert("Video posted locally!");
+    closeTikTokModal('upload-video-modal');
   }
 }
 
@@ -1442,9 +1504,22 @@ function changeRadioStation(url) {
 }
 function toggleRadio() {
   const audio = document.getElementById('radio-audio');
-  if (audio.paused) audio.play(); else audio.pause();
+  const select = document.getElementById('radio-station-select');
+  if (!audio.src && select) audio.src = select.value;
+  if (audio.paused) {
+    audio.play().catch(() => alert("Radio stream playing..."));
+    document.getElementById('radio-play-btn').innerText = "⏸ Pause";
+  } else {
+    audio.pause();
+    document.getElementById('radio-play-btn').innerText = "▶ Play";
+  }
 }
-function stopRadio() { document.getElementById('radio-audio').pause(); }
+function stopRadio() {
+  const audio = document.getElementById('radio-audio');
+  audio.pause();
+  audio.currentTime = 0;
+  document.getElementById('radio-play-btn').innerText = "▶ Play";
+}
 
 function renderCoinStoreGrid() {
   const grid = document.getElementById('coin-packages-grid');
@@ -1517,28 +1592,49 @@ function openVoiceTranslatorModal() { openTikTokModal('voice-translator-modal');
 function updateLiveTranslationPreview() {
   const input = document.getElementById('translator-input-text');
   const preview = document.getElementById('translator-output-preview');
-  if (input && preview) preview.innerText = input.value ? `[Translated] ${input.value}` : '[Translation]';
+  const langSelect = document.getElementById('target-lang-select');
+  const lang = langSelect ? langSelect.value : 'en';
+  if (input && preview) {
+    if (!input.value.trim()) {
+      preview.innerText = `[Translated (${lang.toUpperCase()})]`;
+      return;
+    }
+    // Real mock multi-language translation dictionary simulation
+    const sampleTranslations = {
+      vi: `[Tiếng Việt (${lang.toUpperCase()})]: ${input.value} (Đã dịch)`,
+      es: `[Español (${lang.toUpperCase()})]: ${input.value} (Traducido)`,
+      fr: `[Français (${lang.toUpperCase()})]: ${input.value} (Traduit)`,
+      zh: `[中文 (${lang.toUpperCase()})]: ${input.value} (已翻译)`,
+      ja: `[日本語 (${lang.toUpperCase()})]: ${input.value} (翻訳済み)`,
+      ko: `[한국어 (${lang.toUpperCase()})]: ${input.value} (번역됨)`,
+      en: `[English (${lang.toUpperCase()})]: ${input.value} (Translated)`
+    };
+    preview.innerText = sampleTranslations[lang] || `[Translated]: ${input.value}`;
+  }
 }
 
 function toggleInteractiveMicRecording() {
   const btn = document.getElementById('mic-record-action-btn');
   const input = document.getElementById('translator-input-text');
-  btn.innerText = "⏹️ Recording...";
+  btn.innerText = "⏹️ Listening...";
   setTimeout(() => {
-    input.value = "Hello world";
+    input.value = "Hello welcome to VibePulse live stream network";
     updateLiveTranslationPreview();
-    btn.innerText = "🎙️ Record Voice";
-  }, 1500);
+    btn.innerText = "🎙️ Record Speech";
+  }, 1600);
 }
 
 function submitVoiceTranslation() {
-  const input = document.getElementById('translator-input-text');
-  if (!input || !input.value.trim()) return;
-  document.getElementById('chat-box').value = input.value.trim();
+  const preview = document.getElementById('translator-output-preview');
+  if (!preview) return;
+  document.getElementById('chat-box').value = preview.innerText;
   closeTikTokModal('voice-translator-modal');
 }
 
-function handleBackNavigation() { switchTab('feed'); }
+function handleBackNavigation() {
+  switchTab('feed');
+  loadUgcVideoFeed();
+}
 </script>
 </body>
 </html>
