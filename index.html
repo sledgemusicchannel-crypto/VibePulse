@@ -1092,6 +1092,23 @@ let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_av
 let selectedCoinSku = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
 
+// Global network status monitor to prevent webview ERR_NAME_NOT_RESOLVED screens
+window.addEventListener('offline', () => showOfflineFallbackScreen());
+window.addEventListener('online', () => loadUgcVideoFeed());
+
+function showOfflineFallbackScreen() {
+  const preview = document.getElementById('preview-area');
+  if (preview) {
+    preview.innerHTML = `
+      <div class="media-placeholder">
+        📡 <b>Connection Lost</b><br><br>
+        <span style="font-size:0.75rem; color:#a1a1aa;">Unable to connect to VibePulse servers. Please check your internet connection.</span><br><br>
+        <button class="btn btn-primary" onclick="window.location.reload()">🔄 Tap to Retry</button>
+      </div>
+    `;
+  }
+}
+
 function filterOffensiveWords(text) {
   if (!text) return "";
   let filtered = text;
@@ -1147,6 +1164,10 @@ try {
 } catch(e) {}
 
 window.addEventListener('DOMContentLoaded', () => {
+  if (!navigator.onLine) {
+    showOfflineFallbackScreen();
+    return;
+  }
   renderCoinStoreGrid();
   renderAllAvatars();
   loadUgcVideoFeed();
