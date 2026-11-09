@@ -323,7 +323,25 @@ body {
   pointer-events: none;
 }
 
+.video-author-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .video-author-name { font-size: 0.9rem; font-weight: 800; color: #fff; }
+
+.follow-action-btn {
+  background: var(--accent-pink);
+  color: white;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  cursor: pointer;
+  pointer-events: auto !important;
+}
 
 .video-caption {
   font-size: 0.75rem;
@@ -890,6 +908,7 @@ body {
 
   <div class="feature-menu-panel" id="feature-dropdown-menu">
     <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Explore Chatrooms</button>
+    <button class="menu-item-btn" onclick="openTikTokModal('matchmaking-modal'); toggleFeatureMenu();">🔍 Real-Time Online Matchmaking</button>
     <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
     <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
     <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
@@ -920,7 +939,7 @@ body {
 
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div class="active-room-tag" id="current-room-label" onclick="openTikTokModal('chatrooms-modal')" style="cursor:pointer;">Feed: Community Videos (Tap to switch room)</div>
+      <div class="active-room-tag" id="current-room-label" onclick="openTikTokModal('chatrooms-modal')" style="cursor:pointer;">Feed: Global Lounge (Tap to switch room)</div>
       <div class="direct-call-bar" id="direct-call-header-bar" style="display:none;">
         <button class="direct-call-btn" onclick="initiateDirectCall('voice')" title="Voice 📞">📞</button>
         <button class="direct-call-btn" onclick="initiateDirectCall('video')" title="Video 📹">📹</button>
@@ -965,7 +984,7 @@ body {
 <div class="tiktok-modal" id="plus-modal">
   <div class="modal-body-container">
     <div class="modal-header"><span>🎥 Create & Post Content</span><span class="modal-close" onclick="closeTikTokModal('plus-modal')">✕</span></div>
-    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video / Photo Post</button>
+    <button class="btn btn-primary" onclick="openUploadVideoModal()">📤 Upload Video with Title & Description</button>
     <button class="btn btn-secondary" onclick="openHighlightStoryModal()">✨ Add Highlight Story</button>
     <button class="btn btn-secondary" onclick="startLiveCamera()">🔴 Go Live & PK Battle</button>
   </div>
@@ -1056,21 +1075,51 @@ body {
 
 <div class="tiktok-modal" id="chatrooms-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>💬 Chatrooms & Lounges</span><span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span></div>
+    <div class="modal-header"><span>💬 Chatrooms & Relationship Lounges</span><span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span></div>
     <div class="room-grid-list">
       <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Search Singles')">🔍 Search Singles</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Divorce Support')">💔 Divorce Support</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Lounge')">🏳️‍🌈 LGBT+ Lounge</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Single')">💛 Single Lounge</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Divorced')">💔 Divorced Support</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Married')">💍 Married Club</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Male')">🏳️‍🌈 LGBT+ Male</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Female')">🏳️‍🌈 LGBT+ Female</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('Retro Beats')">📻 Retro Beats</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('App Creators')">💻 App Creators</button>
     </div>
   </div>
 </div>
 
+<div class="tiktok-modal" id="matchmaking-modal">
+  <div class="modal-body-container">
+    <div class="modal-header"><span>🔍 Real-Time Online Matchmaking</span><span class="modal-close" onclick="closeTikTokModal('matchmaking-modal')">✕</span></div>
+    <div style="display:flex; gap:6px;">
+      <select id="match-status-filter" class="input-field">
+        <option value="all">All Statuses</option>
+        <option value="Single">Single</option>
+        <option value="Divorced">Divorced</option>
+        <option value="Married">Married</option>
+        <option value="LGBT+ Male">LGBT+ Male</option>
+        <option value="LGBT+ Female">LGBT+ Female</option>
+      </select>
+      <select id="match-age-filter" class="input-field">
+        <option value="all">Any Age</option>
+        <option value="18-25">18 - 25</option>
+        <option value="26-35">26 - 35</option>
+        <option value="36-50">36 - 50</option>
+        <option value="50+">50+</option>
+      </select>
+    </div>
+    <input type="text" id="match-region-filter" class="input-field" placeholder="Filter by Region / Country (e.g., Vietnam, US)...">
+    <button class="btn btn-primary" onclick="performRealtimeOnlineSearch()">🔍 Search Online Members</button>
+    <div class="active-users-list-container" id="matchmaking-results-list" style="margin-top:6px;">
+      <div style="font-size:0.72rem; color:#a1a1aa; text-align:center;">Configure filters and tap search to find members online.</div>
+    </div>
+  </div>
+</div>
+
 <div class="tiktok-modal" id="profile-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>👤 Profile & Authentication</span><span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span></div>
+    <div class="modal-header"><span>👤 Creator Profile Dashboard</span><span class="modal-close" onclick="closeTikTokModal('profile-modal')">✕</span></div>
     <div style="background:#09090b; padding:10px; border-radius:8px; text-align:center;">
       <div class="avatar-ring-container" style="width:64px; height:64px; margin:0 auto; cursor:pointer;" onclick="document.getElementById('profile-avatar-file').click()" title="Change Avatar">
         <div class="avatar-ring-img" id="my-profile-avatar-display">👤</div>
@@ -1088,7 +1137,16 @@ body {
     </div>
     <input type="text" class="input-field" id="edit-name" placeholder="Display Name">
     <input type="text" class="input-field" id="edit-bio" placeholder="Bio / Status">
-    <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Details</button>
+    <select id="edit-relationship-status" class="input-field">
+      <option value="Single">Status: Single</option>
+      <option value="Divorced">Status: Divorced</option>
+      <option value="Married">Status: Married</option>
+      <option value="LGBT+ Male">Status: LGBT+ Male</option>
+      <option value="LGBT+ Female">Status: LGBT+ Female</option>
+    </select>
+    <input type="text" class="input-field" id="edit-region" placeholder="Region / Country (e.g., Vietnam)">
+    <input type="number" class="input-field" id="edit-age" placeholder="Age (e.g., 25)">
+    <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Dashboard</button>
     
     <div style="border-top: 1px solid #27272a; padding-top: 8px; display: flex; gap: 6px;">
       <button class="btn btn-secondary" style="flex:1;" onclick="handleUserSignIn()">🔑 Sign In / Sign Up</button>
@@ -1193,6 +1251,12 @@ function renderAllAvatars() {
   const cardUid = document.getElementById('profile-card-uid');
   if (cardName) cardName.innerText = name;
   if (cardUid) cardUid.innerText = "ID: " + (currentUser ? currentUser.uid : myDevice.uid);
+  
+  if (document.getElementById('edit-name')) document.getElementById('edit-name').value = name;
+  if (document.getElementById('edit-bio')) document.getElementById('edit-bio').value = localStorage.getItem('vibepulse_bio') || '';
+  if (document.getElementById('edit-region')) document.getElementById('edit-region').value = localStorage.getItem('vibepulse_region') || 'Vietnam';
+  if (document.getElementById('edit-age')) document.getElementById('edit-age').value = localStorage.getItem('vibepulse_age') || '25';
+  if (document.getElementById('edit-relationship-status')) document.getElementById('edit-relationship-status').value = localStorage.getItem('vibepulse_status') || 'Single';
 }
 
 function uploadProfileAvatar(input) {
@@ -1256,7 +1320,10 @@ function loadUgcVideoFeed() {
           ${deleteBtnHtml}
           <video src="${post.videoUrl}" autoplay loop playsinline preload="auto"></video>
           <div class="video-overlay-info">
-            <div class="video-author-name">@${post.authorName || 'Creator'} ${safeTitle ? '• ' + safeTitle : ''}</div>
+            <div class="video-author-row">
+              <div class="video-author-name">@${post.authorName || 'Creator'} ${safeTitle ? '• ' + safeTitle : ''}</div>
+              <button class="follow-action-btn" onclick="toggleFollowUser('${post.authorName || 'Creator'}', this)">Follow</button>
+            </div>
             <div class="video-caption">${safeCaption}</div>
           </div>
           <div class="video-side-actions">
@@ -1281,8 +1348,11 @@ function renderSampleFeed(container) {
     <div class="video-feed-item" data-post-id="sample_1">
       <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
-        <div class="video-author-name">@VibePulse_Official • Welcome Clip</div>
-        <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos. #VibePulse</div>
+        <div class="video-author-row">
+          <div class="video-author-name">@VibePulse_Official • Welcome Clip</div>
+          <button class="follow-action-btn" onclick="toggleFollowUser('VibePulse_Official', this)">Follow</button>
+        </div>
+        <div class="video-caption">Welcome to VibePulse! Tap '+' to share your videos with title & description. #VibePulse</div>
       </div>
       <div class="video-side-actions">
         <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
@@ -1309,6 +1379,19 @@ function setupFeedScrollObserver() {
   items.forEach(item => observer.observe(item));
 }
 
+function toggleFollowUser(authorName, btn) {
+  if (btn.innerText === "Follow") {
+    btn.innerText = "Following";
+    btn.style.background = "#22c55e";
+    let followingCount = parseInt(document.getElementById('profile-stat-following').innerText) + 1;
+    document.getElementById('profile-stat-following').innerText = followingCount;
+    alert(`You are now following @${authorName}!`);
+  } else {
+    btn.innerText = "Follow";
+    btn.style.background = "var(--accent-pink)";
+  }
+}
+
 function openCommentsModal(postId) {
   activeCommentVideoId = postId;
   openTikTokModal('comments-modal');
@@ -1316,7 +1399,7 @@ function openCommentsModal(postId) {
   if (!container || !db) return;
   db.collection("ugc_videos").doc(postId).collection("comments").orderBy("timestamp", "asc").onSnapshot((snapshot) => {
     container.innerHTML = '';
-    if (snapshot.empty) { container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No comments yet.</div>`; return; }
+    if (snapshot.empty) { container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No comments yet. Be the first to comment!</div>`; return; }
     snapshot.forEach((doc) => {
       const com = doc.data();
       const div = document.createElement('div');
@@ -1373,7 +1456,7 @@ function publishHighlightStory() {
   const fileInput = document.getElementById('story-file-input');
   const titleInput = document.getElementById('story-title-input');
   if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a story file."); return; }
-  alert(`Highlight Story "${titleInput.value || 'Untitled'}" published successfully!`);
+  alert(`Highlight Story "${titleInput.value || 'Untitled'}" published successfully to your profile!`);
   closeTikTokModal('highlight-story-modal');
   fileInput.value = ''; titleInput.value = '';
 }
@@ -1406,6 +1489,8 @@ function publishUgcVideoPost() {
 function likeUgcPost() {
   currentLoveCount++;
   document.getElementById('left-love-counter-display').innerText = currentLoveCount;
+  let likesCount = parseInt(document.getElementById('profile-stat-likes').innerText) + 1;
+  document.getElementById('profile-stat-likes').innerText = likesCount;
   triggerScreenEffect("❤️");
 }
 
@@ -1493,6 +1578,51 @@ function selectRoomFromModal(roomName) {
     container.appendChild(bubble);
     container.scrollTop = container.scrollHeight;
   }
+}
+
+function performRealtimeOnlineSearch() {
+  const statusFilter = document.getElementById('match-status-filter').value;
+  const ageFilter = document.getElementById('match-age-filter').value;
+  const regionQuery = document.getElementById('match-region-filter').value.toLowerCase().trim();
+  const resultsContainer = document.getElementById('matchmaking-results-list');
+
+  // Simulated active online users matching age, status, and region parameters
+  const mockUsers = [
+    { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single", avatar: "👩‍🦰" },
+    { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced", avatar: "👨" },
+    { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "👩‍🎤" },
+    { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "👨‍💻" },
+    { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married", avatar: "🤵" },
+    { name: "Elena_Saigon", age: 22, region: "Vietnam", status: "Single", avatar: "👩" }
+  ];
+
+  const filtered = mockUsers.filter(u => {
+    if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+    if (regionQuery && !u.region.toLowerCase().includes(regionQuery)) return false;
+    return true;
+  });
+
+  resultsContainer.innerHTML = '';
+  if (filtered.length === 0) {
+    resultsContainer.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:10px;">No online members found matching your criteria.</div>`;
+    return;
+  }
+
+  filtered.forEach(u => {
+    const div = document.createElement('div');
+    div.className = 'active-user-item';
+    div.innerHTML = `
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:1.2rem;">${u.avatar}</span>
+        <div>
+          <div style="font-size:0.75rem; font-weight:bold; color:#fff;">@${u.name} (${u.age}, ${u.region})</div>
+          <div style="font-size:0.62rem; color:var(--accent-cyan);">Status: ${u.status} 🟢 Online</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="padding:4px 8px; font-size:0.65rem;" onclick="alert('Instant connection request sent to @${u.name}!')">Connect 💬</button>
+    `;
+    resultsContainer.appendChild(div);
+  });
 }
 
 function sendChatMessage() {
@@ -1601,10 +1731,19 @@ function playYouTubeTrack() {
 function saveProfileDetails() {
   const name = document.getElementById('edit-name').value.trim();
   const bio = document.getElementById('edit-bio').value.trim();
+  const region = document.getElementById('edit-region').value.trim();
+  const age = document.getElementById('edit-age').value.trim();
+  const status = document.getElementById('edit-relationship-status').value;
+
   if (name) localStorage.setItem('vibepulse_name', name);
+  localStorage.setItem('vibepulse_bio', bio);
+  localStorage.setItem('vibepulse_region', region);
+  localStorage.setItem('vibepulse_age', age);
+  localStorage.setItem('vibepulse_status', status);
+
   renderAllAvatars();
   closeTikTokModal('profile-modal');
-  alert("Profile updated!");
+  alert("Profile dashboard updated successfully!");
 }
 
 function openVoiceTranslatorModal() { openTikTokModal('voice-translator-modal'); }
@@ -1660,11 +1799,8 @@ function submitVoiceTranslation() {
 }
 
 function handleBackNavigation() {
-  // Reset all active modal drawers and layers first
   document.querySelectorAll('.tiktok-modal.active').forEach(m => m.classList.remove('active'));
   document.getElementById('feature-dropdown-menu').classList.remove('active');
-  
-  // Reset main view container back to video feed
   const preview = document.getElementById('preview-area');
   preview.innerHTML = '<div class="video-feed-container" id="ugc-video-feed"></div>';
   loadUgcVideoFeed();
