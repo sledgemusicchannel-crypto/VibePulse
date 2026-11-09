@@ -54,7 +54,7 @@ body {
   width: 100%;
 }
 
-/* Top Bar Overlay */
+/* Top Bar Overlay with Centered Menu */
 .top-overlay {
   position: absolute;
   top: 0;
@@ -77,17 +77,18 @@ body {
 }
 
 .back-nav-btn {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  padding: 5px 8px;
+  padding: 6px 10px;
   border-radius: 10px;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: bold;
   cursor: pointer;
   flex-shrink: 0;
   pointer-events: auto !important;
+  z-index: 1000 !important;
 }
 
 .brand-logo {
@@ -149,6 +150,28 @@ body {
   border-radius: 50%;
 }
 
+.center-header-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.menu-dropdown-btn {
+  background: var(--accent-pink);
+  color: white;
+  border: none;
+  padding: 6px 18px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(254, 44, 85, 0.6);
+  white-space: nowrap;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
 .right-header-group {
   display: flex;
   align-items: center;
@@ -172,31 +195,18 @@ body {
   pointer-events: auto !important;
 }
 
-.menu-dropdown-btn {
-  background: var(--accent-pink);
-  color: white;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 14px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(254, 44, 85, 0.4);
-  white-space: nowrap;
-  pointer-events: auto !important;
-}
-
 .feature-menu-panel {
   display: none;
   position: absolute;
-  top: 46px;
-  right: 8px;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
   background: rgba(18, 18, 20, 0.96);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   padding: 10px;
-  width: 240px;
+  width: 260px;
   z-index: 2000;
   box-shadow: 0 10px 30px rgba(0,0,0,0.85);
   flex-direction: column;
@@ -527,7 +537,6 @@ body {
   color: var(--accent-cyan);
 }
 
-/* Chat Input Row with In-Chat Translator Action Button */
 .chat-input-row {
   display: flex;
   align-items: center;
@@ -626,7 +635,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Elevated Floating Bottom Bar */
 .bottom-nav {
   position: absolute;
   bottom: 6px;
@@ -697,7 +705,6 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.05rem; }
 
-/* Call & Modal Overlays */
 .call-fullscreen-overlay {
   display: none;
   position: fixed;
@@ -810,9 +817,9 @@ body {
   display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
 }
 
-.coin-grid-store { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.coin-grid-store { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; }
 .coin-card-item {
-  background: #27272a; border: 1px solid #3f3f46; border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 3px;
+  background: #27272a; border: 1px solid #3f3f46; border-radius: 8px; padding: 8px 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
 }
 .coin-card-item.selected { border-color: var(--accent-pink); background: rgba(254, 44, 85, 0.15); }
 .coin-card-title { font-size: 0.72rem; font-weight: bold; color: #fff; }
@@ -871,9 +878,13 @@ body {
       <div class="brand-logo">⚡ VibePulse <span class="brand-badge">LIVE</span></div>
     </div>
 
+    <!-- Centered Menu Button -->
+    <div class="center-header-group">
+      <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
+    </div>
+
     <div class="right-header-group">
       <div class="active-users-pill" onclick="openTikTokModal('active-users-modal')">🟢 <span id="top-hud-count">0</span> Online</div>
-      <button class="menu-dropdown-btn" onclick="toggleFeatureMenu()">⚡ Menu</button>
     </div>
   </div>
 
@@ -1108,10 +1119,16 @@ function filterOffensiveWords(text) {
   return filtered;
 }
 
+/* Restored All 8 Coin Sku Packages */
 const coinPackages = [
   { sku: 'vibepulse_coins_5', coins: 18, priceVnd: '₫13,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
+  { sku: 'vibepulse_coins_30', coins: 50, priceVnd: '₫25,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
   { sku: 'vibepulse_coins_70', coins: 117, priceVnd: '₫26,600', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
-  { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' }
+  { sku: 'vibepulse_coins_100', coins: 180, priceVnd: '₫50,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_200', coins: 350, priceVnd: '₫99,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_350', coins: 397, priceVnd: '₫133,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_500', coins: 850, priceVnd: '₫249,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' },
+  { sku: 'vibepulse_coins_1000', coins: 1800, priceVnd: '₫499,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/169b81b9-a5f7-4ec9-899f-972b6d0b7b3f' }
 ];
 
 const levelGifts100 = [];
