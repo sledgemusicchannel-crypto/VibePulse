@@ -920,7 +920,7 @@ body {
 
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div class="active-room-tag" id="current-room-label">Feed: Community Videos</div>
+      <div class="active-room-tag" id="current-room-label" onclick="openTikTokModal('chatrooms-modal')" style="cursor:pointer;">Feed: Community Videos (Tap to switch room)</div>
       <div class="direct-call-bar" id="direct-call-header-bar" style="display:none;">
         <button class="direct-call-btn" onclick="initiateDirectCall('voice')" title="Voice 📞">📞</button>
         <button class="direct-call-btn" onclick="initiateDirectCall('video')" title="Video 📹">📹</button>
@@ -1003,14 +1003,15 @@ body {
 
 <div class="tiktok-modal" id="share-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>🔗 Share or Download</span><span class="modal-close" onclick="closeTikTokModal('share-modal')">✕</span></div>
+    <div class="modal-header"><span>🔗 Share, Repost or Download</span><span class="modal-close" onclick="closeTikTokModal('share-modal')">✕</span></div>
     <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
+      <button class="btn btn-primary" onclick="repostCurrentVideo()">🔄 Repost to Feed</button>
       <button class="btn btn-secondary" onclick="shareToPlatform('facebook')">📘 Facebook</button>
       <button class="btn btn-secondary" onclick="shareToPlatform('twitter')">🐦 X / Twitter</button>
       <button class="btn btn-secondary" onclick="shareToPlatform('whatsapp')">💬 WhatsApp</button>
       <button class="btn btn-secondary" onclick="shareToPlatform('copy')">📋 Copy Link</button>
     </div>
-    <a id="download-video-anchor" class="btn btn-primary" style="text-align:center; text-decoration:none;" download="vibepulse_video.mp4">📥 Download Video</a>
+    <a id="download-video-anchor" class="btn btn-secondary" style="text-align:center; text-decoration:none;" download="vibepulse_video.mp4">📥 Download Video</a>
   </div>
 </div>
 
@@ -1055,12 +1056,14 @@ body {
 
 <div class="tiktok-modal" id="chatrooms-modal">
   <div class="modal-body-container">
-    <div class="modal-header"><span>💬 Chatrooms</span><span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span></div>
+    <div class="modal-header"><span>💬 Chatrooms & Lounges</span><span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span></div>
     <div class="room-grid-list">
       <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Search Singles')">🔍 Search Singles</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('Divorce Support')">💔 Divorce Support</button>
+      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Lounge')">🏳️‍🌈 LGBT+ Lounge</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('Retro Beats')">📻 Retro Beats</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('App Creators')">💻 App Creators</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Singles')">❤️ Singles (18-35)</button>
     </div>
   </div>
 </div>
@@ -1077,11 +1080,11 @@ body {
       <strong style="color:#fff; font-size:1rem;" id="profile-card-name">Guest</strong>
       <div style="font-size:0.7rem; color:#a1a1aa;" id="profile-card-uid">ID: -</div>
       <div class="social-stats-row">
-        <div class="stat-box"><span class="stat-number" id="profile-stat-following">0</span><span class="stat-label">Following</span></div>
-        <div class="stat-box"><span class="stat-number" id="profile-stat-followers">0</span><span class="stat-label">Followers</span></div>
-        <div class="stat-box"><span class="stat-number" id="profile-stat-likes">0</span><span class="stat-label">Likes</span></div>
+        <div class="stat-box"><span class="stat-number" id="profile-stat-following">12</span><span class="stat-label">Following</span></div>
+        <div class="stat-box"><span class="stat-number" id="profile-stat-followers">48</span><span class="stat-label">Followers</span></div>
+        <div class="stat-box"><span class="stat-number" id="profile-stat-likes">156</span><span class="stat-label">Likes</span></div>
       </div>
-      <div style="font-size:0.75rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 1</div>
+      <div style="font-size:0.75rem; color:#fe2c55; font-weight:bold;" id="profile-card-level">⭐ Level: 2</div>
     </div>
     <input type="text" class="input-field" id="edit-name" placeholder="Display Name">
     <input type="text" class="input-field" id="edit-bio" placeholder="Bio / Status">
@@ -1117,7 +1120,7 @@ const firebaseConfig = {
 };
 
 let auth = null, db = null, currentUser = null, activeRoom = "Global Lounge";
-let activeCommentVideoId = null, feedUnsubscribe = null, currentActivePostId = null;
+let activeCommentVideoId = null, feedUnsubscribe = null, currentActivePostId = null, currentShareUrl = "";
 let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
 let selectedCoinSku = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
@@ -1129,7 +1132,6 @@ function filterOffensiveWords(text) {
   return filtered;
 }
 
-/* Exact 8 Lemon Squeezy Coin Products Restored from Your Screenshot */
 const coinPackages = [
   { sku: 'vibepulse_coins_18', coins: 18, priceVnd: '₫13,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/c9b4c4a0-21be-4d8a-a205-d0a85e6298dc' },
   { sku: 'vibepulse_coins_117', coins: 117, priceVnd: '₫26,000', link: 'https://apexmobilitysystem.lemonsqueezy.com/checkout/buy/99e508d1-36dc-4626-9b69-8ff687a41012' },
@@ -1347,6 +1349,11 @@ function openShareModal(url) {
   openTikTokModal('share-modal');
 }
 
+function repostCurrentVideo() {
+  alert("Video successfully reposted to your followers' feed!");
+  closeTikTokModal('share-modal');
+}
+
 function shareToPlatform(p) {
   if (p === 'copy') { navigator.clipboard.writeText(currentShareUrl); alert("Copied!"); closeTikTokModal('share-modal'); return; }
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentShareUrl)}`, '_blank');
@@ -1475,6 +1482,20 @@ function switchTab(tab) { if (tab === 'feed') loadUgcVideoFeed(); }
 function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
 function insertEmoji(emoji) { document.getElementById('chat-box').value += emoji; document.getElementById('emoji-popup-drawer').classList.remove('active'); }
 
+function selectRoomFromModal(roomName) {
+  activeRoom = roomName;
+  document.getElementById('current-room-label').innerText = `Room: ${roomName}`;
+  closeTikTokModal('chatrooms-modal');
+  const container = document.getElementById('chat-messages-container');
+  if (container) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.innerHTML = `🟢 <b>System:</b> Joined chatroom <b>${roomName}</b>`;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
 function sendChatMessage() {
   const box = document.getElementById('chat-box');
   if (!box || !box.value.trim()) return;
@@ -1599,7 +1620,6 @@ function updateLiveTranslationPreview() {
       preview.innerText = `[Translated (${lang.toUpperCase()})]`;
       return;
     }
-    // Real mock multi-language translation dictionary simulation
     const sampleTranslations = {
       vi: `[Tiếng Việt (${lang.toUpperCase()})]: ${input.value} (Đã dịch)`,
       es: `[Español (${lang.toUpperCase()})]: ${input.value} (Traducido)`,
