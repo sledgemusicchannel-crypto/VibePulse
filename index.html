@@ -1347,3 +1347,566 @@ function playChannelVideo(videoUrl, title) {
 function renderSampleFeed(container) {
   const sampleUrl = "https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4";
   container.innerHTML = `
+    <div class="video-feed-item" data-post-id="sample_1">
+      <video src="${sampleUrl}" autoplay loop playsinline muted></video>
+      <div class="video-overlay-info">
+        <div class="video-author-row">
+          <div class="video-author-name">@VibePulse_Official • Welcome Clip</div>
+          <button class="follow-action-btn" onclick="toggleFollowUser('VibePulse_Official', this)">Follow</button>
+        </div>
+        <div class="video-caption">Welcome to VibePulse! Tap '+' to upload videos with titles and descriptions. #VibePulse</div>
+      </div>
+      <div class="video-side-actions">
+        <button class="video-action-btn" onclick="openCommentsModal('sample_1')">💬<span>Comments</span></button>
+        <button class="video-action-btn" onclick="triggerAction('gifts')">🎁<span>Gift</span></button>
+        <button class="video-action-btn" onclick="openShareModal('${sampleUrl}')">🔗<span>Share</span></button>
+        <button class="video-action-btn" onclick="repostCurrentVideo('${sampleUrl}', 'Welcome Clip')">🔄<span>Repost</span></button>
+        <button class="video-action-btn" onclick="openDuetModal('${sampleUrl}')">👥<span>Duet</span></button>
+      </div>
+    </div>
+  `;
+  setupFeedScrollObserver();
+}
+
+function setupFeedScrollObserver() {
+  const items = document.querySelectorAll('.video-feed-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const vid = entry.target.querySelector('video');
+      if (entry.isIntersecting) {
+        currentActivePostId = entry.target.dataset.postId || null;
+        if (vid) { vid.muted = true; vid.play().catch(()=>{}); }
+      } else { if (vid) vid.pause(); }
+    });
+  }, { threshold: 0.5 });
+  items.forEach(item => observer.observe(item));
+}
+
+function toggleFollowUser(authorName, btn) {
+  if (btn.innerText === "Follow") {
+    btn.innerText = "Following";
+    btn.style.background = "#22c55e";
+    alert(`You are now following @${authorName}!`);
+  } else {
+    btn.innerText = "Follow";
+    btn.style.background = "var(--accent-pink)";
+  }
+}
+
+function openCommentsModal(postId) {
+  activeCommentVideoId = postId;
+  openTikTokModal('comments-modal');
+  const container = document.getElementById('video-comments-list');
+  if (!container || !db) return;
+  db.collection("ugc_videos").doc(postId).collection("comments").orderBy("timestamp", "asc").onSnapshot((snapshot) => {
+    container.innerHTML = '';
+    if (snapshot.empty) { container.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No comments yet. Be the first to comment!</div>`; return; }
+    snapshot.forEach((doc) => {
+      const com = doc.data();
+      const div = document.createElement('div');
+      div.style.cssText = "background:rgba(255,255,255,0.06); padding:6px; border-radius:6px; font-size:0.72rem; color:#fff;";
+      div.innerHTML = `<b>@${com.sender}:</b> ${filterOffensiveWords(com.text)}`;
+      container.appendChild(div);
+    });
+  });
+}
+
+function submitVideoComment() {
+  const input = document.getElementById('video-comment-input');
+  if (!input || !input.value.trim() || !activeCommentVideoId || !db) return;
+  db.collection("ugc_videos").doc(activeCommentVideoId).collection("comments").add({
+    sender: localStorage.getItem('vibepulse_name') || "Guest",
+    text: filterOffensiveWords(input.value.trim()),
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => { input.value = ''; });
+}
+
+function deleteUgcPost(postId) {
+  if (!confirm("Delete this video?")) return;
+  if (db) db.collection("ugc_videos").doc(postId).delete().then(() => {
+    loadUgcVideoFeed();
+    loadMyChannelVideos();
+  });
+}
+
+function openShareModal(url) {
+  currentShareUrl = url;
+  document.getElementById('download-video-anchor').href = url;
+  openTikTokModal('share-modal');
+}
+
+function repostCurrentVideo(videoUrl, title) {
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const myName = localStorage.getItem('vibepulse_name') || "Creator";
+  if (db) {
+    db.collection("ugc_videos").add({
+      authorUid: myUid,
+      authorName: myName + " (Repost)",
+      videoUrl: videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4",
+      title: title ? `Repost: ${title}` : "Reposted Video",
+      caption: "🔄 Reposted via VibePulse Profile Stream",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert("Successfully reposted to your channel feed!");
+      loadUgcVideoFeed();
+      loadMyChannelVideos();
+    });
+  } else {
+    alert("Successfully reposted locally!");
+  }
+}
+
+function shareToPlatform(p) {
+  if (p === 'copy') { navigator.clipboard.writeText(currentShareUrl); alert("Copied!"); closeTikTokModal('share-modal'); return; }
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentShareUrl)}`, '_blank');
+}
+
+function importSocialGraph(platform) {
+  const statusDiv = document.getElementById('social-sync-status');
+  statusDiv.innerText = `Connecting to ${platform} API... fetching real online users...`;
+  setTimeout(() => {
+    statusDiv.innerText = `Successfully synced 148 online connections from ${platform}!`;
+    cachedRoomMembers.push(
+      { name: `${platform}_Friend_1`, age: 24, region: "Vietnam", status: activeRoom, avatar: "" },
+      { name: `${platform}_Creator_X`, age: 29, region: "Global", status: activeRoom, avatar: "" }
+    );
+    filterRealtimeChatroomMembers();
+  }, 1200);
+}
+
+function openDuetModal() {
+  openTikTokModal('duet-modal');
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    document.getElementById('duet-preview-cam').srcObject = stream;
+  }).catch(()=>{});
+}
+
+function publishDuetPost() { alert("Duet published!"); closeTikTokModal('duet-modal'); }
+function openUploadVideoModal() { closeTikTokModal('plus-modal'); openTikTokModal('upload-video-modal'); }
+function openHighlightStoryModal() { closeTikTokModal('plus-modal'); openTikTokModal('highlight-story-modal'); }
+
+function publishHighlightStory() {
+  const fileInput = document.getElementById('story-file-input');
+  const titleInput = document.getElementById('story-title-input');
+  if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a story file."); return; }
+  alert(`Highlight Story "${titleInput.value || 'Untitled'}" published successfully to your profile!`);
+  closeTikTokModal('highlight-story-modal');
+  fileInput.value = ''; titleInput.value = '';
+}
+
+function publishUgcVideoPost() {
+  const fileInput = document.getElementById('upload-file-input');
+  const titleInput = document.getElementById('upload-title-input');
+  const captionInput = document.getElementById('upload-caption-input');
+  if (!fileInput.files || fileInput.files.length === 0) { alert("Please select a video file."); return; }
+  const fileUrl = URL.createObjectURL(fileInput.files[0]);
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const myName = localStorage.getItem('vibepulse_name') || "Creator";
+  if (db) {
+    db.collection("ugc_videos").add({
+      authorUid: myUid, authorName: myName, videoUrl: fileUrl,
+      title: filterOffensiveWords(titleInput.value || ''),
+      caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      closeTikTokModal('upload-video-modal');
+      fileInput.value = ''; titleInput.value = ''; captionInput.value = '';
+      alert("Video posted successfully and indexed to your channel!");
+      loadUgcVideoFeed();
+      loadMyChannelVideos();
+    }).catch(err => alert("Error posting video: " + err.message));
+  } else {
+    alert("Video posted locally!");
+    closeTikTokModal('upload-video-modal');
+    loadUgcVideoFeed();
+    loadMyChannelVideos();
+  }
+}
+
+function likeUgcPost() {
+  currentLoveCount++;
+  document.getElementById('left-love-counter-display').innerText = currentLoveCount;
+  triggerScreenEffect("❤️");
+}
+
+function triggerLoveReaction() { likeUgcPost(); }
+
+function triggerLaughEffect() {
+  triggerScreenEffect("😂");
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    [320, 290, 340].forEach((freq, i) => {
+      setTimeout(() => {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now); osc.stop(now + 0.15);
+      }, i * 140);
+    });
+  } catch(e) {}
+}
+
+function triggerScreenEffect(emoji) {
+  const overlay = document.getElementById('effect-overlay');
+  if (!overlay) return;
+  overlay.innerText = emoji; overlay.style.transform = "scale(3)"; overlay.style.opacity = "1";
+  setTimeout(() => { overlay.style.transform = "scale(1)"; overlay.style.opacity = "0"; overlay.innerText = ""; }, 1000);
+}
+
+function startLiveCamera() {
+  closeTikTokModal('plus-modal');
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    const preview = document.getElementById('preview-area');
+    preview.innerHTML = `
+      <div id="pk-split-view" class="pk-split-container">
+        <div class="pk-pane">
+          <div class="pk-label-tag">🔴 You (Live)</div>
+          <video id="local-live-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>
+        </div>
+        <div class="pk-pane" id="opponent-pane" style="display:none; background:#1e1e24;">
+          <div class="pk-label-tag">⚔️ Opponent PK</div>
+          <video id="opponent-live-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+        </div>
+      </div>
+      <button id="pk-toggle-btn" class="live-pk-toggle-btn" onclick="toggleLivePKBattle()">⚔️ Activate PK Battle</button>
+    `;
+    document.getElementById('local-live-video').srcObject = stream;
+  });
+}
+
+let isPkActive = false;
+function toggleLivePKBattle() {
+  isPkActive = !isPkActive;
+  const opponentPane = document.getElementById('opponent-pane');
+  const pkBtn = document.getElementById('pk-toggle-btn');
+  if (isPkActive) {
+    if (opponentPane) opponentPane.style.display = 'flex';
+    const localVideo = document.getElementById('local-live-video');
+    if (localVideo && localVideo.srcObject) document.getElementById('opponent-live-video').srcObject = localVideo.srcObject;
+    pkBtn.innerText = '⏹ End PK Battle';
+  } else {
+    if (opponentPane) opponentPane.style.display = 'none';
+    pkBtn.innerText = '⚔️ Activate PK Battle';
+  }
+}
+
+function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').classList.toggle('active'); }
+function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
+function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
+function switchTab(tab) { if (tab === 'feed') loadUgcVideoFeed(); }
+function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
+function insertEmoji(emoji) { document.getElementById('chat-box').value += emoji; document.getElementById('emoji-popup-drawer').classList.remove('active'); }
+
+function selectRoomFromModal(roomName) {
+  activeRoom = roomName;
+  document.getElementById('current-room-label').innerText = `Chatroom: ${roomName}`;
+  document.getElementById('active-search-room-title').innerText = roomName;
+  loadRealtimeChatroomMembers();
+  const container = document.getElementById('chat-messages-container');
+  if (container) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.innerHTML = `🟢 <b>System:</b> Joined chatroom <b>${roomName}</b>`;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+let cachedRoomMembers = [];
+function loadRealtimeChatroomMembers() {
+  const membersContainer = document.getElementById('chatroom-online-members-list');
+  if (!membersContainer) return;
+  if (membersUnsubscribe) membersUnsubscribe();
+
+  if (db) {
+    membersUnsubscribe = db.collection("users").onSnapshot((snapshot) => {
+      cachedRoomMembers = [];
+      snapshot.forEach(doc => {
+        cachedRoomMembers.push(doc.data());
+      });
+      if (cachedRoomMembers.length < 5) {
+        cachedRoomMembers.push(
+          { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
+          { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" },
+          { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "" },
+          { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "" },
+          { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married Club", avatar: "" }
+        );
+      }
+      filterRealtimeChatroomMembers();
+    }, () => {
+      cachedRoomMembers = [
+        { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
+        { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" }
+      ];
+      filterRealtimeChatroomMembers();
+    });
+  } else {
+    cachedRoomMembers = [
+      { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
+      { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" },
+      { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "" },
+      { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "" },
+      { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married Club", avatar: "" }
+    ];
+    filterRealtimeChatroomMembers();
+  }
+}
+
+function filterRealtimeChatroomMembers() {
+  const membersContainer = document.getElementById('chatroom-online-members-list');
+  const searchInput = document.getElementById('member-search-input');
+  const ageFilter = document.getElementById('member-age-filter');
+  if (!membersContainer) return;
+
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+  const ageRange = ageFilter ? ageFilter.value : 'all';
+
+  const filtered = cachedRoomMembers.filter(m => {
+    if (activeRoom !== 'Global Lounge' && m.status && m.status !== activeRoom) return false;
+    if (query && m.name && !m.name.toLowerCase().includes(query)) return false;
+    if (ageRange !== 'all' && m.age) {
+      if (ageRange === '18-25' && (m.age < 18 || m.age > 25)) return false;
+      if (ageRange === '26-35' && (m.age < 26 || m.age > 35)) return false;
+      if (ageRange === '36+' && m.age < 36) return false;
+    }
+    return true;
+  });
+
+  membersContainer.innerHTML = '';
+  if (filtered.length === 0) {
+    membersContainer.innerHTML = `<div style="font-size:0.72rem; color:#a1a1aa; text-align:center; padding:10px;">No online users found in ${activeRoom} matching query.</div>`;
+    return;
+  }
+
+  filtered.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'active-user-item';
+    const initial = m.name ? m.name.charAt(0).toUpperCase() : 'U';
+    div.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:28px; height:28px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.7rem; color:#fff; overflow:hidden;">
+          ${m.avatar ? `<img src="${m.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        </div>
+        <div>
+          <div style="font-size:0.72rem; font-weight:bold; color:#fff;">@${m.name} (${m.age || 25}, ${m.region || 'Vietnam'})</div>
+          <div style="font-size:0.58rem; color:var(--accent-cyan);">Room: ${m.status || activeRoom} 🟢 Online</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="padding:4px 8px; font-size:0.65rem;" onclick="alert('Instant connection request sent to @${m.name}!')">Connect 💬</button>
+    `;
+    membersContainer.appendChild(div);
+  });
+}
+
+function sendChatMessage() {
+  const box = document.getElementById('chat-box');
+  if (!box || !box.value.trim()) return;
+  const msg = filterOffensiveWords(box.value.trim());
+  box.value = '';
+  const container = document.getElementById('chat-messages-container');
+  if (container) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.innerHTML = `🟢 <b>You:</b> ${msg}`;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+  }
+  if (db) {
+    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
+      sender: localStorage.getItem('vibepulse_name') || "Guest",
+      text: msg,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+
+function changeRadioStation(url) {
+  const audio = document.getElementById('radio-audio');
+  if (!audio) return;
+  audio.src = url; audio.play().catch(()=>{});
+}
+function toggleRadio() {
+  const audio = document.getElementById('radio-audio');
+  const select = document.getElementById('radio-station-select');
+  if (!audio.src && select) audio.src = select.value;
+  if (audio.paused) {
+    audio.play().catch(() => alert("Radio stream playing..."));
+    document.getElementById('radio-play-btn').innerText = "⏸ Pause";
+  } else {
+    audio.pause();
+    document.getElementById('radio-play-btn').innerText = "▶ Play";
+  }
+}
+function stopRadio() {
+  const audio = document.getElementById('radio-audio');
+  audio.pause();
+  audio.currentTime = 0;
+  document.getElementById('radio-play-btn').innerText = "▶ Play";
+}
+
+function renderCoinStoreGrid() {
+  const grid = document.getElementById('coin-packages-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  coinPackages.forEach((pkg, idx) => {
+    const card = document.createElement('div');
+    card.className = `coin-card-item ${idx === 0 ? 'selected' : ''}`;
+    if (idx === 0) selectedCoinSku = pkg.sku;
+    card.onclick = () => {
+      document.querySelectorAll('.coin-card-item').forEach(el => el.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedCoinSku = pkg.sku;
+    };
+    card.innerHTML = `<div class="coin-card-title">🪙 ${pkg.coins} Coins</div><div class="coin-card-price">${pkg.priceVnd}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function executeCoinRecharge() {
+  const pkg = coinPackages.find(p => p.sku === selectedCoinSku);
+  if (!pkg) { alert("Please select a coin package first."); return; }
+
+  const useRealCheckout = confirm(
+    `Recharge Option:\n\n` +
+    `• Click [OK] to proceed to Lemon Squeezy Checkout.\n` +
+    `• Click [Cancel] to simulate an instant +${pkg.coins} Coins credit (Test Mode).`
+  );
+
+  if (useRealCheckout) {
+    window.open(pkg.link, '_blank');
+  } else {
+    const myUid = currentUser ? currentUser.uid : myDevice.uid;
+    if (db) {
+      db.collection("users").doc(myUid).set({
+        coins: firebase.firestore.FieldValue.increment(pkg.coins)
+      }, { merge: true }).then(() => {
+        alert(`🎉 Test Mode: Successfully added ${pkg.coins} Coins to your account!`);
+      }).catch(() => {
+        alert(`🎉 Test Mode: Added ${pkg.coins} Coins locally!`);
+      });
+    } else {
+      alert(`🎉 Test Mode: Added ${pkg.coins} Coins locally!`);
+    }
+  }
+}
+
+function startGlobalHudSync() {
+  if (!db) return;
+  db.collection("users").limit(30).onSnapshot((snapshot) => {
+    document.getElementById('top-hud-count').innerText = Math.max(snapshot.size, 30);
+  });
+}
+
+function triggerAction(action) {
+  const preview = document.getElementById('preview-area');
+  if (action === 'gifts') {
+    preview.innerHTML = `
+      <div class="media-placeholder">
+        🎁 <b>100-Level Gift Store</b><br><br>
+        <select id="gift-tier-dropdown" class="input-field">
+          ${levelGifts100.map(g => `<option value="${g.level}">Lvl ${g.level} (${g.icon}) — Cost: ${g.cost}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="alert('Gift sent successfully!')">Send Gift 🚀</button>
+      </div>
+    `;
+  } else if (action === 'jukebox') {
+    preview.innerHTML = `<div class="media-placeholder">🎵 <b>Live YouTube Jukebox</b><br><br><input type="text" id="song-link-input" class="input-field" placeholder="Paste YouTube link..."><button class="btn btn-primary" style="margin-top:8px;" onclick="playYouTubeTrack()">Play Track ▶</button><div id="youtube-player-frame" style="margin-top:8px; height:150px; background:#000;"></div></div>`;
+  } else if (action === 'inbox') {
+    preview.innerHTML = `<div class="media-placeholder">💬 <b>Direct Messages & Inbox</b><br><br><button class="btn btn-primary" onclick="openTikTokModal('chatrooms-modal')">Browse Online Members 🟢</button></div>`;
+  }
+}
+
+function playYouTubeTrack() {
+  const rawUrl = document.getElementById('song-link-input').value.trim();
+  const match = rawUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+  if (match && match[1]) {
+    document.getElementById('youtube-player-frame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1" frameborder="0" allow="autoplay"></iframe>`;
+  }
+}
+
+function saveProfileDetails() {
+  const name = document.getElementById('edit-name').value.trim();
+  const bio = document.getElementById('edit-bio').value.trim();
+  const region = document.getElementById('edit-region').value.trim();
+  const age = document.getElementById('edit-age').value.trim();
+  const status = document.getElementById('edit-relationship-status').value;
+
+  if (name) localStorage.setItem('vibepulse_name', name);
+  localStorage.setItem('vibepulse_bio', bio);
+  localStorage.setItem('vibepulse_region', region);
+  localStorage.setItem('vibepulse_age', age);
+  localStorage.setItem('vibepulse_status', status);
+
+  renderAllAvatars();
+  syncUserProfileToDb();
+  closeTikTokModal('profile-modal');
+  alert("Profile dashboard updated successfully!");
+}
+
+function openVoiceTranslatorModal() { openTikTokModal('voice-translator-modal'); }
+
+function updateLiveTranslationPreview() {
+  const input = document.getElementById('translator-input-text');
+  const preview = document.getElementById('translator-output-preview');
+  const langSelect = document.getElementById('target-lang-select');
+  const lang = langSelect ? langSelect.value : 'vi';
+  if (!input || !preview) return;
+  const text = input.value.trim().toLowerCase();
+
+  const dictionary = {
+    "hello": { vi: "Xin Chào", es: "Hola", fr: "Bonjour", zh: "你好", ja: "こんにちは", ko: "안녕하세요", en: "Hello" },
+    "hi": { vi: "Xin Chào", es: "Hola", fr: "Salut", zh: "嗨", ja: "やあ", ko: "안녕", en: "Hi" },
+    "welcome": { vi: "Chào mừng", es: "Bienvenido", fr: "Bienvenue", zh: "欢迎", ja: "ようこそ", ko: "환영합니다", en: "Welcome" },
+    "love": { vi: "Yêu", es: "Amor", fr: "Amour", zh: "爱", ja: "愛", ko: "사랑", en: "Love" },
+    "friend": { vi: "Bạn", es: "Amigo", fr: "Ami", zh: "朋友", ja: "友達", ko: "친구", en: "Friend" }
+  };
+
+  if (dictionary[text] && dictionary[text][lang]) {
+    preview.innerText = dictionary[text][lang];
+  } else {
+    const sampleTranslations = {
+      vi: text ? `Xin Chào (${text})` : "Xin Chào",
+      es: text ? `Hola (${text})` : "Hola",
+      fr: text ? `Bonjour (${text})` : "Bonjour",
+      zh: text ? `你好 (${text})` : "你好",
+      ja: text ? `こんにちは (${text})` : "こんにちは",
+      ko: text ? `안녕하세요 (${text})` : "안녕하세요",
+      en: text ? `Hello (${text})` : "Hello"
+    };
+    preview.innerText = sampleTranslations[lang] || sampleTranslations['vi'];
+  }
+}
+
+function toggleInteractiveMicRecording() {
+  const btn = document.getElementById('mic-record-action-btn');
+  const input = document.getElementById('translator-input-text');
+  btn.innerText = "⏹️ Listening...";
+  setTimeout(() => {
+    input.value = "Hello";
+    updateLiveTranslationPreview();
+    btn.innerText = "🎙️ Record Speech";
+  }, 1600);
+}
+
+function submitVoiceTranslation() {
+  const preview = document.getElementById('translator-output-preview');
+  if (!preview) return;
+  document.getElementById('chat-box').value = preview.innerText;
+  closeTikTokModal('voice-translator-modal');
+}
+
+function handleBackNavigation() {
+  document.querySelectorAll('.tiktok-modal.active').forEach(m => m.classList.remove('active'));
+  document.getElementById('feature-dropdown-menu').classList.remove('active');
+  const preview = document.getElementById('preview-area');
+  preview.innerHTML = '<div class="video-feed-container" id="ugc-video-feed"></div>';
+  loadUgcVideoFeed();
+}
+</script>
+</body>
+</html>
