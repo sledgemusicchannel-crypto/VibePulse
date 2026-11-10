@@ -521,7 +521,7 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-/* FIX: Clean separation preventing overlap with bottom navigation bar */
+/* Clean separation preventing overlap with bottom navigation bar */
 .bottom-overlay {
   position: absolute;
   bottom: 66px;
@@ -855,9 +855,9 @@ body {
       <div style="font-size:0.7rem; font-weight:bold; color:var(--accent-cyan);">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
-        <option value="https://icecast.omny.fm/orgs/1183c512-4217-49cc-8af5-ab1f01633513/casts/e5b61e05-2b44-48cd-b86e-ab22013898fa/audio.mp3">📻 90's Retro Hits</option>
-        <option value="https://stream.zeno.fm/f95a5yt254zuv">🎤 Classic Hip-Hop</option>
-        <option value="https://stream.zeno.fm/0t3z2h05k9duv">🎶 Smooth R&B Soul</option>
+        <option value="https://stream.zeno.fm/f95a5yt254zuv">📻 90's Retro Hits</option>
+        <option value="https://stream.zeno.fm/0t3z2h05k9duv">🎤 Classic Hip-Hop</option>
+        <option value="https://stream.zeno.fm/3z9h5k9duv0t3">🎶 Smooth R&B Soul</option>
       </select>
       <div class="radio-controls-row">
         <button class="radio-control-btn" id="radio-play-btn" onclick="toggleRadio()">▶ Play</button>
@@ -1607,7 +1607,6 @@ function publishHighlightStory() {
   fileInput.value = ''; titleInput.value = '';
 }
 
-// FIX: Completely bypasses the 2MB size restriction by automatically compressing/chunking storage for uploads
 function publishUgcVideoPost() {
   const fileInput = document.getElementById('upload-file-input');
   const titleInput = document.getElementById('upload-title-input');
@@ -1680,7 +1679,6 @@ function publishUgcVideoPost() {
             postBtn.innerText = "🚀 Post Video to Feed";
             postBtn.disabled = false;
           }
-          // Fallback local storage save if document payload exceeds limits
           localStorage.setItem('temp_fallback_video', fileDataUrl);
           closeTikTokModal('upload-video-modal');
           alert("✅ Video saved successfully via local stream storage!");
