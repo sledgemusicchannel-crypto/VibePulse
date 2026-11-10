@@ -855,8 +855,9 @@ body {
       <div style="font-size:0.7rem; font-weight:bold; color:var(--accent-cyan);">📻 Radio Station Controller</div>
       <select class="radio-select-menu" id="radio-station-select" onchange="changeRadioStation(this.value)">
         <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">🎧 Lo-Fi Chill Hop</option>
-        <option value="https://stream.zeno.fm/f95a5yt254zuv">📻 90's Retro Hits</option>
-        <option value="https://stream.zeno.fm/0t3z2h05k9duv">🎤 Classic Hip-Hop</option>
+        <option value="https://icecast.omny.fm/orgs/1183c512-4217-49cc-8af5-ab1f01633513/casts/e5b61e05-2b44-48cd-b86e-ab22013898fa/audio.mp3">📻 90's Retro Hits</option>
+        <option value="https://stream.zeno.fm/f95a5yt254zuv">🎤 Classic Hip-Hop</option>
+        <option value="https://stream.zeno.fm/0t3z2h05k9duv">🎶 Smooth R&B Soul</option>
       </select>
       <div class="radio-controls-row">
         <button class="radio-control-btn" id="radio-play-btn" onclick="toggleRadio()">▶ Play</button>
@@ -1229,6 +1230,16 @@ window.addEventListener('DOMContentLoaded', () => {
   loadRealtimeChatroomMembers();
   const savedTheme = localStorage.getItem('vibepulse_theme') || 'dark';
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+  // Radio error handler fallback
+  const audio = document.getElementById('radio-audio');
+  if (audio) {
+    audio.onerror = () => {
+      alert("⚠️ This radio stream is currently offline or blocking playback.");
+      const playBtn = document.getElementById('radio-play-btn');
+      if (playBtn) playBtn.innerText = "▶ Play";
+    };
+  }
 });
 
 function toggleThemeMode() {
@@ -1909,25 +1920,46 @@ function sendChatMessage() {
 function changeRadioStation(url) {
   const audio = document.getElementById('radio-audio');
   if (!audio) return;
-  audio.src = url; audio.play().catch(()=>{});
+  audio.src = url;
+  audio.load();
+  audio.play().then(() => {
+    const playBtn = document.getElementById('radio-play-btn');
+    if (playBtn) playBtn.innerText = "⏸ Pause";
+  }).catch(err => {
+    console.warn("Stream playback failed:", err);
+    alert("Unable to connect to this radio station stream. Try another station!");
+  });
 }
+
 function toggleRadio() {
   const audio = document.getElementById('radio-audio');
   const select = document.getElementById('radio-station-select');
-  if (!audio.src && select) audio.src = select.value;
+  const playBtn = document.getElementById('radio-play-btn');
+  if (!audio || !select) return;
+
+  if (!audio.src || audio.src === window.location.href) {
+    audio.src = select.value;
+  }
+
   if (audio.paused) {
-    audio.play().catch(() => alert("Radio stream playing..."));
-    document.getElementById('radio-play-btn').innerText = "⏸ Pause";
+    audio.play().then(() => {
+      if (playBtn) playBtn.innerText = "⏸ Pause";
+    }).catch(err => {
+      alert("Error playing station. Stream link might be offline.");
+    });
   } else {
     audio.pause();
-    document.getElementById('radio-play-btn').innerText = "▶ Play";
+    if (playBtn) playBtn.innerText = "▶ Play";
   }
 }
+
 function stopRadio() {
   const audio = document.getElementById('radio-audio');
+  const playBtn = document.getElementById('radio-play-btn');
+  if (!audio) return;
   audio.pause();
   audio.currentTime = 0;
-  document.getElementById('radio-play-btn').innerText = "▶ Play";
+  if (playBtn) playBtn.innerText = "▶ Play";
 }
 
 function renderCoinStoreGrid() {
