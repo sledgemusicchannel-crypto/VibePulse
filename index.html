@@ -521,7 +521,6 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-/* Clean separation preventing overlap with bottom navigation bar */
 .bottom-overlay {
   position: absolute;
   bottom: 66px;
@@ -738,6 +737,7 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.05rem; }
 
+/* FIX: Ensuring high z-index and explicit pointer events for interactive modals */
 .tiktok-modal {
   display: none; 
   position: fixed; 
@@ -776,9 +776,9 @@ body {
 .modal-header {
   display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.95rem; padding-bottom: 8px; border-bottom: 1px solid #27272a;
 }
-.modal-close { cursor: pointer; font-size: 1.1rem; color: var(--text-muted); padding: 6px; pointer-events: auto !important; }
+.modal-close { cursor: pointer; font-size: 1.1rem; color: var(--text-muted); padding: 6px; pointer-events: auto !important; z-index: 100002 !important; }
 
-.btn { padding: 11px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 0.82rem; pointer-events: auto !important; touch-action: manipulation; }
+.btn { padding: 11px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 0.82rem; pointer-events: auto !important; touch-action: manipulation; z-index: 100002 !important; }
 .btn-primary { background: var(--accent-pink); color: white; }
 .btn-secondary { background: #27272a; color: white; }
 .btn-danger { background: #ef4444; color: white; }
@@ -787,12 +787,14 @@ body {
 .room-grid-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .room-tab-btn {
   background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 10px; border-radius: 8px; font-size: 0.78rem; font-weight: bold; cursor: pointer; text-align: left;
-  pointer-events: auto !important;
+  pointer-events: auto !important; z-index: 100002 !important;
 }
 
-.active-users-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+.active-users-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; pointer-events: auto !important; }
 .active-user-item {
   display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: auto !important;
+  z-index: 100002 !important;
 }
 
 .coin-grid-store { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 240px; overflow-y: auto; }
@@ -1231,7 +1233,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('vibepulse_theme') || 'dark';
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
-  // Radio error handler fallback
   const audio = document.getElementById('radio-audio');
   if (audio) {
     audio.onerror = () => {
@@ -1887,10 +1888,23 @@ function filterRealtimeChatroomMembers() {
           <div style="font-size:0.6rem; color:var(--accent-cyan);">Room: ${m.status || activeRoom} 🟢 Online</div>
         </div>
       </div>
-      <button class="btn btn-primary" style="padding:4px 10px; font-size:0.68rem;" onclick="alert('Instant connection request sent to @${m.name}!')">Connect 💬</button>
+      <button class="btn btn-primary" style="padding:4px 10px; font-size:0.68rem; pointer-events:auto !important; z-index:100002 !important;" onclick="connectWithUser('${m.name}')">Connect 💬</button>
     `;
     membersContainer.appendChild(div);
   });
+}
+
+// FIX: Instant connection handler replacing blocking alerts with smooth chat injection
+function connectWithUser(userName) {
+  closeTikTokModal('chatrooms-modal');
+  const container = document.getElementById('chat-messages-container');
+  if (container) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.innerHTML = `🟢 <b>System:</b> Connected successfully with <b>@${userName}</b>! Say hello in the chat below.`;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+  }
 }
 
 function sendChatMessage() {
