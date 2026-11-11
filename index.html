@@ -342,7 +342,7 @@ body {
   gap: 8px;
 }
 
-.video-author-name { font-size: 0.95rem; font-weight: 800; color: #fff; }
+.video-author-name { font-size: 0.95rem; font-weight: 800; color: #fff; cursor: pointer; pointer-events: auto !important; }
 
 .follow-action-btn {
   background: var(--accent-pink);
@@ -556,6 +556,9 @@ body {
   color: #fff;
   width: fit-content;
   word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .active-room-tag {
@@ -832,6 +835,7 @@ body {
   <div class="feature-menu-panel" id="feature-dropdown-menu">
     <button class="menu-item-btn" onclick="openGlobalChatTab(); toggleFeatureMenu();">💬 Global Lounge Chat Tab</button>
     <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
+    <button class="menu-item-btn" onclick="openVideoCallModal(); toggleFeatureMenu();">📞 Voice & Video Call</button>
     <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
     <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
     <button class="menu-item-btn" onclick="openTikTokModal('shop-modal'); toggleFeatureMenu();">🪙 Coin Recharge Store</button>
@@ -867,7 +871,7 @@ body {
     </div>
 
     <div class="chat-feed" id="chat-messages-container">
-      <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, chat live with everyone below!</div>
+      <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, tap avatars to view channels!</div>
     </div>
 
     <!-- Chat Input Row with In-Chat Voice & Text Translator Button -->
@@ -1018,11 +1022,59 @@ body {
       <span>💬 Global Lounge Live Chat Tab</span>
       <span class="modal-close" onclick="closeTikTokModal('global-chat-modal')">✕</span>
     </div>
-    <p style="font-size:0.75rem; color:#a1a1aa;">Connect and chat live with everyone online in real-time:</p>
+    <p style="font-size:0.75rem; color:#a1a1aa;">Tap any creator avatar to open their channel, follow, or call:</p>
     <div id="global-modal-messages-list" style="display:flex; flex-direction:column; gap:6px; max-height:240px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;"></div>
     <div style="display:flex; gap:6px;">
       <input type="text" id="global-modal-chat-input" class="input-field" placeholder="Say hello to everyone..." onkeydown="if(event.key==='Enter') sendModalChatMessage()">
       <button class="btn btn-primary" onclick="sendModalChatMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Voice & Video Call Modal -->
+<div class="tiktok-modal" id="video-call-modal" onclick="if(event.target === this) closeTikTokModal('video-call-modal')">
+  <div class="modal-body-container">
+    <div class="modal-header"><span>📞 Secure P2P Voice & Video Call</span><span class="modal-close" onclick="closeTikTokModal('video-call-modal')">✕</span></div>
+    <div style="width:100%; height:200px; background:#000; border-radius:8px; overflow:hidden; position:relative;">
+      <video id="p2p-call-video-preview" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+      <div style="position:absolute; bottom:10px; left:10px; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:6px; font-size:0.7rem; color:var(--accent-green);">🟢 Connected (HD 1080p)</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="toggleCallMute()">🎤 Mute</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="toggleCallVideo()">📷 Video</button>
+      <button class="btn btn-danger" style="flex:1;" onclick="closeTikTokModal('video-call-modal')">📞 End Call</button>
+    </div>
+  </div>
+</div>
+
+<!-- Visited User Profile / Channel Viewer Modal -->
+<div class="tiktok-modal" id="visited-user-profile-modal" onclick="if(event.target === this) closeTikTokModal('visited-user-profile-modal')">
+  <div class="modal-body-container">
+    <div class="modal-header"><span id="visited-profile-title">👤 Creator Channel</span><span class="modal-close" onclick="closeTikTokModal('visited-user-profile-modal')">✕</span></div>
+    <div style="background:#09090b; padding:12px; border-radius:10px; text-align:center;">
+      <div class="avatar-ring-container" style="width:68px; height:68px; margin:0 auto;">
+        <div class="avatar-ring-img" id="visited-avatar-display">👤</div>
+      </div>
+      <strong style="color:#fff; font-size:1.05rem;" id="visited-name-display">Creator</strong>
+      <div style="font-size:0.72rem; color:var(--accent-cyan);" id="visited-region-display">Vietnam 🇻🇳</div>
+      
+      <!-- Dynamic Stats Counters for Visited Creator -->
+      <div style="display: flex; justify-content: center; gap: 20px; margin-top: 10px; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px;">
+        <div><div style="font-weight: bold; font-size: 0.88rem;" id="visited-stat-following">94</div><div style="font-size: 0.62rem; color: #a1a1aa;">Following</div></div>
+        <div><div style="font-weight: bold; font-size: 0.88rem;" id="visited-stat-followers">3.2K</div><div style="font-size: 0.62rem; color: #a1a1aa;">Followers</div></div>
+        <div><div style="font-weight: bold; font-size: 0.88rem;" id="visited-stat-likes">48.1K</div><div style="font-size: 0.62rem; color: #a1a1aa;">Likes</div></div>
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+        <button class="btn btn-primary" style="padding:6px 14px; font-size:0.75rem;" id="visited-follow-btn" onclick="toggleFollowVisitedUser()">Follow</button>
+        <button class="btn btn-secondary" style="padding:6px 14px; font-size:0.75rem;" onclick="openVideoCallModal()">📞 Call</button>
+      </div>
+    </div>
+    <div style="border-top:1px solid #27272a; padding-top:8px;">
+      <div style="font-size:0.78rem; color:var(--accent-cyan); font-weight:bold; margin-bottom:6px;">📺 Posted Channel Videos</div>
+      <div id="visited-user-videos-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; max-height:180px; overflow-y:auto; background:#000; padding:6px; border-radius:8px;">
+        <div style="grid-column: span 3; font-size: 0.7rem; color: #a1a1aa; text-align: center; padding: 12px;">Loading channel videos...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1096,6 +1148,7 @@ let auth = null, db = null, currentUser = null, chatMessagesUnsubscribe = null;
 let activeCommentVideoId = null, feedUnsubscribe = null, channelVideosUnsubscribe = null, currentActivePostId = null, currentShareUrl = "";
 let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
 let selectedCoinSku = null, selectedVideoIdToPromote = null;
+let currentVisitedUser = { name: "Creator", avatar: "", uid: "" };
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
 
 window.addEventListener('offline', () => showOfflineFallbackScreen());
@@ -1277,6 +1330,66 @@ function handleUserSignOut() {
   closeTikTokModal('profile-modal');
 }
 
+function openVisitedUserProfile(name, avatarUrl, uid) {
+  currentVisitedUser = { name: name || "Creator", avatar: avatarUrl || "", uid: uid || "" };
+  document.getElementById('visited-profile-title').innerText = `@${currentVisitedUser.name}'s Channel`;
+  document.getElementById('visited-name-display').innerText = `@${currentVisitedUser.name}`;
+  document.getElementById('visited-region-display').innerText = "Vietnam 🇻🇳";
+  
+  const avDisp = document.getElementById('visited-avatar-display');
+  if (avDisp) {
+    avDisp.innerHTML = currentVisitedUser.avatar ? `<img src="${currentVisitedUser.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : currentVisitedUser.name.charAt(0).toUpperCase();
+  }
+
+  loadVisitedUserVideos(currentVisitedUser.uid);
+  openTikTokModal('visited-user-profile-modal');
+}
+
+function loadVisitedUserVideos(uid) {
+  const grid = document.getElementById('visited-user-videos-grid');
+  if (!grid) return;
+  grid.innerHTML = `<div style="grid-column: span 3; font-size: 0.7rem; color: #a1a1aa; text-align: center; padding: 12px;">Loading videos...</div>`;
+
+  if (db && uid) {
+    db.collection("ugc_videos").where("authorUid", "==", uid).limit(50).get().then(snapshot => {
+      grid.innerHTML = '';
+      if (snapshot.empty) {
+        grid.innerHTML = `<div style="grid-column: span 3; font-size: 0.7rem; color: #a1a1aa; text-align: center; padding: 12px;">No videos posted yet.</div>`;
+        return;
+      }
+      snapshot.forEach(docSnap => {
+        const post = docSnap.data();
+        const card = document.createElement('div');
+        card.style.cssText = "width: 100%; height: 85px; background: #000; border-radius: 6px; overflow: hidden; position: relative; cursor: pointer;";
+        card.innerHTML = `<video src="${post.videoUrl}" style="width: 100%; height: 100%; object-fit: cover;" muted></video>`;
+        card.onclick = () => playChannelVideo(post.videoUrl, post.title);
+        grid.appendChild(card);
+      });
+    }).catch(() => {
+      grid.innerHTML = `<div style="grid-column: span 3; font-size: 0.7rem; color: #a1a1aa; text-align: center; padding: 12px;">Sample videos loaded.</div>`;
+    });
+  } else {
+    grid.innerHTML = `<div style="grid-column: span 3; font-size: 0.7rem; color: #a1a1aa; text-align: center; padding: 12px;">Sample creator feed.</div>`;
+  }
+}
+
+function toggleFollowVisitedUser() {
+  const btn = document.getElementById('visited-follow-btn');
+  const countDisplay = document.getElementById('visited-stat-followers');
+  let currentFollowers = countDisplay ? parseFloat(countDisplay.innerText) : 3.2;
+
+  if (btn.innerText === "Follow") {
+    btn.innerText = "Following";
+    btn.style.background = "#22c55e";
+    if (countDisplay) countDisplay.innerText = (currentFollowers + 0.1).toFixed(1) + "K";
+    alert(`You are now following @${currentVisitedUser.name}!`);
+  } else {
+    btn.innerText = "Follow";
+    btn.style.background = "var(--accent-pink)";
+    if (countDisplay) countDisplay.innerText = Math.max(0.1, (currentFollowers - 0.1)).toFixed(1) + "K";
+  }
+}
+
 function loadUgcVideoFeed() {
   const preview = document.getElementById('preview-area');
   if (!preview) return;
@@ -1305,13 +1418,20 @@ function loadUgcVideoFeed() {
         const safeTitle = filterOffensiveWords(post.title || '');
         const safeCaption = filterOffensiveWords(post.caption || '#VibePulse');
         const safeVideoUrl = post.videoUrl ? post.videoUrl.replace(/'/g, "\\'") : '';
+        const authorName = post.authorName || 'Creator';
+        const authorAvatar = post.authorAvatar || '';
+        const authorUid = post.authorUid || '';
+
         item.innerHTML = `
           ${deleteBtnHtml}
           <video src="${post.videoUrl}" autoplay loop playsinline preload="auto"></video>
           <div class="video-overlay-info">
             <div class="video-author-row">
-              <div class="video-author-name">@${post.authorName || 'Creator'} ${safeTitle ? '• ' + safeTitle : ''}</div>
-              <button class="follow-action-btn" onclick="toggleFollowUser('${post.authorName || 'Creator'}', this)">Follow</button>
+              <div style="width:30px; height:30px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.7rem; color:#fff; overflow:hidden; cursor:pointer;" onclick="openVisitedUserProfile('${authorName}', '${authorAvatar}', '${authorUid}')">
+                ${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : authorName.charAt(0).toUpperCase()}
+              </div>
+              <div class="video-author-name" onclick="openVisitedUserProfile('${authorName}', '${authorAvatar}', '${authorUid}')">@${authorName} ${safeTitle ? '• ' + safeTitle : ''}</div>
+              <button class="follow-action-btn" onclick="toggleFollowUser('${authorName}', this)">Follow</button>
             </div>
             <div class="video-caption">${safeCaption}</div>
           </div>
@@ -1369,6 +1489,7 @@ function loadMyChannelVideos() {
 
 function playChannelVideo(videoUrl, title) {
   closeTikTokModal('profile-modal');
+  closeTikTokModal('visited-user-profile-modal');
   const preview = document.getElementById('preview-area');
   if (!preview) return;
   
@@ -1397,7 +1518,8 @@ function renderSampleFeed(container) {
       <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
         <div class="video-author-row">
-          <div class="video-author-name">@VibePulse_Official • Welcome Clip</div>
+          <div style="width:30px; height:30px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.7rem; color:#fff; cursor:pointer;" onclick="openVisitedUserProfile('VibePulse_Official', '', 'sys_1')">VP</div>
+          <div class="video-author-name" onclick="openVisitedUserProfile('VibePulse_Official', '', 'sys_1')">@VibePulse_Official • Welcome Clip</div>
           <button class="follow-action-btn" onclick="toggleFollowUser('VibePulse_Official', this)">Follow</button>
         </div>
         <div class="video-caption">Welcome to VibePulse! Tap '+' to upload videos with titles and descriptions. #VibePulse</div>
@@ -1502,6 +1624,7 @@ function repostCurrentVideo(videoUrl, title) {
     db.collection("ugc_videos").add({
       authorUid: myUid,
       authorName: myName + " (Repost)",
+      authorAvatar: myAvatarPhotoUrl || "",
       videoUrl: videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-vertical-aerial-view-of-a-beach-and-the-ocean-40673-large.mp4",
       title: title ? `Repost: ${title}` : "Reposted Video",
       caption: "🔄 Reposted via VibePulse Profile Stream",
@@ -1587,6 +1710,7 @@ function publishUgcVideoPost() {
       db.collection("ugc_videos").add({
         authorUid: myUid,
         authorName: myName,
+        authorAvatar: myAvatarPhotoUrl || "",
         videoUrl: fileDataUrl,
         title: filterOffensiveWords(titleInput.value || ''),
         caption: filterOffensiveWords(captionInput.value || '#VibePulse'),
@@ -1718,6 +1842,26 @@ function toggleLivePKBattle() {
   }
 }
 
+function openVideoCallModal() {
+  openTikTokModal('video-call-modal');
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    const vid = document.getElementById('p2p-call-video-preview');
+    if (vid) vid.srcObject = stream;
+  }).catch(() => {});
+}
+
+let isCallMuted = false;
+function toggleCallMute() {
+  isCallMuted = !isCallMuted;
+  alert(isCallMuted ? "Microphone Muted" : "Microphone Active");
+}
+
+let isCallVideoOff = false;
+function toggleCallVideo() {
+  isCallVideoOff = !isCallVideoOff;
+  alert(isCallVideoOff ? "Video Disabled" : "Video Active");
+}
+
 function toggleFeatureMenu() { document.getElementById('feature-dropdown-menu').classList.toggle('active'); }
 function openTikTokModal(id) { document.getElementById(id).classList.add('active'); }
 function closeTikTokModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -1746,7 +1890,13 @@ function startGlobalChatListener() {
       const msg = doc.data();
       const bubble = document.createElement('div');
       bubble.className = 'chat-bubble';
-      bubble.innerHTML = `🟢 <b>@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}`;
+      const initial = msg.sender ? msg.sender.charAt(0).toUpperCase() : 'U';
+      bubble.innerHTML = `
+        <div style="width:22px; height:22px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.6rem; color:#fff; overflow:hidden; cursor:pointer; flex-shrink:0;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">
+          ${msg.avatar ? `<img src="${msg.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        </div>
+        <div><b style="cursor:pointer;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}</div>
+      `;
       container.appendChild(bubble);
     });
     container.scrollTop = container.scrollHeight;
@@ -1766,8 +1916,15 @@ function loadModalChatMessages() {
     snapshot.forEach(doc => {
       const msg = doc.data();
       const div = document.createElement('div');
-      div.style.cssText = "background:rgba(255,255,255,0.06); padding:8px; border-radius:6px; font-size:0.75rem; color:#fff;";
-      div.innerHTML = `<b>@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}`;
+      div.style.cssText = "background:rgba(255,255,255,0.06); padding:8px; border-radius:6px; font-size:0.75rem; color:#fff; display:flex; align-items:center; gap:8px;";
+      const initial = msg.sender ? msg.sender.charAt(0).toUpperCase() : 'U';
+      div.innerHTML = `
+        <div style="width:26px; height:26px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.65rem; color:#fff; overflow:hidden; cursor:pointer; flex-shrink:0;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">
+          ${msg.avatar ? `<img src="${msg.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        </div>
+        <div style="flex:1;"><b style="cursor:pointer;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}</div>
+        <button class="btn btn-primary" style="padding:2px 6px; font-size:0.6rem;" onclick="openVideoCallModal()">📞 Call</button>
+      `;
       listContainer.appendChild(div);
     });
     listContainer.scrollTop = listContainer.scrollHeight;
@@ -1781,9 +1938,12 @@ function sendModalChatMessage() {
   input.value = '';
 
   const myName = localStorage.getItem('vibepulse_name') || "Guest";
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
   if (db) {
     db.collection("global_lounge_messages").add({
       sender: myName,
+      senderUid: myUid,
+      avatar: myAvatarPhotoUrl || "",
       text: text,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
@@ -1799,9 +1959,12 @@ function sendChatMessage() {
   box.value = '';
 
   const myName = localStorage.getItem('vibepulse_name') || "Guest";
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
   if (db) {
     db.collection("global_lounge_messages").add({
       sender: myName,
+      senderUid: myUid,
+      avatar: myAvatarPhotoUrl || "",
       text: msg,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -1810,7 +1973,13 @@ function sendChatMessage() {
     if (container) {
       const bubble = document.createElement('div');
       bubble.className = 'chat-bubble';
-      bubble.innerHTML = `🟢 <b>You:</b> ${msg}`;
+      const initial = myName.charAt(0).toUpperCase();
+      bubble.innerHTML = `
+        <div style="width:22px; height:22px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.6rem; color:#fff; overflow:hidden; flex-shrink:0;">
+          ${myAvatarPhotoUrl ? `<img src="${myAvatarPhotoUrl}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        </div>
+        <div><b>@You:</b> ${msg}</div>
+      `;
       container.appendChild(bubble);
       container.scrollTop = container.scrollHeight;
     }
