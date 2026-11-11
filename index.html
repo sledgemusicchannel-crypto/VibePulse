@@ -118,17 +118,18 @@ body {
   color: white;
 }
 
+/* TikTok-Style Circular Profile Ring */
 .avatar-ring-container {
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(135deg, #22c55e, #25f4ee);
+  padding: 2.5px;
+  background: linear-gradient(135deg, #fe2c55, #25f4ee, #22c55e);
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 10px rgba(254, 44, 85, 0.5);
   cursor: pointer;
   pointer-events: auto !important;
   z-index: 600 !important;
@@ -153,11 +154,12 @@ body {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   background: #22c55e;
   border: 1.5px solid #000;
   border-radius: 50%;
+  z-index: 610;
 }
 
 .center-header-group {
@@ -489,6 +491,7 @@ body {
   z-index: 10;
 }
 
+/* Enhanced PK Toggle Button with robust touch-action & high z-index */
 .live-pk-toggle-btn {
   position: absolute;
   bottom: 150px;
@@ -496,15 +499,16 @@ body {
   background: linear-gradient(135deg, #fe2c55, #ff007f);
   color: white;
   border: none;
-  padding: 12px 22px;
-  border-radius: 26px;
-  font-weight: bold;
-  font-size: 0.85rem;
+  padding: 14px 24px;
+  border-radius: 28px;
+  font-weight: 900;
+  font-size: 0.9rem;
   cursor: pointer;
-  z-index: 500 !important;
-  box-shadow: 0 6px 20px rgba(254, 44, 85, 0.8);
+  z-index: 5000 !important;
+  box-shadow: 0 8px 25px rgba(254, 44, 85, 0.9);
   pointer-events: auto !important;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .media-placeholder {
@@ -1427,8 +1431,10 @@ function loadUgcVideoFeed() {
           <video src="${post.videoUrl}" autoplay loop playsinline preload="auto"></video>
           <div class="video-overlay-info">
             <div class="video-author-row">
-              <div style="width:30px; height:30px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.7rem; color:#fff; overflow:hidden; cursor:pointer;" onclick="openVisitedUserProfile('${authorName}', '${authorAvatar}', '${authorUid}')">
-                ${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : authorName.charAt(0).toUpperCase()}
+              <div class="avatar-ring-container" style="width:34px; height:34px;" onclick="openVisitedUserProfile('${authorName}', '${authorAvatar}', '${authorUid}')">
+                <div class="avatar-ring-img">
+                  ${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : authorName.charAt(0).toUpperCase()}
+                </div>
               </div>
               <div class="video-author-name" onclick="openVisitedUserProfile('${authorName}', '${authorAvatar}', '${authorUid}')">@${authorName} ${safeTitle ? '• ' + safeTitle : ''}</div>
               <button class="follow-action-btn" onclick="toggleFollowUser('${authorName}', this)">Follow</button>
@@ -1518,7 +1524,9 @@ function renderSampleFeed(container) {
       <video src="${sampleUrl}" autoplay loop playsinline muted></video>
       <div class="video-overlay-info">
         <div class="video-author-row">
-          <div style="width:30px; height:30px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.7rem; color:#fff; cursor:pointer;" onclick="openVisitedUserProfile('VibePulse_Official', '', 'sys_1')">VP</div>
+          <div class="avatar-ring-container" style="width:34px; height:34px;" onclick="openVisitedUserProfile('VibePulse_Official', '', 'sys_1')">
+            <div class="avatar-ring-img">VP</div>
+          </div>
           <div class="video-author-name" onclick="openVisitedUserProfile('VibePulse_Official', '', 'sys_1')">@VibePulse_Official • Welcome Clip</div>
           <button class="follow-action-btn" onclick="toggleFollowUser('VibePulse_Official', this)">Follow</button>
         </div>
@@ -1892,8 +1900,10 @@ function startGlobalChatListener() {
       bubble.className = 'chat-bubble';
       const initial = msg.sender ? msg.sender.charAt(0).toUpperCase() : 'U';
       bubble.innerHTML = `
-        <div style="width:22px; height:22px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.6rem; color:#fff; overflow:hidden; cursor:pointer; flex-shrink:0;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">
-          ${msg.avatar ? `<img src="${msg.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        <div class="avatar-ring-container" style="width:26px; height:26px; flex-shrink:0;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">
+          <div class="avatar-ring-img">
+            ${msg.avatar ? `<img src="${msg.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+          </div>
         </div>
         <div><b style="cursor:pointer;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}</div>
       `;
@@ -1919,8 +1929,10 @@ function loadModalChatMessages() {
       div.style.cssText = "background:rgba(255,255,255,0.06); padding:8px; border-radius:6px; font-size:0.75rem; color:#fff; display:flex; align-items:center; gap:8px;";
       const initial = msg.sender ? msg.sender.charAt(0).toUpperCase() : 'U';
       div.innerHTML = `
-        <div style="width:26px; height:26px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.65rem; color:#fff; overflow:hidden; cursor:pointer; flex-shrink:0;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">
-          ${msg.avatar ? `<img src="${msg.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        <div class="avatar-ring-container" style="width:30px; height:30px; flex-shrink:0;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">
+          <div class="avatar-ring-img">
+            ${msg.avatar ? `<img src="${msg.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+          </div>
         </div>
         <div style="flex:1;"><b style="cursor:pointer;" onclick="openVisitedUserProfile('${msg.sender}', '${msg.avatar || ''}', '${msg.senderUid || ''}')">@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}</div>
         <button class="btn btn-primary" style="padding:2px 6px; font-size:0.6rem;" onclick="openVideoCallModal()">📞 Call</button>
@@ -1975,8 +1987,10 @@ function sendChatMessage() {
       bubble.className = 'chat-bubble';
       const initial = myName.charAt(0).toUpperCase();
       bubble.innerHTML = `
-        <div style="width:22px; height:22px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.6rem; color:#fff; overflow:hidden; flex-shrink:0;">
-          ${myAvatarPhotoUrl ? `<img src="${myAvatarPhotoUrl}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+        <div class="avatar-ring-container" style="width:26px; height:26px; flex-shrink:0;">
+          <div class="avatar-ring-img">
+            ${myAvatarPhotoUrl ? `<img src="${myAvatarPhotoUrl}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+          </div>
         </div>
         <div><b>@You:</b> ${msg}</div>
       `;
