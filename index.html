@@ -783,19 +783,6 @@ body {
 .btn-danger { background: #ef4444; color: white; }
 .input-field { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3f3f46; background: #09090b; color: white; font-size: 0.82rem; pointer-events: auto !important; outline: none; }
 
-.room-grid-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.room-tab-btn {
-  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 10px; border-radius: 8px; font-size: 0.78rem; font-weight: bold; cursor: pointer; text-align: left;
-  pointer-events: auto !important; z-index: 100002 !important;
-}
-
-.active-users-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; pointer-events: auto !important; }
-.active-user-item {
-  display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
-  pointer-events: auto !important;
-  z-index: 100002 !important;
-}
-
 .coin-grid-store { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 240px; overflow-y: auto; }
 .coin-card-item {
   background: #27272a; border: 1px solid #3f3f46; border-radius: 8px; padding: 10px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
@@ -838,12 +825,12 @@ body {
     </div>
 
     <div class="right-header-group">
-      <div class="active-users-pill" onclick="openTikTokModal('chatrooms-modal')">🟢 <span id="top-hud-count">30</span> Online</div>
+      <div class="active-users-pill" onclick="openGlobalChatTab()">🟢 <span id="top-hud-count">30</span> Online</div>
     </div>
   </div>
 
   <div class="feature-menu-panel" id="feature-dropdown-menu">
-    <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Chatrooms & Real-Time Search</button>
+    <button class="menu-item-btn" onclick="openGlobalChatTab(); toggleFeatureMenu();">💬 Global Lounge Chat Tab</button>
     <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
     <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
     <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
@@ -876,11 +863,11 @@ body {
 
   <div class="bottom-overlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div class="active-room-tag" id="current-room-label" onclick="openTikTokModal('chatrooms-modal')" style="cursor:pointer;">Chatroom: Global Lounge (Tap to switch)</div>
+      <div class="active-room-tag" id="current-room-label" onclick="openGlobalChatTab()" style="cursor:pointer;">Chat Tab: Global Lounge Live 🟢</div>
     </div>
 
     <div class="chat-feed" id="chat-messages-container">
-      <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, tap '+' to post your own video!</div>
+      <div class="chat-bubble">🟢 <b>System:</b> Swipe up/down to watch videos, chat live with everyone below!</div>
     </div>
 
     <!-- Chat Input Row with In-Chat Voice & Text Translator Button -->
@@ -888,7 +875,7 @@ body {
       <button type="button" class="chat-translate-btn" onclick="openVoiceTranslatorModal()" title="Voice & Text Translator">🎤 Translate</button>
       
       <div class="chat-input-wrapper">
-        <input type="text" class="chat-input" id="chat-box" placeholder="Say something about this video..." autocomplete="off">
+        <input type="text" class="chat-input" id="chat-box" placeholder="Say something in Global Lounge..." autocomplete="off">
         <button type="button" class="emoji-picker-toggle" onclick="toggleEmojiDrawer()">😊</button>
         <div class="emoji-drawer" id="emoji-popup-drawer">
           <button type="button" class="emoji-item" onclick="insertEmoji('😀')">😀</button>
@@ -909,7 +896,7 @@ body {
   <button class="nav-item active" onclick="switchTab('feed')">🏠<span>Home</span></button>
   <button class="nav-item" onclick="openTikTokModal('shop-modal')">🪙<span>Store</span></button>
   <button class="btn-plus-tiktok" onclick="openTikTokModal('plus-modal')"><span class="btn-plus-icon">+</span></button>
-  <button class="nav-item" onclick="openTikTokModal('chatrooms-modal')">💬<span>Rooms</span></button>
+  <button class="nav-item" onclick="openGlobalChatTab()">💬<span>Chat</span></button>
   <button class="nav-item" onclick="openTikTokModal('profile-modal')">👤<span>Profile</span></button>
 </nav>
 
@@ -1024,28 +1011,18 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="chatrooms-modal" onclick="if(event.target === this) closeTikTokModal('chatrooms-modal')">
+<!-- Clean Global Chat Tab Modal -->
+<div class="tiktok-modal" id="global-chat-modal" onclick="if(event.target === this) closeTikTokModal('global-chat-modal')">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>💬 Active Chatrooms & Online Users</span>
-      <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
+      <span>💬 Global Lounge Live Chat Tab</span>
+      <span class="modal-close" onclick="closeTikTokModal('global-chat-modal')">✕</span>
     </div>
-    
-    <div class="room-grid-list">
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Single Lounge')">💛 Single Lounge</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Divorced Support')">💔 Divorced Support</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('Married Club')">💍 Married Club</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Male')">🏳️‍🌈 LGBT+ Male</button>
-      <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Female')">🏳️‍🌈 LGBT+ Female</button>
-    </div>
-
-    <div style="border-top:1px solid #27272a; padding-top:8px; margin-top:4px;">
-      <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-bottom:4px;">🟢 Online Users in <span id="active-search-room-title">Global Lounge</span></div>
-      <div style="display:flex; gap:6px; margin-bottom:6px;">
-        <input type="text" id="member-search-input" class="input-field" placeholder="Search member name..." oninput="filterRealtimeChatroomMembers()">
-      </div>
-      <div class="active-users-list-container" id="chatroom-online-members-list"></div>
+    <p style="font-size:0.75rem; color:#a1a1aa;">Connect and chat live with everyone online in real-time:</p>
+    <div id="global-modal-messages-list" style="display:flex; flex-direction:column; gap:6px; max-height:240px; overflow-y:auto; background:#09090b; padding:8px; border-radius:8px;"></div>
+    <div style="display:flex; gap:6px;">
+      <input type="text" id="global-modal-chat-input" class="input-field" placeholder="Say hello to everyone..." onkeydown="if(event.key==='Enter') sendModalChatMessage()">
+      <button class="btn btn-primary" onclick="sendModalChatMessage()">Send</button>
     </div>
   </div>
 </div>
@@ -1083,13 +1060,6 @@ body {
     <input type="text" class="input-field" id="edit-bio" placeholder="Bio / Status">
     <input type="text" class="input-field" id="edit-region" placeholder="Region / Country (e.g., Vietnam)">
     <input type="number" class="input-field" id="edit-age" placeholder="Age (e.g., 25)">
-    <select id="edit-relationship-status" class="input-field">
-      <option value="Single Lounge">Status: Single</option>
-      <option value="Divorced Support">Status: Divorced</option>
-      <option value="Married Club">Status: Married</option>
-      <option value="LGBT+ Male">Status: LGBT+ Male</option>
-      <option value="LGBT+ Female">Status: LGBT+ Female</option>
-    </select>
     <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Dashboard</button>
     <button class="btn btn-secondary" onclick="toggleThemeMode()">🌓 Toggle Dark / Light Theme</button>
     
@@ -1122,7 +1092,7 @@ const firebaseConfig = {
   appId: "1:845177411967:web:cc46d730fdd6b161a5224a"
 };
 
-let auth = null, db = null, currentUser = null, activeRoom = "Global Lounge";
+let auth = null, db = null, currentUser = null, chatMessagesUnsubscribe = null;
 let activeCommentVideoId = null, feedUnsubscribe = null, channelVideosUnsubscribe = null, currentActivePostId = null, currentShareUrl = "";
 let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
 let selectedCoinSku = null, selectedVideoIdToPromote = null;
@@ -1193,7 +1163,7 @@ try {
       loadMyChannelVideos();
       syncUserProfileToDb();
       startGlobalHudSync();
-      filterRealtimeChatroomMembers();
+      startGlobalChatListener();
     });
   }
 } catch(e) {}
@@ -1208,7 +1178,7 @@ window.addEventListener('DOMContentLoaded', () => {
   loadUgcVideoFeed();
   loadMyChannelVideos();
   updateLiveTranslationPreview();
-  filterRealtimeChatroomMembers();
+  startGlobalChatListener();
   const savedTheme = localStorage.getItem('vibepulse_theme') || 'dark';
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
@@ -1239,14 +1209,12 @@ function syncUserProfileToDb() {
   const name = localStorage.getItem('vibepulse_name') || "Guest";
   const region = localStorage.getItem('vibepulse_region') || "Vietnam";
   const age = parseInt(localStorage.getItem('vibepulse_age') || "25");
-  const status = localStorage.getItem('vibepulse_status') || "Global Lounge";
 
   db.collection("users").doc(myUid).set({
     uid: myUid,
     name: name,
     region: region,
     age: age,
-    status: status,
     avatar: myAvatarPhotoUrl || "",
     lastActive: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true }).catch(()=>{});
@@ -1267,7 +1235,6 @@ function renderAllAvatars() {
   if (document.getElementById('edit-bio')) document.getElementById('edit-bio').value = localStorage.getItem('vibepulse_bio') || '';
   if (document.getElementById('edit-region')) document.getElementById('edit-region').value = localStorage.getItem('vibepulse_region') || 'Vietnam';
   if (document.getElementById('edit-age')) document.getElementById('edit-age').value = localStorage.getItem('vibepulse_age') || '25';
-  if (document.getElementById('edit-relationship-status')) document.getElementById('edit-relationship-status').value = localStorage.getItem('vibepulse_status') || 'Global Lounge';
 }
 
 function uploadProfileAvatar(input) {
@@ -1758,80 +1725,70 @@ function switchTab(tab) { if (tab === 'feed') loadUgcVideoFeed(); }
 function toggleEmojiDrawer() { document.getElementById('emoji-popup-drawer').classList.toggle('active'); }
 function insertEmoji(emoji) { document.getElementById('chat-box').value += emoji; document.getElementById('emoji-popup-drawer').classList.remove('active'); }
 
-function selectRoomFromModal(roomName) {
-  activeRoom = roomName;
-  document.getElementById('current-room-label').innerText = `Chatroom: ${roomName}`;
-  document.getElementById('active-search-room-title').innerText = roomName;
-  filterRealtimeChatroomMembers();
-  const container = document.getElementById('chat-messages-container');
-  if (container) {
-    const bubble = document.createElement('div');
-    bubble.className = 'chat-bubble';
-    bubble.innerHTML = `🟢 <b>System:</b> Joined chatroom <b>${roomName}</b>`;
-    container.appendChild(bubble);
-    container.scrollTop = container.scrollHeight;
-  }
+function openGlobalChatTab() {
+  openTikTokModal('global-chat-modal');
+  loadModalChatMessages();
 }
 
-// Clean, uncluttered member list for instant responsiveness
-const defaultRoomMembers = [
-  { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
-  { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" },
-  { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "" },
-  { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "" },
-  { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married Club", avatar: "" },
-  { name: "Creator_Pro", age: 25, region: "Vietnam", status: "Global Lounge", avatar: "" },
-  { name: "johnfxtradesignals", age: 25, region: "Vietnam", status: "Global Lounge", avatar: "" }
-];
+function startGlobalChatListener() {
+  const container = document.getElementById('chat-messages-container');
+  if (!container || !db) return;
+  
+  if (chatMessagesUnsubscribe) chatMessagesUnsubscribe();
 
-function filterRealtimeChatroomMembers() {
-  const membersContainer = document.getElementById('chatroom-online-members-list');
-  const searchInput = document.getElementById('member-search-input');
-  if (!membersContainer) return;
+  chatMessagesUnsubscribe = db.collection("global_lounge_messages").orderBy("timestamp", "asc").limit(50).onSnapshot((snapshot) => {
+    container.innerHTML = '';
+    if (snapshot.empty) {
+      container.innerHTML = `<div class="chat-bubble">🟢 <b>System:</b> Welcome to Global Lounge! Say hello below.</div>`;
+      return;
+    }
+    snapshot.forEach(doc => {
+      const msg = doc.data();
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.innerHTML = `🟢 <b>@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}`;
+      container.appendChild(bubble);
+    });
+    container.scrollTop = container.scrollHeight;
+  }, () => {});
+}
 
-  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+function loadModalChatMessages() {
+  const listContainer = document.getElementById('global-modal-messages-list');
+  if (!listContainer || !db) return;
 
-  const filtered = defaultRoomMembers.filter(m => {
-    if (activeRoom !== 'Global Lounge' && m.status && m.status !== activeRoom) return false;
-    if (query && m.name && !m.name.toLowerCase().includes(query)) return false;
-    return true;
-  });
-
-  membersContainer.innerHTML = '';
-  if (filtered.length === 0) {
-    membersContainer.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:10px;">No online users found in ${activeRoom}.</div>`;
-    return;
-  }
-
-  filtered.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'active-user-item';
-    const initial = m.name ? m.name.charAt(0).toUpperCase() : 'U';
-    div.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px;">
-        <div style="width:28px; height:28px; border-radius:50%; background:#27272a; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:0.7rem; color:#fff; overflow:hidden;">
-          ${m.avatar ? `<img src="${m.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
-        </div>
-        <div>
-          <div style="font-size:0.75rem; font-weight:bold; color:#fff;">@${m.name} (${m.region || 'Vietnam'})</div>
-          <div style="font-size:0.6rem; color:var(--accent-cyan);">Room: ${m.status || activeRoom} 🟢 Online</div>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="padding:4px 10px; font-size:0.68rem; pointer-events:auto !important; z-index:100002 !important;" onclick="connectWithUser('${m.name}')">Connect 💬</button>
-    `;
-    membersContainer.appendChild(div);
+  db.collection("global_lounge_messages").orderBy("timestamp", "asc").limit(50).get().then((snapshot) => {
+    listContainer.innerHTML = '';
+    if (snapshot.empty) {
+      listContainer.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center;">No messages yet. Start chatting!</div>`;
+      return;
+    }
+    snapshot.forEach(doc => {
+      const msg = doc.data();
+      const div = document.createElement('div');
+      div.style.cssText = "background:rgba(255,255,255,0.06); padding:8px; border-radius:6px; font-size:0.75rem; color:#fff;";
+      div.innerHTML = `<b>@${msg.sender}:</b> ${filterOffensiveWords(msg.text)}`;
+      listContainer.appendChild(div);
+    });
+    listContainer.scrollTop = listContainer.scrollHeight;
   });
 }
 
-function connectWithUser(userName) {
-  closeTikTokModal('chatrooms-modal');
-  const container = document.getElementById('chat-messages-container');
-  if (container) {
-    const bubble = document.createElement('div');
-    bubble.className = 'chat-bubble';
-    bubble.innerHTML = `🟢 <b>System:</b> Connected successfully with <b>@${userName}</b>! Say hello in the chat below.`;
-    container.appendChild(bubble);
-    container.scrollTop = container.scrollHeight;
+function sendModalChatMessage() {
+  const input = document.getElementById('global-modal-chat-input');
+  if (!input || !input.value.trim()) return;
+  const text = filterOffensiveWords(input.value.trim());
+  input.value = '';
+
+  const myName = localStorage.getItem('vibepulse_name') || "Guest";
+  if (db) {
+    db.collection("global_lounge_messages").add({
+      sender: myName,
+      text: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      loadModalChatMessages();
+    });
   }
 }
 
@@ -1840,20 +1797,23 @@ function sendChatMessage() {
   if (!box || !box.value.trim()) return;
   const msg = filterOffensiveWords(box.value.trim());
   box.value = '';
-  const container = document.getElementById('chat-messages-container');
-  if (container) {
-    const bubble = document.createElement('div');
-    bubble.className = 'chat-bubble';
-    bubble.innerHTML = `🟢 <b>You:</b> ${msg}`;
-    container.appendChild(bubble);
-    container.scrollTop = container.scrollHeight;
-  }
+
+  const myName = localStorage.getItem('vibepulse_name') || "Guest";
   if (db) {
-    db.collection("chat_rooms").doc(activeRoom).collection("messages").add({
-      sender: localStorage.getItem('vibepulse_name') || "Guest",
+    db.collection("global_lounge_messages").add({
+      sender: myName,
       text: msg,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
+  } else {
+    const container = document.getElementById('chat-messages-container');
+    if (container) {
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.innerHTML = `🟢 <b>You:</b> ${msg}`;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
   }
 }
 
@@ -1985,13 +1945,11 @@ function saveProfileDetails() {
   const bio = document.getElementById('edit-bio').value.trim();
   const region = document.getElementById('edit-region').value.trim();
   const age = document.getElementById('edit-age').value.trim();
-  const status = document.getElementById('edit-relationship-status').value;
 
   if (name) localStorage.setItem('vibepulse_name', name);
   localStorage.setItem('vibepulse_bio', bio);
   localStorage.setItem('vibepulse_region', region);
   localStorage.setItem('vibepulse_age', age);
-  localStorage.setItem('vibepulse_status', status);
 
   renderAllAvatars();
   syncUserProfileToDb();
@@ -2008,11 +1966,6 @@ function updateLiveTranslationPreview() {
   const lang = langSelect ? langSelect.value : 'vi';
   if (!input || !preview) return;
   const text = input.value.trim().toLowerCase();
-
-  const dictionary = {
-    "hello": { vi: "Xin Chào", es: "Hola", fr: "Bonjour", zh: "你好", ja: "こんにちは", ko: "안녕하세요", en: "Hello" },
-    "hi": { vi: "Xin Chào", es: "Hola", fr: "Salut", zh: "嗨", ja: "やあ", ko: "안녕", en: "Hi" }
-  };
 
   const sampleTranslations = {
     vi: text ? `Xin Chào (${text})` : "Xin Chào",
