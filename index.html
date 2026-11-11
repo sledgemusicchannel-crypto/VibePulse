@@ -737,7 +737,6 @@ body {
 
 .btn-plus-icon { color: #000; font-weight: 900; font-size: 1.05rem; }
 
-/* FIX: Ensuring high z-index and explicit pointer events for interactive modals */
 .tiktok-modal {
   display: none; 
   position: fixed; 
@@ -790,7 +789,7 @@ body {
   pointer-events: auto !important; z-index: 100002 !important;
 }
 
-.active-users-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; pointer-events: auto !important; }
+.active-users-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; pointer-events: auto !important; }
 .active-user-item {
   display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
   pointer-events: auto !important;
@@ -845,7 +844,6 @@ body {
 
   <div class="feature-menu-panel" id="feature-dropdown-menu">
     <button class="menu-item-btn" onclick="openTikTokModal('chatrooms-modal'); toggleFeatureMenu();">💬 Chatrooms & Real-Time Search</button>
-    <button class="menu-item-btn" onclick="openTikTokModal('social-import-modal'); toggleFeatureMenu();">🌐 Import IG / FB / TikTok Users</button>
     <button class="menu-item-btn" onclick="startLiveCamera(); toggleFeatureMenu();">🔴 Go Live & PK Battle</button>
     <button class="menu-item-btn" onclick="triggerAction('jukebox'); toggleFeatureMenu();">🎵 YouTube Jukebox</button>
     <button class="menu-item-btn" onclick="triggerAction('gifts'); toggleFeatureMenu();">🎁 Send 100-Level Gifts</button>
@@ -994,17 +992,6 @@ body {
   </div>
 </div>
 
-<div class="tiktok-modal" id="social-import-modal" onclick="if(event.target === this) closeTikTokModal('social-import-modal')">
-  <div class="modal-body-container">
-    <div class="modal-header"><span>🌐 Connect Instagram, FB & TikTok</span><span class="modal-close" onclick="closeTikTokModal('social-import-modal')">✕</span></div>
-    <p style="font-size:0.75rem; color:#a1a1aa;">Fetch real online users and friends directly from social platforms:</p>
-    <button class="btn btn-primary" onclick="importSocialGraph('Instagram')">📸 Sync Instagram Followers & Creators</button>
-    <button class="btn btn-primary" style="background:#1877f2;" onclick="importSocialGraph('Facebook')">📘 Sync Facebook Friends & Groups</button>
-    <button class="btn btn-primary" style="background:#000;" onclick="importSocialGraph('TikTok')">🎵 Sync TikTok Connections</button>
-    <div id="social-sync-status" style="font-size:0.72rem; color:var(--accent-cyan); text-align:center;"></div>
-  </div>
-</div>
-
 <div class="tiktok-modal" id="duet-modal" onclick="if(event.target === this) closeTikTokModal('duet-modal')">
   <div class="modal-body-container">
     <div class="modal-header"><span>👥 Record Duet</span><span class="modal-close" onclick="closeTikTokModal('duet-modal')">✕</span></div>
@@ -1040,13 +1027,10 @@ body {
 <div class="tiktok-modal" id="chatrooms-modal" onclick="if(event.target === this) closeTikTokModal('chatrooms-modal')">
   <div class="modal-body-container">
     <div class="modal-header">
-      <span>💬 Chatrooms & Real-Time Search</span>
-      <div style="display:flex; gap:6px; align-items:center;">
-        <button class="btn btn-primary" style="padding:4px 10px; font-size:0.68rem;" onclick="document.getElementById('member-search-input').focus()">🔍 Search</button>
-        <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
-      </div>
+      <span>💬 Active Chatrooms & Online Users</span>
+      <span class="modal-close" onclick="closeTikTokModal('chatrooms-modal')">✕</span>
     </div>
-    <button class="btn btn-secondary" style="background:rgba(37,244,238,0.15); border:1px solid var(--accent-cyan); color:var(--accent-cyan); font-size:0.72rem;" onclick="openTikTokModal('social-import-modal')">🌐 Connect Instagram / FB / TikTok to Search Real Online Users</button>
+    
     <div class="room-grid-list">
       <button class="room-tab-btn" onclick="selectRoomFromModal('Global Lounge')">🌐 Global Lounge</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('Single Lounge')">💛 Single Lounge</button>
@@ -1055,16 +1039,11 @@ body {
       <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Male')">🏳️‍🌈 LGBT+ Male</button>
       <button class="room-tab-btn" onclick="selectRoomFromModal('LGBT+ Female')">🏳️‍🌈 LGBT+ Female</button>
     </div>
+
     <div style="border-top:1px solid #27272a; padding-top:8px; margin-top:4px;">
-      <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-bottom:4px;">🔍 Search Real Online Users in <span id="active-search-room-title">Global Lounge</span></div>
+      <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold; margin-bottom:4px;">🟢 Online Users in <span id="active-search-room-title">Global Lounge</span></div>
       <div style="display:flex; gap:6px; margin-bottom:6px;">
-        <input type="text" id="member-search-input" class="input-field" placeholder="Search by name..." oninput="filterRealtimeChatroomMembers()">
-        <select id="member-age-filter" class="input-field" style="max-width:110px;" onchange="filterRealtimeChatroomMembers()">
-          <option value="all">Any Age</option>
-          <option value="18-25">18-25</option>
-          <option value="26-35">26-35</option>
-          <option value="36+">36+</option>
-        </select>
+        <input type="text" id="member-search-input" class="input-field" placeholder="Search member name..." oninput="filterRealtimeChatroomMembers()">
       </div>
       <div class="active-users-list-container" id="chatroom-online-members-list"></div>
     </div>
@@ -1144,7 +1123,7 @@ const firebaseConfig = {
 };
 
 let auth = null, db = null, currentUser = null, activeRoom = "Global Lounge";
-let activeCommentVideoId = null, feedUnsubscribe = null, membersUnsubscribe = null, channelVideosUnsubscribe = null, currentActivePostId = null, currentShareUrl = "";
+let activeCommentVideoId = null, feedUnsubscribe = null, channelVideosUnsubscribe = null, currentActivePostId = null, currentShareUrl = "";
 let currentLoveCount = 21, myAvatarPhotoUrl = localStorage.getItem('vibepulse_avatar') || "";
 let selectedCoinSku = null, selectedVideoIdToPromote = null;
 const offensiveWordsList = ["badword", "spam", "abuse", "scam", "hate", "toxic"];
@@ -1214,7 +1193,7 @@ try {
       loadMyChannelVideos();
       syncUserProfileToDb();
       startGlobalHudSync();
-      loadRealtimeChatroomMembers();
+      filterRealtimeChatroomMembers();
     });
   }
 } catch(e) {}
@@ -1229,7 +1208,7 @@ window.addEventListener('DOMContentLoaded', () => {
   loadUgcVideoFeed();
   loadMyChannelVideos();
   updateLiveTranslationPreview();
-  loadRealtimeChatroomMembers();
+  filterRealtimeChatroomMembers();
   const savedTheme = localStorage.getItem('vibepulse_theme') || 'dark';
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
@@ -1575,19 +1554,6 @@ function shareToPlatform(p) {
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentShareUrl)}`, '_blank');
 }
 
-function importSocialGraph(platform) {
-  const statusDiv = document.getElementById('social-sync-status');
-  statusDiv.innerText = `Connecting to ${platform} API... fetching real online users...`;
-  setTimeout(() => {
-    statusDiv.innerText = `Successfully synced 148 online connections from ${platform}!`;
-    cachedRoomMembers.push(
-      { name: `${platform}_Friend_1`, age: 24, region: "Vietnam", status: activeRoom, avatar: "" },
-      { name: `${platform}_Creator_X`, age: 29, region: "Global", status: activeRoom, avatar: "" }
-    );
-    filterRealtimeChatroomMembers();
-  }, 1200);
-}
-
 function openDuetModal() {
   openTikTokModal('duet-modal');
   navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
@@ -1796,7 +1762,7 @@ function selectRoomFromModal(roomName) {
   activeRoom = roomName;
   document.getElementById('current-room-label').innerText = `Chatroom: ${roomName}`;
   document.getElementById('active-search-room-title').innerText = roomName;
-  loadRealtimeChatroomMembers();
+  filterRealtimeChatroomMembers();
   const container = document.getElementById('chat-messages-container');
   if (container) {
     const bubble = document.createElement('div');
@@ -1807,70 +1773,33 @@ function selectRoomFromModal(roomName) {
   }
 }
 
-let cachedRoomMembers = [];
-function loadRealtimeChatroomMembers() {
-  const membersContainer = document.getElementById('chatroom-online-members-list');
-  if (!membersContainer) return;
-  if (membersUnsubscribe) membersUnsubscribe();
-
-  if (db) {
-    membersUnsubscribe = db.collection("users").onSnapshot((snapshot) => {
-      cachedRoomMembers = [];
-      snapshot.forEach(doc => {
-        cachedRoomMembers.push(doc.data());
-      });
-      if (cachedRoomMembers.length < 5) {
-        cachedRoomMembers.push(
-          { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
-          { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" },
-          { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "" },
-          { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "" },
-          { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married Club", avatar: "" }
-        );
-      }
-      filterRealtimeChatroomMembers();
-    }, () => {
-      cachedRoomMembers = [
-        { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
-        { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" }
-      ];
-      filterRealtimeChatroomMembers();
-    });
-  } else {
-    cachedRoomMembers = [
-      { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
-      { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" },
-      { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "" },
-      { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "" },
-      { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married Club", avatar: "" }
-    ];
-    filterRealtimeChatroomMembers();
-  }
-}
+// Clean, uncluttered member list for instant responsiveness
+const defaultRoomMembers = [
+  { name: "Jessica_Vibe", age: 24, region: "Vietnam", status: "Single Lounge", avatar: "" },
+  { name: "Alex_HCMC", age: 31, region: "Vietnam", status: "Divorced Support", avatar: "" },
+  { name: "Sophia_Trans", age: 28, region: "US", status: "LGBT+ Female", avatar: "" },
+  { name: "Lucas_Bkk", age: 27, region: "Thailand", status: "LGBT+ Male", avatar: "" },
+  { name: "David_Hanoi", age: 35, region: "Vietnam", status: "Married Club", avatar: "" },
+  { name: "Creator_Pro", age: 25, region: "Vietnam", status: "Global Lounge", avatar: "" },
+  { name: "johnfxtradesignals", age: 25, region: "Vietnam", status: "Global Lounge", avatar: "" }
+];
 
 function filterRealtimeChatroomMembers() {
   const membersContainer = document.getElementById('chatroom-online-members-list');
   const searchInput = document.getElementById('member-search-input');
-  const ageFilter = document.getElementById('member-age-filter');
   if (!membersContainer) return;
 
   const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-  const ageRange = ageFilter ? ageFilter.value : 'all';
 
-  const filtered = cachedRoomMembers.filter(m => {
+  const filtered = defaultRoomMembers.filter(m => {
     if (activeRoom !== 'Global Lounge' && m.status && m.status !== activeRoom) return false;
     if (query && m.name && !m.name.toLowerCase().includes(query)) return false;
-    if (ageRange !== 'all' && m.age) {
-      if (ageRange === '18-25' && (m.age < 18 || m.age > 25)) return false;
-      if (ageRange === '26-35' && (m.age < 26 || m.age > 35)) return false;
-      if (ageRange === '36+' && m.age < 36) return false;
-    }
     return true;
   });
 
   membersContainer.innerHTML = '';
   if (filtered.length === 0) {
-    membersContainer.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:10px;">No online users found in ${activeRoom} matching query.</div>`;
+    membersContainer.innerHTML = `<div style="font-size:0.75rem; color:#a1a1aa; text-align:center; padding:10px;">No online users found in ${activeRoom}.</div>`;
     return;
   }
 
@@ -1884,7 +1813,7 @@ function filterRealtimeChatroomMembers() {
           ${m.avatar ? `<img src="${m.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initial}
         </div>
         <div>
-          <div style="font-size:0.75rem; font-weight:bold; color:#fff;">@${m.name} (${m.age || 25}, ${m.region || 'Vietnam'})</div>
+          <div style="font-size:0.75rem; font-weight:bold; color:#fff;">@${m.name} (${m.region || 'Vietnam'})</div>
           <div style="font-size:0.6rem; color:var(--accent-cyan);">Room: ${m.status || activeRoom} 🟢 Online</div>
         </div>
       </div>
@@ -1894,7 +1823,6 @@ function filterRealtimeChatroomMembers() {
   });
 }
 
-// FIX: Instant connection handler replacing blocking alerts with smooth chat injection
 function connectWithUser(userName) {
   closeTikTokModal('chatrooms-modal');
   const container = document.getElementById('chat-messages-container');
@@ -2041,8 +1969,6 @@ function triggerAction(action) {
     `;
   } else if (action === 'jukebox') {
     preview.innerHTML = `<div class="media-placeholder">🎵 <b>Live YouTube Jukebox</b><br><br><input type="text" id="song-link-input" class="input-field" placeholder="Paste YouTube link..."><button class="btn btn-primary" style="margin-top:10px;" onclick="playYouTubeTrack()">Play Track ▶</button><div id="youtube-player-frame" style="margin-top:10px; height:150px; background:#000;"></div></div>`;
-  } else if (action === 'inbox') {
-    preview.innerHTML = `<div class="media-placeholder">💬 <b>Direct Messages & Inbox</b><br><br><button class="btn btn-primary" onclick="openTikTokModal('chatrooms-modal')">Browse Online Members 🟢</button></div>`;
   }
 }
 
@@ -2085,26 +2011,19 @@ function updateLiveTranslationPreview() {
 
   const dictionary = {
     "hello": { vi: "Xin Chào", es: "Hola", fr: "Bonjour", zh: "你好", ja: "こんにちは", ko: "안녕하세요", en: "Hello" },
-    "hi": { vi: "Xin Chào", es: "Hola", fr: "Salut", zh: "嗨", ja: "やあ", ko: "안녕", en: "Hi" },
-    "welcome": { vi: "Chào mừng", es: "Bienvenido", fr: "Bienvenue", zh: "欢迎", ja: "ようこそ", ko: "환영합니다", en: "Welcome" },
-    "love": { vi: "Yêu", es: "Amor", fr: "Amour", zh: "爱", ja: "愛", ko: "사랑", en: "Love" },
-    "friend": { vi: "Bạn", es: "Amigo", fr: "Ami", zh: "朋友", ja: "友達", ko: "친구", en: "Friend" }
+    "hi": { vi: "Xin Chào", es: "Hola", fr: "Salut", zh: "嗨", ja: "やあ", ko: "안녕", en: "Hi" }
   };
 
-  if (dictionary[text] && dictionary[text][lang]) {
-    preview.innerText = dictionary[text][lang];
-  } else {
-    const sampleTranslations = {
-      vi: text ? `Xin Chào (${text})` : "Xin Chào",
-      es: text ? `Hola (${text})` : "Hola",
-      fr: text ? `Bonjour (${text})` : "Bonjour",
-      zh: text ? `你好 (${text})` : "你好",
-      ja: text ? `こんにちは (${text})` : "こんにちは",
-      ko: text ? `안녕하세요 (${text})` : "안녕하세요",
-      en: text ? `Hello (${text})` : "Hello"
-    };
-    preview.innerText = sampleTranslations[lang] || sampleTranslations['vi'];
-  }
+  const sampleTranslations = {
+    vi: text ? `Xin Chào (${text})` : "Xin Chào",
+    es: text ? `Hola (${text})` : "Hola",
+    fr: text ? `Bonjour (${text})` : "Bonjour",
+    zh: text ? `你好 (${text})` : "你好",
+    ja: text ? `こんにちは (${text})` : "こんにちは",
+    ko: text ? `안녕하세요 (${text})` : "안녕하세요",
+    en: text ? `Hello (${text})` : "Hello"
+  };
+  preview.innerText = sampleTranslations[lang] || sampleTranslations['vi'];
 }
 
 function toggleInteractiveMicRecording() {
