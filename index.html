@@ -2275,7 +2275,10 @@ function fetchUserWalletBalance() {
   if (db) {
     db.collection("users").doc(myUid).get().then(doc => {
       const coins = doc.exists && doc.data().coins !== undefined ? doc.data().coins : 0;
+      const earned = doc.exists && doc.data().earnedCoins !== undefined ? doc.data().earnedCoins : 0;
       document.getElementById('wallet-coins-count').innerText = `🪙 ${coins}`;
+      const earnedEl = document.getElementById('wallet-earned-count');
+      if (earnedEl) earnedEl.innerText = `🪙 ${earned}`;
     }).catch(()=>{});
   } else {
     document.getElementById('wallet-coins-count').innerText = `🪙 ${localStorage.getItem('local_coins') || '0'}`;
@@ -2296,13 +2299,73 @@ function triggerAction(action) {
       <div class="media-placeholder">
         🎁 <b>100-Level Gift Store</b><br><br>
         <select id="gift-tier-dropdown" class="input-field">
-          ${levelGifts100.map(g => `<option value="${g.level}">Lvl ${g.level} (${g.icon}) — Cost: ${g.cost}</option>`).join('')}
+          ${levelGifts100.map(g => `<option value="${g.level}">Lvl ${g.level} (${g.icon}) — Cost: ${g.cost} Coins</option>`).join('')}
         </select>
-        <button class="btn btn-primary" style="margin-top:10px;" onclick="alert('Gift sent successfully!')">Send Gift 🚀</button>
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="sendLevelGift()">Send Gift (80% Creator / 20% Owner Split) 🚀</button>
       </div>
     `;
   } else if (action === 'jukebox') {
     preview.innerHTML = `<div class="media-placeholder">🎵 <b>Live YouTube Jukebox</b><br><br><input type="text" id="song-link-input" class="input-field" placeholder="Paste YouTube link..."><button class="btn btn-primary" style="margin-top:10px;" onclick="playYouTubeTrack()">Play Track ▶</button><div id="youtube-player-frame" style="margin-top:10px; height:150px; background:#000;"></div></div>`;
+  }
+}
+
+async function sendLevelGift() {
+  const dropdown = document.getElementById('gift-tier-dropdown');
+  if (!dropdown) return;
+  const level = parseInt(dropdown.value);
+  const gift = levelGifts100.find(g => g.level === level);
+  if (!gift) return;
+
+  const myUid = currentUser ? currentUser.uid : myDevice.uid;
+  const recipientUid = currentVisitedUser.uid || "platform_pool";
+  const ownerCommission = Math.floor(gift.cost * 0.20); // 20% Owner Commission
+  const creatorShare = gift.cost - ownerCommission;      // 80% Creator Earnings
+
+  if (db) {
+    try {
+      const senderRef = db.collection("users").doc(myUid);
+      const senderDoc = await senderRef.get();
+      const currentCoins = (senderDoc.exists && senderDoc.data().coins) ? senderDoc.data().coins : 0;
+
+      if (currentCoins < gift.cost) {
+        alert(`Insufficient coins! You need 🪙 ${gift.cost} Coins.`);
+        openTikTokModal('shop-modal');
+        return;
+      }
+
+      // 1. Deduct full gift cost from sender
+      await senderRef.set({
+        coins: firebase.firestore.FieldValue.increment(-gift.cost)
+      }, { merge: true });
+
+      // 2. Credit 80% to the creator's earned balance
+      if (recipientUid !== "platform_pool" && recipientUid !== myUid) {
+        await db.collection("users").doc(recipientUid).set({
+          earnedCoins: firebase.firestore.FieldValue.increment(creatorShare)
+        }, { merge: true });
+      }
+
+      // 3. Log 20% owner commission to platform revenue ledger
+      await db.collection("platform_revenue").add({
+        type: "gift_commission",
+        senderUid: myUid,
+        recipientUid: recipientUid,
+        giftLevel: gift.level,
+        totalCoins: gift.cost,
+        ownerCommissionCoins: ownerCommission,
+        creatorEarnedCoins: creatorShare,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      fetchUserWalletBalance();
+      triggerScreenEffect(gift.effect);
+      alert(`🎁 Sent ${gift.name} (${gift.cost} Coins)!\n• Creator received: 🪙 ${creatorShare} (80%)\n• Owner Commission: 🪙 ${ownerCommission} (20%)`);
+    } catch (err) {
+      alert("Error processing gift: " + err.message);
+    }
+  } else {
+    triggerScreenEffect(gift.effect);
+    alert(`🎁 Gift sent! (80% creator share: ${creatorShare} coins, 20% owner commission: ${ownerCommission} coins)`);
   }
 }
 
